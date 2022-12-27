@@ -1,7 +1,15 @@
 defmodule ExTypesense.Collection do
+  @moduledoc since: "0.1.0"
+  @moduledoc """
+  Module for creating, listing and deleting collections and aliases.
+
+  In Typesense, a [Collection](https://typesense.org/docs/latest/api/collections.html) is a group of related [Documents](https://typesense.org/docs/latest/api/documents.html) that is roughly equivalent to a table in a relational database. When we create a collection, we give it a name and describe the fields that will be indexed when a document is added to the collection.
+  """
+
   alias ExTypesense.HttpClient
 
   defmodule Schema do
+    @moduledoc false
     @derive Jason.Encoder
     @enforce_keys [:name, :type]
     defstruct [
@@ -40,13 +48,6 @@ defmodule ExTypesense.Collection do
             | :geopoint
             | :"geopoint[]"
   end
-
-  @moduledoc since: "0.1.0"
-  @moduledoc """
-  Module for creating, listing and deleting collections and aliases.
-
-  In Typesense, a [Collection](https://typesense.org/docs/latest/api/collections.html) is a group of related [Documents](https://typesense.org/docs/latest/api/documents.html) that is roughly equivalent to a table in a relational database. When we create a collection, we give it a name and describe the fields that will be indexed when a document is added to the collection.
-  """
 
   @collections_path "/collections"
   @alias_path "/aliases"
@@ -117,7 +118,7 @@ defmodule ExTypesense.Collection do
   Create collection from map or `Collection` struct.
 
   ## Examples
-       collection =
+       schema =
         %{
          name: "companies",
          fields: [
@@ -127,7 +128,7 @@ defmodule ExTypesense.Collection do
          ],
          default_sorting_field: "num_employees"
         }
-      iex> ExTypesense.create_collection(collection)
+      iex> ExTypesense.create_collection(schema)
       %{
         "created_at" => 1234567890,
         "default_sorting_field" => "num_employees",
@@ -152,9 +153,9 @@ defmodule ExTypesense.Collection do
       }
   """
   @doc since: "0.1.0"
-  @spec create_collection(collection :: map() | %__MODULE__{}) :: response()
-  def create_collection(collection) do
-    body = Jason.encode!(collection)
+  @spec create_collection(schema :: map() | %__MODULE__{}) :: response()
+  def create_collection(schema) do
+    body = Jason.encode!(schema)
 
     case HttpClient.run(:post, @collections_path, body) do
       {:ok, collection} ->

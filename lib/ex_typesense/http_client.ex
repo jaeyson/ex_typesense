@@ -58,4 +58,9 @@ defmodule ExTypesense.HttpClient do
         {:error, Jason.decode!(response.body)["message"]}
     end
   end
+
+  def get_host, do: Application.get_env(:ex_typesense, :host)
+  def get_port, do: Application.get_env(:ex_typesense, :port)
+  def get_scheme, do: Application.get_env(:ex_typesense, :scheme)
+  def api_key, do: Application.get_env(:ex_typesense, :api_key)
 end
