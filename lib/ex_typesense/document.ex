@@ -6,9 +6,10 @@ defmodule ExTypesense.Document do
 
   alias ExTypesense.HttpClient
 
-  @collections_path "/collections"
-  @documents_path "/documents"
-  @import_path "/import"
+  @collections_path "collections"
+  @documents_path "documents"
+  @search_path "search"
+  @import_path "import"
   @api_header_name 'X-TYPESENSE-API-KEY'
   @type response :: {:ok, map()} | {:error, map()}
 
@@ -21,6 +22,55 @@ defmodule ExTypesense.Document do
     path = Path.join([@collections_path, document_id])
 
     HttpClient.run(:get, path)
+  end
+
+  @doc """
+  Search from a document.
+
+  ## Examples
+      iex> Document.search(Something, "umbrella", "title,description")
+      {:ok,
+       %{
+        "facet_counts" => [],
+        "found" => 20,
+        "hits" => [...],
+        "out_of" => 111,
+        "page" => 1,
+        "request_params" => %{
+          "collection_name" => "something",
+          "per_page" => 10,
+          "q" => "umbrella"
+        },
+        "search_cutoff" => false,
+        "search_time_ms" => 5
+       }
+      }
+
+  """
+  @doc since: "0.1.0"
+  @spec search(module() | String.t(), String.t(), String.t()) :: response()
+  def search(collection_name, search_term, query_by) do
+    collection_name =
+      if is_atom(collection_name) do
+        collection_name.__schema__(:source)
+      else
+        collection_name
+      end
+
+    query = %{
+      q: search_term,
+      query_by: query_by
+    }
+
+    path =
+      Path.join([
+        @collections_path,
+        collection_name,
+        @documents_path,
+        @search_path
+      ])
+
+    HttpClient.run(:get, path, nil, query)
   end
 
   @doc """
@@ -75,7 +125,20 @@ defmodule ExTypesense.Document do
       payload
     }
 
-    case :httpc.request(:post, request, [], []) do
+    http_opts = [
+      ssl: [
+        {:versions, [:"tlsv1.2"]},
+        verify: :verify_peer,
+        cacerts: :public_key.cacerts_get(),
+        customize_hostname_check: [
+          match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+        ]
+      ],
+      timeout: 5_000,
+      recv_timeout: 5_000
+    ]
+
+    case :httpc.request(:post, request, http_opts, []) do
       {:ok, {_status_code, _headers, message}} ->
         message
         |> to_string()

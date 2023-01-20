@@ -19,6 +19,7 @@ defmodule ExTypesense do
 
   # document-specific tasks
   defdelegate get_document(document_id), to: ExTypesense.Document
+  defdelegate search(collection_name, search_term, query_by), to: ExTypesense.Document
 
   # search
 

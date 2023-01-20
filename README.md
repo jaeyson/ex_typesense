@@ -4,11 +4,14 @@ Typesense client for Elixir with support for importing your Ecto schemas.
 
 ## TODO:
 
-- [ ] import ecto schemas to propagate collections/documents.
-- [ ] creating collection using auto schema detection.
-- [ ] implement search/geosearch/multisearch.
-- [ ] implement curation.
-- [ ] implement synonyms.
+- [x] ~import ecto schemas to propagate collections/documents~
+- [ ] pre-defined schema and fields
+- [ ] creating collection using auto schema detection
+- [x] ~implement search~
+- [ ] implement multisearch
+- [ ] implement geosearch
+- [ ] implement curation
+- [ ] implement synonyms
 
 ## local typesense server
 
@@ -28,6 +31,18 @@ def deps do
   ]
 end
 ```
+
+Config for setting up api key, host, etc.
+
+> You can find this in your dashboard if you're using cloud-hosted Typesense
+
+```elixir
+config :ex_typesense,
+  api_key: "xyz",
+  host: "localhost", # "111222333aaabbbcc-9.x9.typesense.net"
+  port: 8108, # 443
+  scheme: "http" # "https"
+  ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
