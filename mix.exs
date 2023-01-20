@@ -11,7 +11,7 @@ defmodule ExTypesense.MixProject do
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      description: "",
+      description: "Typesense client for Elixir with support for importing your Ecto schemas.",
       docs: docs(),
       package: package(),
       name: "ExTypesense",
