@@ -27,7 +27,7 @@ by adding `ex_typesense` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ex_typesense, "~> 0.1.0"}
+    {:ex_typesense, "~> 0.2.0"}
   ]
 end
 ```
@@ -43,6 +43,12 @@ config :ex_typesense,
   port: 8108, # 443
   scheme: "http" # "https"
   ```
+
+  Then:
+
+  1. create collection (`lib/ex_typesense/collection.ex`)
+  2. index a document (`lib/ex_typesense/document.ex`)
+  3. try to search (`lib/ex_typesense/document.ex`)
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
