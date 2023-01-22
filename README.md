@@ -1,5 +1,9 @@
 # ExTypesense
 
+![Hex.pm](https://img.shields.io/hexpm/v/ex_typesense)
+[![Hexdocs.pm](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_typesense/)
+![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)
+
 Typesense client for Elixir with support for importing your Ecto schemas.
 
 ## TODO:
@@ -27,7 +31,7 @@ by adding `ex_typesense` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ex_typesense, "~> 0.2.0"}
+    {:ex_typesense, "~> 0.2.1"}
   ]
 end
 ```

@@ -75,31 +75,16 @@ defmodule ExTypesense.Document do
   end
 
   @doc """
-  Search from a document. Returns a list of structs or empty.
+  Search from a document. Returns an Ecto query.
 
   ## Examples
       iex> Document.search(Something, "umbrella", "title,description")
-      {:ok,
-       %{
-        "facet_counts" => [],
-        "found" => 20,
-        "hits" => [...],
-        "out_of" => 111,
-        "page" => 1,
-        "request_params" => %{
-          "collection_name" => "something",
-          "per_page" => 10,
-          "q" => "umbrella"
-        },
-        "search_cutoff" => false,
-        "search_time_ms" => 5
-       }
-      }
+      #Ecto.Query<...>
 
   """
   @doc since: "0.1.0"
-  @spec ecto_search(module(), module(), String.t(), String.t(), String.t()) :: [] | [struct()]
-  def ecto_search(module_name, repo, search_term, search_field, query_by) do
+  @spec ecto_search(module(), String.t(), String.t(), String.t()) :: Ecto.Query.t()
+  def ecto_search(module_name, search_term, search_field, query_by) do
     query = %{
       q: search_term,
       query_by: query_by
@@ -117,7 +102,8 @@ defmodule ExTypesense.Document do
 
     case Enum.empty?(result["hits"]) do
       true ->
-        []
+        module_name
+        |> where([i], field(i, ^search_field) in [])
 
       false ->
         values =
@@ -129,7 +115,6 @@ defmodule ExTypesense.Document do
 
         module_name
         |> where([i], field(i, ^search_field) in ^values)
-        |> repo.all()
     end
   end
 
