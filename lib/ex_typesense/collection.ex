@@ -115,7 +115,7 @@ defmodule ExTypesense.Collection do
   end
 
   @doc """
-  Create collection from map or `Collection` struct.
+  Create collection from map or from an ecto schema module.
 
   ## Examples
        schema =
@@ -129,20 +129,22 @@ defmodule ExTypesense.Collection do
          default_sorting_field: "num_employees"
         }
       iex> ExTypesense.create_collection(schema)
-      %{
-        "created_at" => 1234567890,
-        "default_sorting_field" => "num_employees",
-        "fields" => [...],
-        "name" => "companies",
-        "num_documents" => 0,
-        "symbols_to_index" => [],
-        "token_separators" => []
+      {:ok,
+        %ExTypesense.Collection{
+          "created_at" => 1234567890,
+          "default_sorting_field" => "num_employees",
+          "fields" => [...],
+          "name" => "companies",
+          "num_documents" => 0,
+          "symbols_to_index" => [],
+          "token_separators" => []
+        }
       }
 
-      iex> %Collection{name: "company", fields: [...]}
+      iex> ExTypesense.Parser.struct_to_map(AppModule, "title") |> ExTypesense.create_collection()
       {:ok,
-        %{
-          "created_at" => 1234567891,
+        %ExTypesense.Collection{
+          "created_at" => 1234567890,
           "default_sorting_field" => "num_employees",
           "fields" => [...],
           "name" => "companies",
@@ -170,13 +172,14 @@ defmodule ExTypesense.Collection do
   Make changes in a collection's fields: adding, removing
   or updating an existing field(s). Key name is `drop` to
   indicate which field is removed (example described below).
+  Only `fields` can only be updated at the moment.
 
   > **Note**: Typesense supports updating all fields
   > except the `id` field (since it's a special field
   > within Typesense).
 
   ## Examples
-       collection =
+       new_schema =
         %{
          fields: [
            %{name: "num_employees", drop: true},
@@ -184,17 +187,16 @@ defmodule ExTypesense.Collection do
          ],
         }
 
-      iex> ExTypesense.update_collection(collection)
+      iex> ExTypesense.update_collection("companies", new_schema)
       {:ok,
-        %{
-          "fields" => [
-            %{"drop" => true, "name" => "num_employees"},
-            %{
-              "facet" => false,
-              "index" => true,
-              ...
-            }
-          ]
+        %ExTypesense.Collection{
+          "created_at" => nil,
+          "name" => nil,
+          "default_sorting_field" => nil,
+          "fields" => [...],
+          "num_documents" => 0,
+          "symbols_to_index" => [],
+          "token_separators" => []
         }
       }
   """

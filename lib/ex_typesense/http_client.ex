@@ -25,6 +25,7 @@ defmodule ExTypesense.HttpClient do
         }]
       }
   """
+  @doc since: "0.1.0"
   @spec run(request_method(), request_path(), request_body(), map()) ::
           {:ok, map()} | {:error, map()}
   def run(request_method, request_path, body \\ nil, query \\ %{}) do
