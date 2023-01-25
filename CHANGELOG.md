@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2 (2023.01.26)
+
+* Update docs
+
 ## 0.2.1 (2023.01.22)
 
 * Return an ecto query instead of list of results
