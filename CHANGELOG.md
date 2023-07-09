@@ -1,16 +1,28 @@
 # Changelog
 
+## 0.3.0 (2023.06.20)
+
+* Fixed url request path for aliases
+
+* Refactor functions inside collection and document.
+
+* Changed return values from `{:ok, t()}` to `t()` only.
+
+* Added cheatsheet section on docs
+
+* Parse schema field types for `float`, `boolean`, `string`, `integer` and a list with these corresponding types.
+
 ## 0.2.2 (2023.01.26)
 
-* Update docs
+* Updated docs
 
 ## 0.2.1 (2023.01.22)
 
-* Return an ecto query instead of list of results
+* Returned an ecto query instead of list of results
 
 ## 0.2.0 (2023.01.20)
 
-* Add search function which returns a list of structs or empty.
+* Added search function which returns a list of structs or empty.
 
 ## 0.1.0 (2023.01.20)
 

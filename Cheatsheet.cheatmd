@@ -1,0 +1,170 @@
+# Cheatsheet Guide
+
+## Collections
+
+{: .col-2}
+
+### Create using schema
+
+```elixir
+iex> ExTypesense.create_collection(Company)
+{:ok,
+  %ExTypesense.Collection{
+    "created_at" => 1234567890,
+    "default_sorting_field" => "companies_id",
+    "fields" => [...],
+    "name" => "companies",
+    "num_documents" => 0,
+    "symbols_to_index" => [],
+    "token_separators" => []
+  }
+}
+```
+{: .wrap}
+
+### Create using map
+
+```elixir
+iex> schema =
+...> %{
+...>   name: "companies",
+...>   fields: [
+...>     %{name: "company_name", type: "string"},
+...>     %{name: "num_employees", type: "int32"},
+...>     %{name: "country", type: "string", facet: true}
+...>   ],
+...>   default_sorting_field: "num_employees"
+...> }
+
+iex> ExTypesense.create_collection(schema)
+{:ok,
+  %ExTypesense.Collection{
+    "created_at" => 1234567890,
+    "default_sorting_field" => "num_employees",
+    "fields" => [...],
+    "name" => "companies",
+    "num_documents" => 0,
+    "symbols_to_index" => [],
+    "token_separators" => []
+  }
+}
+```
+{: .wrap}
+
+### List collections
+
+```elixir
+iex> ExTypesense.list_collections()
+```
+
+### Update a collection
+
+```elixir
+iex> schema =
+...> %{
+...>   fields: [
+...>     %{name: "num_employees", drop: true},
+...>     %{name: "company_category", type: "string"},
+...>   ],
+...> }
+
+iex> ExTypesense.update_collection("companies", schema)
+{:ok,
+  %ExTypesense.Collection{
+    "created_at" => nil,
+    "name" => nil,
+    "default_sorting_field" => nil,
+    "fields" => [...],
+    "num_documents" => 0,
+    "symbols_to_index" => [],
+    "token_separators" => []
+  }
+}
+```
+{: .wrap}
+
+## Documents
+
+{: .col-2}
+
+### Index a document from an Ecto schema
+
+```elixir
+iex> post = Post |> limit(1) |> Repo.one()
+
+iex> ExTypesense.create_document(post, :create)
+{:ok,
+  %{
+    "id" => "12",
+    "post_id" => 12,
+    "title" => "the quick brown fox",
+    "collection_name" => "posts"
+  }
+}
+```
+
+{: .wrap}
+
+### Update a document
+
+```elixir
+iex> post = Post |> limit(1) |> Repo.one()
+
+iex> ExTypesense.update_document(post, 0)
+{:ok,
+  %{
+    "id" => "0",
+    "collection_name" => "posts",
+    "post_id" => 34,
+    "title" => "test",
+    "description" => "lorem ipsum"
+  }
+}
+```
+
+{: .wrap}
+
+
+### Delete a document
+
+```elixir
+iex> ExTypesense.delete_document(Post, 0)
+{:ok,
+  %{
+    "id" => "0",
+    "collection_name" => "posts",
+    "post_id" => 34,
+    "title" => "test",
+    "description" => "lorem ipsum"
+  }
+}
+```
+
+{: .wrap}
+
+### Indexes multiple documents
+
+```elixir
+iex> posts = Post |> Repo.all()
+iex> ExTypesense.index_multiple_documents(posts, :post_id, :upsert)
+{:ok, [%{"success" => true}, %{"success" => true}]}
+```
+
+## Search
+
+{: .col-2}
+
+```elixir
+iex> params = %{q: "test", query_by: "title"}
+
+iex> ExTypesense.search(Post, params)
+{:ok,
+  %{
+    "id" => "0",
+    "collection_name" => "posts",
+    "post_id" => 34,
+    "title" => "test",
+    "description" => "lorem ipsum"
+  }
+}
+```

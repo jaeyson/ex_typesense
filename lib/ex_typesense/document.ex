@@ -7,192 +7,349 @@ defmodule ExTypesense.Document do
   alias ExTypesense.HttpClient
   import Ecto.Query, warn: false
 
-  @collections_path "collections"
+  @root_path "/"
+  @collections_path @root_path <> "collections"
   @documents_path "documents"
-  @search_path "search"
   @import_path "import"
-  @api_header_name 'X-TYPESENSE-API-KEY'
-  @type response :: {:ok, map()} | {:error, map()}
+  @type response :: :ok | {:ok, map()} | {:error, map()}
 
   @doc """
-  Get a document from a collection by its document `id`.
+  Get a document from a collection.
+
+  ## Examples
+      iex> schema = %{
+      ...>   name: "posts",
+      ...>   fields: [
+      ...>     %{name: "title", type: "string"}
+      ...>   ],
+      ...> }
+      ...> ExTypesense.create_collection(schema)
+      ...> post = %{
+      ...>    id: "444",
+      ...>    collection_name: "posts",
+      ...>    title: "the quick brown fox"
+      ...> }
+      iex> ExTypesense.create_document(post)
+      iex> ExTypesense.get_document("posts", 444)
+      {:ok,
+        %{
+          "id" => "444",
+          "collection_name" => "posts",
+          "title" => "the quick brown fox",
+        }
+      }
   """
   @doc since: "0.1.0"
-  @spec get_document(String.t()) :: response()
-  def get_document(document_id) do
-    path = Path.join([@collections_path, document_id])
+  @spec get_document(String.t() | module(), integer()) :: response()
+  def get_document(module_name, document_id)
+      when is_atom(module_name) and is_integer(document_id) do
+    do_get_document(module_name.__schema__(:source), document_id)
+  end
+
+  def get_document(collection_name, document_id)
+      when is_binary(collection_name) and is_integer(document_id) do
+    do_get_document(collection_name, document_id)
+  end
+
+  @spec do_get_document(String.t() | module(), integer()) :: response()
+  defp do_get_document(collection_name, document_id) do
+    path =
+      [
+        @collections_path,
+        collection_name,
+        @documents_path,
+        to_string(document_id)
+      ]
+      |> Path.join()
 
     HttpClient.run(:get, path)
   end
 
   @doc """
-  Search from a document.
+  Indexes multiple documents via maps.
+
+  **Note**: when using maps as documents, you should pass a key named `collection_name`
+  and with the lists of documents named `documents` (example shown below).
 
   ## Examples
-      iex> Document.search(Something, "umbrella", "title,description")
-      {:ok,
-       %{
-        "facet_counts" => [],
-        "found" => 20,
-        "hits" => [...],
-        "out_of" => 111,
-        "page" => 1,
-        "request_params" => %{
-          "collection_name" => "something",
-          "per_page" => 10,
-          "q" => "umbrella"
-        },
-        "search_cutoff" => false,
-        "search_time_ms" => 5
-       }
-      }
-
+      iex> schema = %{
+      ...>   name: "posts",
+      ...>   fields: [
+      ...>     %{name: "title", type: "string"}
+      ...>   ],
+      ...> }
+      ...> ExTypesense.create_collection(schema)
+      ...> posts = %{
+      ...>   collection_name: "posts",
+      ...>   documents: [
+      ...>     %{title: "the quick brown fox"},
+      ...>     %{title: "jumps over the lazy dog"}
+      ...>   ]
+      ...> }
+      iex> ExTypesense.index_multiple_documents(posts)
+      {:ok, [%{"success" => true}, %{"success" => true}]}
   """
   @doc since: "0.1.0"
-  @spec search(module() | String.t(), String.t(), String.t()) :: response()
-  def search(collection_name, search_term, query_by) do
-    collection_name =
-      if is_atom(collection_name) do
-        collection_name.__schema__(:source)
-      else
-        collection_name
-      end
+  @spec index_multiple_documents(list(struct()) | map()) :: response()
+  def index_multiple_documents([struct | _] = list_of_structs)
+      when is_struct(struct) do
+    collection_name = struct.__struct__.__schema__(:source)
+    do_index_multiple_documents(collection_name, "create", list_of_structs)
+  end
 
-    query = %{
-      q: search_term,
-      query_by: query_by
-    }
-
-    path =
-      Path.join([
-        @collections_path,
-        collection_name,
-        @documents_path,
-        @search_path
-      ])
-
-    HttpClient.run(:get, path, nil, query)
+  def index_multiple_documents(%{collection_name: collection_name, documents: documents} = map)
+      when is_map(map) do
+    do_index_multiple_documents(collection_name, "create", documents)
   end
 
   @doc """
-  Search from a document. Returns an Ecto query.
+  Updates multiple documents via maps.
+
+  **Note**: when using maps as documents, you should pass a key named `collection_name`
+  and with the lists of documents named `documents` (example shown below). Also add the `id`
+  for each documents.
 
   ## Examples
-      iex> Document.search(Something, "umbrella", "title,description")
-      #Ecto.Query<...>
-
+      iex> schema = %{
+      ...>   name: "posts",
+      ...>   fields: [
+      ...>     %{name: "title", type: "string"}
+      ...>   ],
+      ...> }
+      iex> ExTypesense.create_collection(schema)
+      iex> posts = %{
+      ...>   collection_name: "posts",
+      ...>   documents: [
+      ...>     %{id: "5", title: "the quick brown fox"},
+      ...>     %{id: "6", title: "jumps over the lazy dog"}
+      ...>   ]
+      ...> }
+      iex> {:ok, _} = ExTypesense.index_multiple_documents(posts)
+      iex> updated_posts = %{
+      ...>   collection_name: "posts",
+      ...>   documents: [
+      ...>     %{id: "5", title: "the quick"},
+      ...>     %{id: "6", title: "jumps over"}
+      ...>   ]
+      ...> }
+      iex> ExTypesense.update_multiple_documents(updated_posts)
+      {:ok, [%{"success" => true}, %{"success" => true}]}
   """
-  @doc since: "0.1.0"
-  @spec ecto_search(module(), String.t(), String.t(), String.t()) :: Ecto.Query.t()
-  def ecto_search(module_name, search_term, search_field, query_by) do
-    query = %{
-      q: search_term,
-      query_by: query_by
-    }
-
-    path =
-      Path.join([
-        @collections_path,
-        module_name.__schema__(:source),
-        @documents_path,
-        @search_path
-      ])
-
-    {:ok, result} = HttpClient.run(:get, path, nil, query)
-
-    case Enum.empty?(result["hits"]) do
-      true ->
-        module_name
-        |> where([i], field(i, ^search_field) in [])
-
-      false ->
-        values =
-          Enum.map(result["hits"], fn %{"document" => document} ->
-            get_in(document, ["slug"])
-          end)
-
-        search_field = String.to_existing_atom(search_field)
-
-        module_name
-        |> where([i], field(i, ^search_field) in ^values)
-    end
+  @doc since: "0.3.0"
+  @spec update_multiple_documents(map()) :: response()
+  def update_multiple_documents(%{collection_name: collection_name, documents: documents} = map)
+      when is_map(map) do
+    do_index_multiple_documents(collection_name, "update", documents)
   end
 
   @doc """
-  Indexes multiple documents.
+  Upserts multiple documents via maps. Same with `update_multiple_documents/1` with some
+  difference: creates one if not existed, otherwise updates it.
+
+  **Note**: when using maps as documents, you should pass a key named `collection_name`
+  and with the lists of documents named `documents` (example shown below). When `id` is added,
+  it will update, otherwise creates a new document.
+  for each documents.
 
   ## Examples
-      iex> posts = Posts |> Repo.all()
-
-      iex> Document.index_multiple_documents(posts)
-      [
-        %{"success" => true},
-        %{"success" => true},
-        ...
-      ]
+      iex> schema = %{
+      ...>   name: "posts",
+      ...>   fields: [
+      ...>     %{name: "title", type: "string"}
+      ...>   ],
+      ...> }
+      iex> ExTypesense.create_collection(schema)
+      iex> posts = %{
+      ...>   collection_name: "posts",
+      ...>   documents: [
+      ...>     %{id: "0", title: "the quick"},
+      ...>     %{id: "1", title: "jumps over"}
+      ...>   ]
+      ...> }
+      iex> ExTypesense.upsert_multiple_documents(posts)
+      {:ok, [%{"success" => true}, %{"success" => true}]}
   """
-  @doc since: "0.1.0"
-  @spec index_multiple_documents(list(struct())) :: list(map())
-  def index_multiple_documents(list_of_structs) do
+  @doc since: "0.3.0"
+  @spec upsert_multiple_documents(map()) :: response()
+  def upsert_multiple_documents(%{collection_name: collection_name, documents: documents} = map)
+      when is_map(map) do
+    do_index_multiple_documents(collection_name, "upsert", documents)
+  end
+
+  @spec do_index_multiple_documents(String.t(), String.t(), [struct()] | [map()]) :: response()
+  defp do_index_multiple_documents(collection_name, action, documents) do
     payload =
-      list_of_structs
+      documents
       |> Stream.map(&Jason.encode!/1)
       |> Enum.join("\n")
 
-    collection_name = hd(list_of_structs).__struct__.__schema__(:source)
+    path = Path.join([@collections_path, collection_name, @documents_path, @import_path])
+    uri = %URI{path: path, query: "action=#{action}"}
+    HttpClient.httpc_run(uri, :post, payload, 'text/plain')
+  end
 
+  @doc """
+  Indexes a single document using struct or map.
+
+  **Note**: when using maps as documents, you should pass a key named "collection_name".
+
+  ## Examples
+      iex> schema = %{
+      ...>   name: "posts",
+      ...>   fields: [
+      ...>     %{name: "title", type: "string"}
+      ...>   ],
+      ...> }
+      iex> ExTypesense.create_collection(schema)
+      iex> post =
+      ...>  %{
+      ...>    id: "34",
+      ...>    collection_name: "posts",
+      ...>    post_id: 34,
+      ...>    title: "the quick brown fox",
+      ...>    description: "jumps over the lazy dog"
+      ...>  }
+      iex> ExTypesense.create_document(post)
+      {:ok,
+        %{
+          "id" => "34",
+          "collection_name" => "posts",
+          "post_id" => 34,
+          "title" => "the quick brown fox",
+          "description" => "jumps over the lazy dog"
+        }
+      }
+  """
+  @doc since: "0.3.0"
+  @spec create_document(struct() | map() | [struct()] | [map()]) :: response()
+  def create_document(struct) when is_struct(struct) do
+    collection_name = struct.__struct__.__schema__(:source)
+    path = Path.join([@collections_path, collection_name, @documents_path])
+    do_index_document(path, :post, "create", Jason.encode!(struct))
+  end
+
+  def create_document(document) when is_map(document) do
+    collection_name = Map.get(document, :collection_name)
+    path = Path.join([@collections_path, collection_name, @documents_path])
+    do_index_document(path, :post, "create", Jason.encode!(document))
+  end
+
+  @doc """
+  Updates a single document using struct or map.
+
+  **Note**: when using maps as documents, you should pass a key named "collection_name".
+
+  ## Examples
+      iex> schema = %{
+      ...>   name: "posts",
+      ...>   fields: [
+      ...>     %{name: "title", type: "string"}
+      ...>   ],
+      ...> }
+      iex> ExTypesense.create_collection(schema)
+      iex> post =
+      ...>  %{
+      ...>    id: "94",
+      ...>    collection_name: "posts",
+      ...>    post_id: 94,
+      ...>    title: "the quick brown fox"
+      ...>  }
+      iex> ExTypesense.create_document(post)
+      iex> updated_post =
+      ...>  %{
+      ...>    collection_name: "posts",
+      ...>    post_id: 94,
+      ...>    title: "test"
+      ...>  }
+      iex> ExTypesense.update_document(updated_post, 94)
+      {:ok,
+        %{
+          "id" => "94",
+          "collection_name" => "posts",
+          "post_id" => 94,
+          "title" => "test"
+        }
+      }
+  """
+  @doc since: "0.3.0"
+  @spec update_document(struct() | map(), integer()) :: response()
+  def update_document(struct, id) when is_struct(struct) and is_integer(id) do
+    collection_name = struct.__struct__.__schema__(:source)
+    path = Path.join([@collections_path, collection_name, @documents_path, Jason.encode!(id)])
+    do_index_document(path, :patch, "update", Jason.encode!(struct))
+  end
+
+  def update_document(document, id) when is_map(document) and is_integer(id) do
+    collection_name = Map.get(document, :collection_name)
+    path = Path.join([@collections_path, collection_name, @documents_path, Jason.encode!(id)])
+    do_index_document(path, :patch, "update", Jason.encode!(document))
+  end
+
+  @spec upsert_document(map(), integer() | nil) :: response()
+  def upsert_document(document, id \\ nil) when is_map(document) do
+    collection_name = Map.get(document, :collection_name)
+
+    document =
+      if is_integer(id) do
+        document |> Map.put(:id, Jason.encode!(id)) |> Jason.encode!()
+      else
+        document |> Jason.encode!()
+      end
+
+    path = Path.join([@collections_path, collection_name, @documents_path])
+    do_index_document(path, :post, "upsert", document)
+  end
+
+  @spec do_index_document(String.t(), atom(), String.t(), String.t()) :: response()
+  defp do_index_document(path, method, action, document) do
+    uri = %URI{path: path, query: "action=#{action}"}
+    HttpClient.httpc_run(uri, method, document)
+  end
+
+  @doc """
+  Deletes a document by id.
+
+  ## Examples
+      iex> schema = %{
+      ...>   name: "posts",
+      ...>   fields: [
+      ...>     %{name: "title", type: "string"}
+      ...>   ],
+      ...> }
+      ...> ExTypesense.create_collection(schema)
+      iex> post =
+      ...>  %{
+      ...>    id: "12",
+      ...>    collection_name: "posts",
+      ...>    post_id: 12,
+      ...>    title: "the quick brown fox"
+      ...>  }
+      iex> ExTypesense.create_document(post)
+      iex> ExTypesense.delete_document("posts", 12)
+      {:ok,
+        %{
+          "id" => "12",
+          "post_id" => 22,
+          "title" => "the quick brown fox",
+          "collection_name" => "posts"
+        }
+      }
+  """
+  @doc since: "0.3.0"
+  @spec delete_document(String.t(), integer()) :: response()
+  def delete_document(collection_name, document_id) when is_binary(collection_name) do
+    do_delete_document(collection_name, document_id)
+  end
+
+  defp do_delete_document(collection_name, document_id) do
     path =
-      [
+      Path.join([
         @collections_path,
         collection_name,
         @documents_path,
-        @import_path
-      ]
-      |> Path.join()
+        Jason.encode!(document_id)
+      ])
 
-    url = %URI{
-      host: HttpClient.get_host(),
-      port: HttpClient.get_port(),
-      scheme: HttpClient.get_scheme(),
-      path: path,
-      query: "action=create"
-    }
-
-    api_key = String.to_charlist(HttpClient.api_key())
-
-    headers = [{@api_header_name, api_key}]
-    content_type = 'text/plain;'
-
-    request = {
-      URI.to_string(url),
-      headers,
-      content_type,
-      payload
-    }
-
-    http_opts = [
-      ssl: [
-        {:versions, [:"tlsv1.2"]},
-        verify: :verify_peer,
-        cacerts: :public_key.cacerts_get(),
-        customize_hostname_check: [
-          match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
-        ]
-      ],
-      timeout: 5_000,
-      recv_timeout: 5_000
-    ]
-
-    case :httpc.request(:post, request, http_opts, []) do
-      {:ok, {_status_code, _headers, message}} ->
-        message
-        |> to_string()
-        |> String.split("\n")
-        |> Stream.map(&Jason.decode!/1)
-        |> Enum.to_list()
-
-      {:error, reason} ->
-        reason
-    end
+    HttpClient.run(:delete, path)
   end
 end

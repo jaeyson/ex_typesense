@@ -8,19 +8,24 @@ defmodule ExTypesense.Collection do
 
   alias ExTypesense.HttpClient
 
-  defmodule Schema do
-    @moduledoc false
+  defmodule Field do
+    @moduledoc since: "0.1.0"
     @derive Jason.Encoder
     @enforce_keys [:name, :type]
+
     defstruct [
       :facet,
       :index,
       :infix,
       :locale,
       :name,
+      :nested,
+      :nested_array,
+      :num_dim,
       :optional,
       :sort,
-      :type
+      :type,
+      :vec_dist
     ]
 
     @type t() :: %__MODULE__{
@@ -29,9 +34,13 @@ defmodule ExTypesense.Collection do
             infix: boolean(),
             locale: String.t(),
             name: String.t(),
+            nested: boolean(),
+            nested_array: integer(),
+            num_dim: integer(),
             optional: boolean(),
             sort: boolean(),
-            type: field_type()
+            type: field_type(),
+            vec_dist: String.t()
           }
 
     @type field_type() ::
@@ -47,10 +56,13 @@ defmodule ExTypesense.Collection do
             | :"bool[]"
             | :geopoint
             | :"geopoint[]"
+            | :object
+            | :"object[]"
+            | :"string*"
   end
 
   @collections_path "/collections"
-  @alias_path "/aliases"
+  @aliases_path "/aliases"
 
   @derive Jason.Encoder
   @enforce_keys [
@@ -64,6 +76,7 @@ defmodule ExTypesense.Collection do
     :created_at,
     :name,
     :default_sorting_field,
+    :enable_nested_fields,
     :fields,
     num_documents: 0,
     token_separators: [],
@@ -71,16 +84,17 @@ defmodule ExTypesense.Collection do
   ]
 
   @type t() :: %__MODULE__{
-          created_at: String.t(),
+          created_at: integer(),
           name: String.t(),
           default_sorting_field: String.t(),
-          fields: Schema.t(),
+          enable_nested_fields: boolean(),
+          fields: Field.t(),
           num_documents: integer(),
           token_separators: list(),
           symbols_to_index: list()
         }
 
-  @type response() :: {:ok, %__MODULE__{}} | {:ok, map()} | {:error, map()}
+  @type response() :: t() | [t() | map()] | map() | {:error, map()}
 
   @doc """
   Lists all collections.
@@ -90,7 +104,7 @@ defmodule ExTypesense.Collection do
   def list_collections do
     case HttpClient.run(:get, @collections_path) do
       {:ok, collections} ->
-        {:ok, Enum.map(collections, &map_to_struct/1)}
+        Stream.map(collections, &convert_to_struct/1) |> Enum.to_list()
 
       {:error, reason} ->
         {:error, reason}
@@ -98,16 +112,39 @@ defmodule ExTypesense.Collection do
   end
 
   @doc """
-  Get a specific collection using collection name.
+  Get the collection name by alias.
+  """
+  @doc since: "0.3.0"
+  @spec get_collection_name(String.t() | module()) :: String.t()
+  def get_collection_name(alias_name) do
+    alias_name
+    |> get_collection_alias()
+    |> Map.get("collection_name")
+  end
+
+  @doc """
+  Get a specific collection by string or module name.
   """
   @doc since: "0.1.0"
-  @spec get_collection(String.t()) :: response()
-  def get_collection(collection_name) do
-    path = Path.join([@collections_path, collection_name])
+  @spec get_collection(String.t() | module()) :: response()
+  def get_collection(name) when is_atom(name) do
+    collection_name = name.__schema__(:source)
 
+    [@collections_path, collection_name]
+    |> Path.join()
+    |> do_get_collection()
+  end
+
+  def get_collection(name) when is_binary(name) do
+    [@collections_path, name]
+    |> Path.join()
+    |> do_get_collection()
+  end
+
+  defp do_get_collection(path) do
     case HttpClient.run(:get, path) do
       {:ok, collection} ->
-        {:ok, map_to_struct(collection)}
+        convert_to_struct(collection)
 
       {:error, reason} ->
         {:error, reason}
@@ -115,53 +152,66 @@ defmodule ExTypesense.Collection do
   end
 
   @doc """
-  Create collection from map or from an ecto schema module.
+  Create collection from a map, or module name. Collection name is matched on table name if using Ecto schema by default.
+
+  Please refer to these [list of schema params](https://typesense.org/docs/latest/api/collections.html#schema-parameters).
 
   ## Examples
-       schema =
-        %{
-         name: "companies",
-         fields: [
-           %{name: "company_name", type: "string"},
-           %{name: "num_employees", type: "int32"},
-           %{name: "country", type: "string", facet: true}
-         ],
-         default_sorting_field: "num_employees"
-        }
+      iex> schema = %{
+      ...>   name: "companies",
+      ...>   fields: [
+      ...>     %{name: "company_name", type: "string"},
+      ...>     %{name: "company_id", type: "int32"},
+      ...>     %{name: "country", type: "string", facet: true}
+      ...>   ],
+      ...>   default_sorting_field: "company_id"
+      ...> }
       iex> ExTypesense.create_collection(schema)
-      {:ok,
-        %ExTypesense.Collection{
-          "created_at" => 1234567890,
-          "default_sorting_field" => "num_employees",
-          "fields" => [...],
-          "name" => "companies",
-          "num_documents" => 0,
-          "symbols_to_index" => [],
-          "token_separators" => []
-        }
+      %ExTypesense.Collection{
+        created_at: 1234567890,
+        default_sorting_field: "company_id",
+        fields: [...],
+        name: "companies",
+        num_documents: 0,
+        symbols_to_index: [],
+        token_separators: []
       }
 
-      iex> ExTypesense.Parser.struct_to_map(AppModule, "title") |> ExTypesense.create_collection()
-      {:ok,
-        %ExTypesense.Collection{
-          "created_at" => 1234567890,
-          "default_sorting_field" => "num_employees",
-          "fields" => [...],
-          "name" => "companies",
-          "num_documents" => 0,
-          "symbols_to_index" => [],
-          "token_separators" => []
-        }
+      iex> ExTypesense.create_collection(Person)
+      %ExTypesense.Collection{
+        created_at: 1234567890,
+        default_sorting_field: "person_id",
+        fields: [...],
+        name: "persons",
+        num_documents: 0,
+        symbols_to_index: [],
+        token_separators: []
       }
   """
   @doc since: "0.1.0"
-  @spec create_collection(schema :: map() | %__MODULE__{}) :: response()
-  def create_collection(schema) do
+  @spec create_collection(schema :: module() | map()) :: response()
+  def create_collection(schema) when is_atom(schema) do
+    schema =
+      schema.get_field_types()
+      |> Map.put(:name, schema.__schema__(:source))
+
+    do_create_collection(schema)
+  end
+
+  def create_collection(schema) when is_map(schema) do
+    schema = Map.put(schema, :name, schema[:name])
+
+    do_create_collection(schema)
+  end
+
+  def create_collection(_schema), do: {:error, "wrong argument(s) passed"}
+
+  defp do_create_collection(schema) do
     body = Jason.encode!(schema)
 
     case HttpClient.run(:post, @collections_path, body) do
       {:ok, collection} ->
-        {:ok, map_to_struct(collection)}
+        convert_to_struct(collection)
 
       {:error, reason} ->
         {:error, reason}
@@ -179,36 +229,58 @@ defmodule ExTypesense.Collection do
   > within Typesense).
 
   ## Examples
-       new_schema =
-        %{
-         fields: [
-           %{name: "num_employees", drop: true},
-           %{name: "company_category", type: "string"},
-         ],
-        }
+      iex> fields = %{
+      ...>  fields: [
+      ...>    %{name: "num_employees", drop: true},
+      ...>    %{name: "company_category", type: "string"},
+      ...>  ],
+      ...> }
+      iex> ExTypesense.update_collection_fields("companies", fields)
+      %ExTypesense.Collection{
+        created_at: 1234567890,
+        name: companies,
+        default_sorting_field: "company_id",
+        fields: [...],
+        num_documents: 0,
+        symbols_to_index: [],
+        token_separators: []
+      }
 
-      iex> ExTypesense.update_collection("companies", new_schema)
-      {:ok,
-        %ExTypesense.Collection{
-          "created_at" => nil,
-          "name" => nil,
-          "default_sorting_field" => nil,
-          "fields" => [...],
-          "num_documents" => 0,
-          "symbols_to_index" => [],
-          "token_separators" => []
-        }
+      iex> ExTypesense.update_collection_fields(Company, fields)
+      %ExTypesense.Collection{
+        created_at: 1234567890,
+        name: companies,
+        default_sorting_field: "company_id",
+        fields: [...],
+        num_documents: 0,
+        symbols_to_index: [],
+        token_separators: []
       }
   """
   @doc since: "0.1.0"
-  @spec update_collection(String.t(), collection :: map() | %__MODULE__{}) :: response()
-  def update_collection(collection_name, collection) do
-    path = Path.join([@collections_path, collection_name])
-    body = Jason.encode!(collection)
+  @spec update_collection_fields(name :: String.t() | module(), map()) :: response()
+  def update_collection_fields(name, fields \\ %{})
 
+  def update_collection_fields(name, fields) when is_atom(name) do
+    collection_name = name.__schema__(:source)
+
+    [@collections_path, collection_name]
+    |> Path.join()
+    |> do_update_collection_fields(Jason.encode!(fields))
+  end
+
+  def update_collection_fields(name, fields) when is_binary(name) do
+    [@collections_path, name]
+    |> Path.join()
+    |> do_update_collection_fields(Jason.encode!(fields))
+  end
+
+  def update_collection_fields(_name, _schema), do: {:error, "wrong argument(s) passed"}
+
+  defp do_update_collection_fields(path, body) do
     case HttpClient.run(:patch, path, body) do
       {:ok, collection} ->
-        {:ok, map_to_struct(collection)}
+        convert_to_struct(collection)
 
       {:error, reason} ->
         {:error, reason}
@@ -216,16 +288,30 @@ defmodule ExTypesense.Collection do
   end
 
   @doc """
-  Deletes a collection using collection name.
+  Permanently drops a collection by collection name or module name.
+
+  **Note**: dropping a collection does not remove the referenced alias, only the indexed documents.
   """
   @doc since: "0.1.0"
-  @spec delete_collection(String.t()) :: response()
-  def delete_collection(collection_name) do
-    path = Path.join([@collections_path, collection_name])
+  @spec drop_collection(name :: String.t() | module()) :: response()
+  def drop_collection(name) when is_atom(name) do
+    collection_name = name.__schema__(:source)
 
+    [@collections_path, collection_name]
+    |> Path.join()
+    |> do_drop_collection()
+  end
+
+  def drop_collection(name) when is_binary(name) do
+    [@collections_path, name]
+    |> Path.join()
+    |> do_drop_collection()
+  end
+
+  defp do_drop_collection(path) do
     case HttpClient.run(:delete, path) do
       {:ok, collection} ->
-        {:ok, map_to_struct(collection)}
+        convert_to_struct(collection)
 
       {:error, reason} ->
         {:error, reason}
@@ -238,30 +324,72 @@ defmodule ExTypesense.Collection do
   @doc since: "0.1.0"
   @spec list_collection_aliases() :: response()
   def list_collection_aliases do
-    HttpClient.run(:get, @alias_path)
+    case HttpClient.run(:get, @aliases_path) do
+      {:ok, %{"aliases" => aliases}} ->
+        aliases
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   @doc """
-  Get a specific collection alias.
+  Get a specific collection alias by string or module name.
   """
   @doc since: "0.1.0"
-  @spec get_collection_alias(String.t()) :: response()
-  def get_collection_alias(alias_name) do
-    path = Path.join([@collections_path, alias_name])
+  @spec get_collection_alias(String.t() | module()) :: response()
+  def get_collection_alias(alias_name) when is_atom(alias_name) do
+    [@aliases_path, alias_name.__schema__(:source)]
+    |> Path.join()
+    |> do_get_collection_alias()
+  end
 
-    HttpClient.run(:get, path)
+  def get_collection_alias(alias_name) when is_binary(alias_name) do
+    [@aliases_path, alias_name]
+    |> Path.join()
+    |> do_get_collection_alias()
+  end
+
+  def get_collection_alias(_alias_name), do: {:error, "wrong argument(s) passed"}
+
+  @spec do_get_collection_alias(String.t()) :: response()
+  defp do_get_collection_alias(path) do
+    case HttpClient.run(:get, path) do
+      {:ok, collection_alias} ->
+        collection_alias
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   @doc """
   Upserts a collection alias.
   """
   @doc since: "0.1.0"
-  @spec upsert_collection_alias(String.t(), String.t()) :: response()
-  def upsert_collection_alias(alias_name, collection_name) do
-    path = Path.join([@collections_path, alias_name])
+  @spec upsert_collection_alias(String.t() | module(), String.t()) :: response()
+  def upsert_collection_alias(alias_name, collection_name) when is_atom(alias_name) do
+    path = Path.join([@aliases_path, alias_name.__schema__(:source)])
     body = Jason.encode!(%{collection_name: collection_name})
+    do_upsert_collection_alias(path, body)
+  end
 
-    HttpClient.run(:put, path, body)
+  def upsert_collection_alias(alias_name, collection_name) when is_binary(alias_name) do
+    path = Path.join([@aliases_path, alias_name])
+    body = Jason.encode!(%{collection_name: collection_name})
+    do_upsert_collection_alias(path, body)
+  end
+
+  def upsert_collection_alias(_alias_name), do: {:error, "wrong argument(s) passed"}
+
+  defp do_upsert_collection_alias(path, body) do
+    case HttpClient.run(:put, path, body) do
+      {:ok, collection_alias} ->
+        collection_alias
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   @doc """
@@ -269,40 +397,43 @@ defmodule ExTypesense.Collection do
   is not affected by this action.
   """
   @doc since: "0.1.0"
-  @spec delete_collection_alias(String.t()) :: response()
-  def delete_collection_alias(alias_name) do
-    path = Path.join([@collections_path, alias_name])
-
-    HttpClient.run(:delete, path)
+  @spec delete_collection_alias(String.t() | module()) :: response()
+  def delete_collection_alias(alias_name) when is_atom(alias_name) do
+    [@aliases_path, alias_name.__schema__(:source)]
+    |> Path.join()
+    |> do_delete_collection_alias()
   end
 
-  @spec map_to_struct(map()) :: %__MODULE__{}
-  def map_to_struct(collection) do
+  def delete_collection_alias(alias_name) when is_binary(alias_name) do
+    [@aliases_path, alias_name]
+    |> Path.join()
+    |> do_delete_collection_alias()
+  end
+
+  def delete_collection_alias(_alias_name), do: {:error, "wrong argument(s) passed"}
+
+  defp do_delete_collection_alias(path) do
+    case HttpClient.run(:delete, path) do
+      {:ok, collection_alias} ->
+        collection_alias
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp convert_to_struct(collection) do
     collection =
-      collection
-      |> Map.new(fn {key, val} ->
-        if key === "fields" do
-          # converting %{"name" => "sample", ...}
-          # to %{name: "sample", ...}
-          # finally into %Schema struct
-          # because struct doesn't accept
-          # string keys, but atoms instead.
-          fields =
-            Enum.map(val, fn map ->
-              schema =
-                Map.new(map, fn {field_key, field_val} ->
-                  {String.to_atom(field_key), field_val}
-                end)
-
-              struct(Schema, schema)
-            end)
-
-          {:fields, fields}
+      Map.new(collection, fn {k, v} ->
+        if k === :fields do
+          Map.new(v, &to_atom/1)
         else
-          {String.to_atom(key), val}
+          {String.to_atom(k), v}
         end
       end)
 
     struct(__MODULE__, collection)
   end
+
+  defp to_atom({k, v}), do: {String.to_atom(k), v}
 end

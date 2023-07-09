@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  check-commit-message:
+    name: Check commit message for skipping build(s)
+    runs-on: ubuntu-latest
+    # skips CI and prints cli message, without fail build badge
+    if: contains(github.event.head_commit.message, '[skip ci]')
+    steps:
+      - name: print message via cli
+        run: echo "no need to build, based from commit message"
+
+  test:
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    services:
+      typesense:
+        image: typesense/typesense:0.24.1-arm64
+        env:
+          TYPESENSE_DATA_DIR: /data
+          TYPESENSE_API_KEY: xyz
+        ports:
+          - "8108:8108"
+        volumes:
+          - typesense:/data
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '25'
+          elixir-version: '1.14.x'
+
+      - uses: actions/cache@v2
+        id: mix-cache
+        with:
+          path: |
+            deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+
+      - name: Install Dependencies
+        run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get --all
+          mix format --check-formatted
+
+      - name: Compile project
+        run: mix compile --force
+
+      - name: run static analysis
+        run: mix credo --all --strict
+
+      - name: Run tests
+        run: mix coveralls.github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
