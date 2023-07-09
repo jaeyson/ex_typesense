@@ -18,23 +18,16 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        typesense-version: [0.24.1]
+
     env:
       MIX_ENV: test
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    services:
-      typesense:
-        image: typesense/typesense:0.24.1-arm64
-        env:
-          TYPESENSE_DATA_DIR: /data
-          TYPESENSE_API_KEY: xyz
-        ports:
-          - "8108:8108"
-        volumes:
-          - typesense:/data
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: erlef/setup-beam@v1
         with:
           otp-version: '25'
@@ -49,21 +42,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mix-
 
+      - name: Start Typesense
+        uses: jirevwe/typesense-github-action@v1.0.1
+        with:
+          typesense-version: ${{ matrix.typesense-version }}
+          typesense-api-key: xyz
+
       - name: Install Dependencies
         run: |
           mix local.rebar --force
           mix local.hex --force
-          mix deps.get --all
+          mix deps.get
           mix format --check-formatted
 
       - name: Compile project
-        run: mix compile --force
+        run: mix compile
 
       - name: run static analysis
         run: mix credo --all --strict
 
       - name: Run tests
-        run: mix coveralls.github
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
+        run: mix test

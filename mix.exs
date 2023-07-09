@@ -15,14 +15,7 @@ defmodule ExTypesense.MixProject do
       docs: docs(),
       package: package(),
       name: "ExTypesense",
-      source_url: @source_url,
-      test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.post": :test,
-        "coveralls.html": :test
-      ]
+      source_url: @source_url
     ]
   end
 
@@ -39,8 +32,7 @@ defmodule ExTypesense.MixProject do
       {:ex_doc, "~> 0.29.4", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
       {:req, "~> 0.3.9"},
-      {:ecto, "~> 3.10.2"},
-      {:excoveralls, "~> 0.10", only: :test}
+      {:ecto, "~> 3.10.2"}
     ]
   end
 

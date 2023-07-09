@@ -321,7 +321,7 @@ defmodule ExTypesense.Document do
       ...>  %{
       ...>    id: "12",
       ...>    collection_name: "posts",
-      ...>    post_id: 12,
+      ...>    post_id: 22,
       ...>    title: "the quick brown fox"
       ...>  }
       iex> ExTypesense.create_document(post)

@@ -1,6 +1,8 @@
 defmodule ExTypesense.TestSchema.Person do
   use Ecto.Schema
 
+  @moduledoc false
+
   defimpl Jason.Encoder, for: __MODULE__ do
     def encode(value, opts) do
       value

@@ -1,5 +1,5 @@
 defmodule CollectionTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   setup_all do
     [{:api_key, "xyz"}, {:host, "localhost"}, {:port, 8108}, {:scheme, "http"}]

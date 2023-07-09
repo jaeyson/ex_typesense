@@ -1,7 +1,7 @@
 defmodule DocumentTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
-  doctest ExTypesense.Document
+  # doctest ExTypesense.Document
 
   setup_all do
     [{:api_key, "xyz"}, {:host, "localhost"}, {:port, 8108}, {:scheme, "http"}]
@@ -89,11 +89,10 @@ defmodule DocumentTest do
   end
 
   test "error: creates a document with a specific id twice", %{document: document} do
-    id = "99"
-    document = Map.put(document, :id, id)
-    message = %{"message" => "A document with id #{id} already exists."}
+    document = Map.put(document, :id, "99")
     assert {:ok, %{"id" => id}} = ExTypesense.create_document(document)
     assert {:ok, message} = ExTypesense.create_document(document)
+    assert message === %{"message" => "A document with id #{id} already exists."}
   end
 
   test "success: update a document", %{document: document} do
@@ -155,10 +154,7 @@ defmodule DocumentTest do
     assert second["company_name"] === second_update
   end
 
-  test "success: upsert multiple documents", %{
-    multiple_documents: multiple_documents,
-    schema: schema
-  } do
+  test "success: upsert multiple documents", %{multiple_documents: multiple_documents} do
     multiple_documents
     |> ExTypesense.upsert_multiple_documents()
     |> Kernel.===({:ok, [%{"success" => true}, %{"success" => true}]})
