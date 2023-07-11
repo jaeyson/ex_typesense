@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3 (2023.07.11)
+
+* Add index_multiple_documents/1 clause for accepting struct args
+
 ## 0.3.2 (2023.07.11)
 
 * Maps struct pk to document's id

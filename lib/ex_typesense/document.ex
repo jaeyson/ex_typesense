@@ -137,7 +137,12 @@ defmodule ExTypesense.Document do
       {:ok, [%{"success" => true}, %{"success" => true}]}
   """
   @doc since: "0.3.0"
-  @spec update_multiple_documents(map()) :: response()
+  @spec update_multiple_documents(list(struct()) | map()) :: response()
+  def update_multiple_documents([struct | _] = list_of_structs) when is_struct(struct) do
+    collection_name = struct.__struct__.__schema__(:source)
+    do_index_multiple_documents(collection_name, "update", list_of_structs)
+  end
+
   def update_multiple_documents(%{collection_name: collection_name, documents: documents} = map)
       when is_map(map) do
     do_index_multiple_documents(collection_name, "update", documents)
