@@ -40,10 +40,11 @@ defmodule ExTypesense.Document do
       }
   """
   @doc since: "0.1.0"
-  @spec get_document(String.t() | module(), integer()) :: response()
+  @spec get_document(module() | String.t(), integer()) :: response()
   def get_document(module_name, document_id)
       when is_atom(module_name) and is_integer(document_id) do
-    do_get_document(module_name.__schema__(:source), document_id)
+    collection_name = module_name.__schema__(:source)
+    do_get_document(collection_name, document_id)
   end
 
   def get_document(collection_name, document_id)
@@ -189,7 +190,8 @@ defmodule ExTypesense.Document do
   end
 
   @doc """
-  Indexes a single document using struct or map.
+  Indexes a single document using struct or map. When using struct,
+  the pk maps to document's id as string.
 
   **Note**: when using maps as documents, you should pass a key named "collection_name".
 
@@ -225,7 +227,8 @@ defmodule ExTypesense.Document do
   def create_document(struct) when is_struct(struct) do
     collection_name = struct.__struct__.__schema__(:source)
     path = Path.join([@collections_path, collection_name, @documents_path])
-    do_index_document(path, :post, "create", Jason.encode!(struct))
+    payload = Map.put(struct, :id, to_string(struct.id)) |> Jason.encode!()
+    do_index_document(path, :post, "create", payload)
   end
 
   def create_document(document) when is_map(document) do
@@ -257,11 +260,12 @@ defmodule ExTypesense.Document do
       iex> ExTypesense.create_document(post)
       iex> updated_post =
       ...>  %{
+      ...>    id: "94",
       ...>    collection_name: "posts",
       ...>    post_id: 94,
       ...>    title: "test"
       ...>  }
-      iex> ExTypesense.update_document(updated_post, 94)
+      iex> ExTypesense.update_document(updated_post)
       {:ok,
         %{
           "id" => "94",
@@ -272,22 +276,42 @@ defmodule ExTypesense.Document do
       }
   """
   @doc since: "0.3.0"
-  @spec update_document(struct() | map(), integer()) :: response()
-  def update_document(struct, id) when is_struct(struct) and is_integer(id) do
+  @spec update_document(struct() | map()) :: response()
+  def update_document(struct) when is_struct(struct) do
     collection_name = struct.__struct__.__schema__(:source)
-    path = Path.join([@collections_path, collection_name, @documents_path, Jason.encode!(id)])
+
+    path =
+      Path.join([@collections_path, collection_name, @documents_path, Jason.encode!(struct.id)])
+
     do_index_document(path, :patch, "update", Jason.encode!(struct))
   end
 
-  def update_document(document, id) when is_map(document) and is_integer(id) do
+  def update_document(document) when is_map(document) do
+    id = String.to_integer(document.id)
     collection_name = Map.get(document, :collection_name)
     path = Path.join([@collections_path, collection_name, @documents_path, Jason.encode!(id)])
     do_index_document(path, :patch, "update", Jason.encode!(document))
   end
 
-  @spec upsert_document(map(), integer() | nil) :: response()
-  def upsert_document(document, id \\ nil) when is_map(document) do
+  @doc """
+  Upserts a single document using struct or map.
+
+  **Note**: when using maps as documents, you should pass a key named "collection_name".
+
+  """
+  @doc since: "0.3.0"
+  @spec upsert_document(map() | struct()) :: response()
+  def upsert_document(struct) when is_struct(struct) do
+    id = to_string(struct.id)
+    collection_name = struct.__struct__.__schema__(:source)
+    document = Map.put(struct, :id, id) |> Jason.encode!()
+    path = Path.join([@collections_path, collection_name, @documents_path])
+    do_index_document(path, :post, "upsert", document)
+  end
+
+  def upsert_document(document) when is_map(document) do
     collection_name = Map.get(document, :collection_name)
+    id = document.id
 
     document =
       if is_integer(id) do
@@ -304,6 +328,16 @@ defmodule ExTypesense.Document do
   defp do_index_document(path, method, action, document) do
     uri = %URI{path: path, query: "action=#{action}"}
     HttpClient.httpc_run(uri, method, document)
+  end
+
+  @doc """
+  Deletes a document by struct.
+  """
+  @spec delete_document(struct()) :: response()
+  def delete_document(struct) when is_struct(struct) do
+    document_id = to_string(struct.id)
+    collection_name = struct.__struct__.__schema__(:source)
+    do_delete_document(collection_name, document_id)
   end
 
   @doc """

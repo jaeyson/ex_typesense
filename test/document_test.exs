@@ -1,8 +1,6 @@
 defmodule DocumentTest do
   use ExUnit.Case, async: false
 
-  # doctest ExTypesense.Document
-
   setup_all do
     [{:api_key, "xyz"}, {:host, "localhost"}, {:port, 8108}, {:scheme, "http"}]
     |> Enum.each(fn {key, val} -> Application.put_env(:ex_typesense, key, val) end)
@@ -77,15 +75,20 @@ defmodule DocumentTest do
     {:ok, %{"id" => id}} = ExTypesense.create_document(document)
     id = String.to_integer(id)
     company_name = "Stark Industries"
-    updated_document = Map.put(document, :company_name, company_name)
 
-    {:ok, result} = ExTypesense.upsert_document(updated_document, id)
+    updated_document =
+      document
+      |> Map.put(:company_name, company_name)
+      |> Map.put(:id, id)
+
+    {:ok, result} = ExTypesense.upsert_document(updated_document)
 
     assert company_name === result["company_name"]
   end
 
   test "success: create document using upsert_document/2", %{document: document} do
-    assert {:ok, %{"id" => "9999"}} = ExTypesense.upsert_document(document, 9999)
+    document = Map.put(document, :id, "9999")
+    assert {:ok, %{"id" => "9999"}} = ExTypesense.upsert_document(document)
   end
 
   test "error: creates a document with a specific id twice", %{document: document} do
@@ -97,11 +100,14 @@ defmodule DocumentTest do
 
   test "success: update a document", %{document: document} do
     {:ok, %{"id" => id}} = ExTypesense.create_document(document)
-    id = String.to_integer(id)
     company_name = "Stark Industries"
-    updated_document = Map.put(document, :company_name, company_name)
 
-    {:ok, result} = ExTypesense.update_document(updated_document, id)
+    updated_document =
+      document
+      |> Map.put(:company_name, company_name)
+      |> Map.put(:id, id)
+
+    {:ok, result} = ExTypesense.update_document(updated_document)
 
     assert company_name === result["company_name"]
   end

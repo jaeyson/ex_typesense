@@ -2,7 +2,6 @@ defmodule SearchTest do
   use ExUnit.Case, async: false
   import Ecto.Query, warn: false
   alias ExTypesense.TestSchema.Person
-  # doctest ExTypesense.Search
 
   setup_all do
     [{:api_key, "xyz"}, {:host, "localhost"}, {:port, 8108}, {:scheme, "http"}]

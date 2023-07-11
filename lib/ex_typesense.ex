@@ -14,12 +14,12 @@ defmodule ExTypesense do
     defimpl Jason.Encoder, for: __MODULE__ do
       def encode(value, opts) do
         value
-        |> Map.take([:person_id, :name, :age])
+        |> Map.take([:id, :person_id, :name, :age])
         |> Enum.map(fn {key, val} ->
-          if key === :person_id do
-            {key, Map.get(value, :id)}
-          else
-            {key, val}
+          cond do
+            key === :id -> {key, to_string(Map.get(value, :id))}
+            key === :person_id -> {key, Map.get(value, :id)}
+            true -> {key, val}
           end
         end)
         |> Enum.into(%{})
@@ -67,9 +67,10 @@ defmodule ExTypesense do
   # document-specific tasks
   defdelegate get_document(collection_name, document_id), to: ExTypesense.Document
   defdelegate create_document(document), to: ExTypesense.Document
+  defdelegate delete_document(document), to: ExTypesense.Document
   defdelegate delete_document(collection_name, document_id), to: ExTypesense.Document
-  defdelegate update_document(document, id), to: ExTypesense.Document
-  defdelegate upsert_document(document, id \\ nil), to: ExTypesense.Document
+  defdelegate update_document(document), to: ExTypesense.Document
+  defdelegate upsert_document(document), to: ExTypesense.Document
   defdelegate index_multiple_documents(documents), to: ExTypesense.Document
   defdelegate update_multiple_documents(documents), to: ExTypesense.Document
   defdelegate upsert_multiple_documents(docuemnts), to: ExTypesense.Document

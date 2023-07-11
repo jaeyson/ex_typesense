@@ -5,6 +5,7 @@ defmodule ExTypesense.Search do
   """
 
   alias ExTypesense.HttpClient
+  alias ExTypesense.ResultParser
   import Ecto.Query, warn: false
 
   @root_path "/"
@@ -52,26 +53,7 @@ defmodule ExTypesense.Search do
 
     {:ok, result} = HttpClient.run(:get, path, nil, params)
 
-    case Enum.empty?(result["hits"]) do
-      true ->
-        module_name
-        |> where([i], i.id in [])
-
-      false ->
-        # this assumes the fk pointing to primary, e.g. post_id
-        first_virtual_field = hd(module_name.__schema__(:virtual_fields))
-
-        # this assumes the pk, e.g. posts' "id" that matches fk above
-        primary_key = hd(module_name.__schema__(:primary_key))
-
-        values =
-          Enum.map(result["hits"], fn %{"document" => document} ->
-            document[to_string(first_virtual_field)]
-          end)
-
-        module_name
-        |> where([i], field(i, ^primary_key) in ^values)
-    end
+    ResultParser.hits_to_query(result["hits"], module_name)
   end
 
   def search(collection_name, params) when is_binary(collection_name) and is_map(params) do

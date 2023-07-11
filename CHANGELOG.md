@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2 (2023.07.11)
+
+* Maps struct pk to document's id
+
+* Update http request timeout to `3,600` seconds
+
 ## 0.3.1 (2023.07.11)
 
 * Increase connection timeout

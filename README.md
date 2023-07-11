@@ -85,9 +85,13 @@ defmodule Person do
   defimpl Jason.Encoder, for: __MODULE__ do
     def encode(value, opts) do
       value
-      |> Map.take([:person_id, :name, :country])
+      |> Map.take([:id, :person_id, :name, :country])
       |> Enum.map(fn {key, val} ->
-        if key === :person_id, do: {key, Map.get(value, :id)}, else: {key, val}
+        cond do
+          key === :id -> {key, to_string(Map.get(value, :id))}
+          key === :person_id -> {key, Map.get(value, :id)}
+          true -> {key, val}
+        end
       end)
       |> Enum.into(%{})
       |> Jason.Encode.map(opts)
