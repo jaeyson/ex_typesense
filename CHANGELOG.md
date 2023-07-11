@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 (2023.07.11)
+
+* Increase connection timeout
+
 ## 0.3.0 (2023.06.20)
 
 * Fixed url request path for aliases

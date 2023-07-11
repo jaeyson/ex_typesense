@@ -23,7 +23,7 @@ by adding `ex_typesense` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ex_typesense, "~> 0.3.0"}
+    {:ex_typesense, "~> 0.3"}
   ]
 end
 ```

@@ -95,8 +95,8 @@ defmodule ExTypesense.HttpClient do
           match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
         ]
       ],
-      timeout: 5_000,
-      connect_timeout: 5_000
+      timeout: 60_000,
+      connect_timeout: 60_000
     ]
 
     case :httpc.request(method, request, http_opts, []) do
