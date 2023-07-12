@@ -340,7 +340,7 @@ defmodule ExTypesense.Document do
   """
   @spec delete_document(struct()) :: response()
   def delete_document(struct) when is_struct(struct) do
-    document_id = to_string(struct.id)
+    document_id = struct.id
     collection_name = struct.__struct__.__schema__(:source)
     do_delete_document(collection_name, document_id)
   end
@@ -376,7 +376,8 @@ defmodule ExTypesense.Document do
   """
   @doc since: "0.3.0"
   @spec delete_document(String.t(), integer()) :: response()
-  def delete_document(collection_name, document_id) when is_binary(collection_name) do
+  def delete_document(collection_name, document_id)
+      when is_binary(collection_name) and is_integer(document_id) do
     do_delete_document(collection_name, document_id)
   end
 

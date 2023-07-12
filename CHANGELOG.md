@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4 (2023.07.12)
+
+* Remove string conversion on struct id when deleting a document.
+
 ## 0.3.3 (2023.07.11)
 
 * Add index_multiple_documents/1 clause for accepting struct args

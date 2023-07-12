@@ -162,7 +162,7 @@ ExTypesense.search(schema.name, params)
 ExTypesense.search(Person, params)
 ```
 
-Check [cheatsheet](cheatsheet.html) for more examples
+Check [cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more examples
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
