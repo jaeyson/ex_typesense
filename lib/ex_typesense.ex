@@ -73,7 +73,7 @@ defmodule ExTypesense do
   defdelegate upsert_document(document), to: ExTypesense.Document
   defdelegate index_multiple_documents(documents), to: ExTypesense.Document
   defdelegate update_multiple_documents(documents), to: ExTypesense.Document
-  defdelegate upsert_multiple_documents(docuemnts), to: ExTypesense.Document
+  defdelegate upsert_multiple_documents(documents), to: ExTypesense.Document
 
   # search
   defdelegate search(collection_name, params), to: ExTypesense.Search
