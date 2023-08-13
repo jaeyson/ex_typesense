@@ -66,7 +66,7 @@ defmodule DocumentTest do
   end
 
   test "success: adding unknown field", %{document: document} do
-    document = Map.put(document, :unknown_field, "unkown_value")
+    document = Map.put(document, :unknown_field, "unknown_value")
     {:ok, collection} = ExTypesense.create_document(document)
     assert Map.has_key?(collection, "unknown_field")
   end
