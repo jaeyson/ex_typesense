@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5 (2023.08.13)
+
+* Fixed typos
+
 ## 0.3.4 (2023.07.12)
 
 * Remove string conversion on struct id when deleting a document.

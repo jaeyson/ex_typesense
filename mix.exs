@@ -2,7 +2,7 @@ defmodule ExTypesense.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/jaeyson/ex_typesense"
-  @version "0.3.4"
+  @version "0.3.5"
 
   def project do
     [
@@ -11,6 +11,13 @@ defmodule ExTypesense.MixProject do
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
       description: "Typesense client for Elixir with support for importing your Ecto schemas.",
       docs: docs(),
       package: package(),
@@ -32,7 +39,8 @@ defmodule ExTypesense.MixProject do
       {:ex_doc, "~> 0.29.4", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
       {:req, "~> 0.3.9"},
-      {:ecto, "~> 3.10.2"}
+      {:ecto, "~> 3.10.2"},
+      {:excoveralls, "~> 0.10", only: :test}
     ]
   end
 
