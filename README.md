@@ -3,7 +3,7 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/ex_typesense)](https://hex.pm/packages/ex_typesense)
 [![Hexdocs.pm](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_typesense)
 [![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](LICENSE)
-[![Typesense badge](https://img.shields.io/badge/Typesense-v0.24.1-darkblue)](https://typesense.org/docs/0.24.1/api)
+[![Typesense badge](https://img.shields.io/badge/Typesense-v0.25.1-darkblue)](https://typesense.org/docs/0.25.1/api)
 
 Typesense client for Elixir with support for your Ecto schemas.
 
@@ -49,13 +49,17 @@ mix deps.compile ex_typesense --force
 ### 1. Spin up local typesense server
 
 ```bash
+mkdir /tmp/typesense-server-data
+```
+
+```bash
 docker container run --rm -it -d \
   --name typesense \
   -e TYPESENSE_DATA_DIR=/data \
   -e TYPESENSE_API_KEY=xyz \
   -v /tmp/typesense-server-data:/data \
   -p 8108:8108 \
-  typesense/typesense:0.24.1
+  docker.io/typesense/typesense:0.25.1
 ```
 
 ### 2. Add creds to config
