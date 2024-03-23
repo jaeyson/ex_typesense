@@ -7,7 +7,7 @@ defmodule ExTypesense.HttpClient do
   @type request_body() :: iodata() | nil
   @type request_method() :: :get | :post | :delete | :patch | :put
   @type request_path() :: String.t()
-  @api_header_name 'X-TYPESENSE-API-KEY'
+  @api_header_name ~c"X-TYPESENSE-API-KEY"
 
   def get_host, do: Application.get_env(:ex_typesense, :host)
   def get_port, do: Application.get_env(:ex_typesense, :port)
@@ -64,7 +64,7 @@ defmodule ExTypesense.HttpClient do
   end
 
   @spec httpc_run(URI.__struct__(), atom(), String.t(), list()) :: {:ok, map()} | {:error, map()}
-  def httpc_run(uri, method, payload, content_type \\ 'application/json') do
+  def httpc_run(uri, method, payload, content_type \\ ~c"application/json") do
     uri = %URI{
       scheme: get_scheme(),
       host: get_host(),

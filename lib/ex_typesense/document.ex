@@ -191,7 +191,7 @@ defmodule ExTypesense.Document do
 
     path = Path.join([@collections_path, collection_name, @documents_path, @import_path])
     uri = %URI{path: path, query: "action=#{action}"}
-    HttpClient.httpc_run(uri, :post, payload, 'text/plain')
+    HttpClient.httpc_run(uri, :post, payload, ~c"text/plain")
   end
 
   @doc """
