@@ -36,7 +36,7 @@ defmodule ExTypesense.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.29.4", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.31.2", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
       {:req, "~> 0.4.14"},
       {:ecto, "~> 3.11.2"},
