@@ -1,5 +1,10 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## 0.3.5 (2023.08.13)
 
 * Fixed typos
@@ -15,7 +20,6 @@
 ## 0.3.2 (2023.07.11)
 
 * Maps struct pk to document's id
-
 * Update http request timeout to `3,600` seconds
 
 ## 0.3.1 (2023.07.11)
@@ -25,13 +29,9 @@
 ## 0.3.0 (2023.06.20)
 
 * Fixed url request path for aliases
-
 * Refactor functions inside collection and document.
-
 * Changed return values from `{:ok, t()}` to `t()` only.
-
 * Added cheatsheet section on docs
-
 * Parse schema field types for `float`, `boolean`, `string`, `integer` and a list with these corresponding types.
 
 ## 0.2.2 (2023.01.26)

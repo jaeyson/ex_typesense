@@ -3,7 +3,7 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/ex_typesense)](https://hex.pm/packages/ex_typesense)
 [![Hexdocs.pm](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_typesense)
 [![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](LICENSE)
-[![Typesense badge](https://img.shields.io/badge/Typesense-v0.25.1-darkblue)](https://typesense.org/docs/0.25.1/api)
+[![Typesense badge](https://img.shields.io/badge/Typesense-v0.25.2-darkblue)](https://typesense.org/docs/0.25.2/api)
 
 Typesense client for Elixir with support for your Ecto schemas.
 
@@ -17,68 +17,51 @@ Typesense client for Elixir with support for your Ecto schemas.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ex_typesense` to your list of dependencies in `mix.exs`:
+ExTypesense requires Elixir `~> 1.14.x`. Read the [Changelog](CHANGELOG.md) for all available releases and requirements. This library is published to both [Hex.pm](https://hex.pm/ex_typesense) and [GitHub ](https://github.com/jaeyson/ex_typesense.git) repository.
+
+Add `:ex_typesense` to your list of dependencies in the Elixir project config file, `mix.exs`:
 
 ```elixir
 def deps do
   [
+    # From default Hex package manager
     {:ex_typesense, "~> 0.3"}
+
+    # Or from GitHub repository, if you want to latest greatest from main branch
+    {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}
   ]
 end
-```
-
-If you're adding this dep as a local path:
-
-```elixir
-def deps do
-  [
-    {:ex_typesense, path: "/path/to/ex_typesense"}
-  ]
-end
-```
-
-then
-
-```bash
-mix deps.compile ex_typesense --force
 ```
 
 ## Getting started
 
-### 1. Spin up local typesense server
+### 1. Add credential to config
 
-```bash
-mkdir /tmp/typesense-server-data
-```
+After you have setup a [local](./guides/running_local_typesense.md) Typesense or [Cloud hosted](https://cloud.typesense.org) instance, you can set the following config details to the config file:
 
-```bash
-docker container run --rm -it -d \
-  --name typesense \
-  -e TYPESENSE_DATA_DIR=/data \
-  -e TYPESENSE_API_KEY=xyz \
-  -v /tmp/typesense-server-data:/data \
-  -p 8108:8108 \
-  docker.io/typesense/typesense:0.25.1
-```
-
-### 2. Add creds to config
-
-Config for setting up api key, host, etc.
-
-> You can also find api key and host in your dashboard if you're using [cloud-hosted](https://cloud.typesense.org) Typesense.
+For local instance:
 
 ```elixir
 config :ex_typesense,
   api_key: "xyz",
-  host: "localhost", # "111222333aaabbbcc-9.x9.typesense.net"
-  port: 8108, # 443
-  scheme: "http" # "https"
-  ```
+  host: "localhost",
+  port: 8108,
+  scheme: "http"
+```
 
-### 3. Create a collection
+For Cloud hosted, you can generate and obtain the credentials from cluster instance admin interface:
 
-#### using Ecto
+```elixir
+config :ex_typesense,
+  api_key: "credential", # Admin API key
+  host: "111222333aaabbbcc-9.x9.typesense.net" # Nodes
+  port: 443,
+  scheme: "https"
+```
+
+### 2. Create a collection
+
+#### Using Ecto
 
 In this example, we're adding `person_id` that points to the id of `persons` schema.
 
@@ -121,13 +104,13 @@ defmodule Person do
 end
 ```
 
-next, create the collection from a module name
+Next, create the collection from a module name.
 
 ```elixir
 ExTypesense.create_collection(Person)
 ```
 
-#### using maps
+#### Using Maps
 
 ```elixir
 schema = %{
@@ -143,21 +126,21 @@ schema = %{
 ExTypesense.create_collection(schema)
 ```
 
-### 4. Indexing documents
+### 3. Indexing documents
 
-#### 4.a via indexing multiple documents
+For multiple documents:
 
 ```elixir
 Post |> Repo.all() |> ExTypesense.index_multiple_documents()
 ```
 
-#### 4.b or indexing single document
+For single document:
 
 ```elixir
 Post |> Repo.get!(123) |> ExTypesense.create_document()
 ```
 
-### 5. Search
+### 4. Search
 
 ```elixir
 params = %{q: "John Doe", query_by: "name"}
@@ -166,8 +149,25 @@ ExTypesense.search(schema.name, params)
 ExTypesense.search(Person, params)
 ```
 
-Check [cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more examples
+Check [Cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more examples.
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/ex_typesense>.
+## License
+
+Copyright (c) 2021 Jaeyson Anthony Y.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
