@@ -51,11 +51,13 @@ defmodule ExTypesense.MixProject do
       source_ref: "v#{@version}",
       source_url: @source_url,
       canonical: "https://hexdocs.pm/ex_typesense",
+      formatters: ["html"],
       extras: [
-        "README.md",
         "CHANGELOG.md",
-        "LICENSE",
-        "Cheatsheet.cheatmd"
+        "README.md": [title: "Overview"],
+        "guides/running_local_typesense.md": [title: "Running local Typesense"],
+        "guides/cheatsheet.cheatmd": [title: "Cheatsheet"],
+        "LICENSE.md": [title: "License"]
       ]
     ]
   end
