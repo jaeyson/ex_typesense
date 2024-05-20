@@ -7,15 +7,16 @@ on:
     branches: ["main"]
 
 jobs:
-  check-commit-message:
-    name: Check commit message for skipping build(s)
-    runs-on: ubuntu-latest
-    # skips CI and prints cli message, without fail build badge
-    if: contains(github.event.head_commit.message, '[skip ci]')
-    steps:
-      - name: print message via cli
-        run: echo "no need to build, based from commit message"
-
+  # https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs
+  # Workflows that would otherwise be triggered using `on: push` or
+  # `on: pull_request` won't be triggered if you add any of the
+  # following strings to the commit message in a push, or the HEAD
+  # commit of a pull request:
+  # - [skip ci]
+  # - [ci skip]
+  # - [no ci]
+  # - [skip actions]
+  # - [actions skip]
   test:
     runs-on: ubuntu-latest
 
@@ -27,13 +28,13 @@ jobs:
       MIX_ENV: test
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: '25'
-          elixir-version: '1.14.x'
+          otp-version: "25"
+          elixir-version: "1.16.x"
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         id: mix-cache
         with:
           path: |

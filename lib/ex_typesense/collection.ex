@@ -189,7 +189,15 @@ defmodule ExTypesense.Collection do
       }
   """
   @doc since: "0.1.0"
-  @spec create_collection(schema :: module() | map()) :: response()
+  @spec create_collection(schema :: String.t() | module() | map()) :: response()
+  def create_collection(schema) when is_binary(schema) do
+    schema
+    |> String.to_atom()
+    |> create_collection()
+
+    do_create_collection(schema)
+  end
+
   def create_collection(schema) when is_atom(schema) do
     schema =
       schema.get_field_types()

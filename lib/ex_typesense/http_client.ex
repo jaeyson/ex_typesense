@@ -63,7 +63,7 @@ defmodule ExTypesense.HttpClient do
     end
   end
 
-  @spec httpc_run(URI.__struct__(), atom(), String.t(), list()) :: {:ok, map()} | {:error, map()}
+  @spec httpc_run(URI.t(), atom(), String.t(), list()) :: {:ok, map()} | {:error, map()}
   def httpc_run(uri, method, payload, content_type \\ ~c"application/json") do
     uri = %URI{
       scheme: get_scheme(),

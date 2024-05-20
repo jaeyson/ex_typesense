@@ -2,13 +2,13 @@ defmodule ExTypesense.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/jaeyson/ex_typesense"
-  @version "0.3.5"
+  @version "0.4.0"
 
   def project do
     [
       app: :ex_typesense,
       version: @version,
-      elixir: "~> 1.14",
+      elixir: "~> 1.16",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
@@ -36,11 +36,11 @@ defmodule ExTypesense.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.31.2", only: [:dev, :test], runtime: false},
-      {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.32.2", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7.6", only: [:dev, :test], runtime: false},
       {:req, "~> 0.4.14"},
       {:ecto, "~> 3.11.2"},
-      {:excoveralls, "~> 0.10", only: :test}
+      {:excoveralls, "~> 0.18.1", only: :test}
     ]
   end
 

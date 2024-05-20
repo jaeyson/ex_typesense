@@ -2,7 +2,7 @@
 
 [![Hex.pm](https://img.shields.io/hexpm/v/ex_typesense)](https://hex.pm/packages/ex_typesense)
 [![Hexdocs.pm](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_typesense)
-[![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](LICENSE)
+[![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](LICENSE.md)
 [![Typesense badge](https://img.shields.io/badge/Typesense-v0.25.2-darkblue)](https://typesense.org/docs/0.25.2/api)
 
 Typesense client for Elixir with support for your Ecto schemas.
@@ -17,7 +17,7 @@ Typesense client for Elixir with support for your Ecto schemas.
 
 ## Installation
 
-ExTypesense requires Elixir `~> 1.14.x`. Read the [Changelog](CHANGELOG.md) for all available releases and requirements. This library is published to both [Hex.pm](https://hex.pm/ex_typesense) and [GitHub ](https://github.com/jaeyson/ex_typesense.git) repository.
+ExTypesense requires Elixir `~> 1.16.x`. Read the [Changelog](CHANGELOG.md) for all available releases and requirements. This library is published to both [Hex.pm](https://hex.pm/ex_typesense) and [GitHub ](https://github.com/jaeyson/ex_typesense.git) repository.
 
 Add `:ex_typesense` to your list of dependencies in the Elixir project config file, `mix.exs`:
 
@@ -25,7 +25,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 0.3"}
+    {:ex_typesense, "~> 0.4"}
 
     # Or from GitHub repository, if you want to latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}
@@ -59,9 +59,11 @@ config :ex_typesense,
   scheme: "https"
 ```
 
-### 2. Create a collection
+---
 
-#### Using Ecto
+There are 2 ways to create a collection
+
+### 2.A Create a collection using Ecto
 
 In this example, we're adding `person_id` that points to the id of `persons` schema.
 
@@ -110,7 +112,7 @@ Next, create the collection from a module name.
 ExTypesense.create_collection(Person)
 ```
 
-#### Using Maps
+### 2.B Create a collection using maps
 
 ```elixir
 schema = %{
@@ -124,6 +126,12 @@ schema = %{
 }
 
 ExTypesense.create_collection(schema)
+```
+
+### 2.C Create a collection using mix task
+
+```bash
+mix typesense.create --schema MyApp.Products.Product
 ```
 
 ### 3. Indexing documents
@@ -150,6 +158,34 @@ ExTypesense.search(Person, params)
 ```
 
 Check [Cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more examples.
+
+## Importing
+
+There are 2 ways to import data to a collection:
+
+> **Note**: before running the command above, make sure to update the schema of `MyApp.Products.FrozenGoods` (see guide above: ["Create a collection" using Ecto.](#2-a-create-a-collection-using-ecto)).
+
+### Using mix task
+
+```bash
+# see "mix help typesense" for more details
+mix typesense.import MyApp.Products.FrozenGoods
+```
+
+### Using `IEx` shell
+
+```elixir
+iex> alias MyApp.Products.FrozenGoods
+
+# create a collection
+iex> ExTypesense.create_collection(FrozenGoods)
+
+# fetch all records
+iex> frozen_goods = Repo.all(FrozenGoods)
+
+# import all documents to the collection
+iex> ExTypesense.index_multiple_documents(frozen_goods, :frozen_good_id, :upsert)
+```
 
 ## License
 
