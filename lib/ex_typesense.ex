@@ -48,21 +48,35 @@ defmodule ExTypesense do
   ```
   """
 
+  alias ExTypesense.Connection
+
   @callback get_field_types :: any()
 
   # collection-specific tasks
-  defdelegate list_collections, to: ExTypesense.Collection
-  defdelegate create_collection(schema), to: ExTypesense.Collection
-  defdelegate get_collection(name), to: ExTypesense.Collection
-  defdelegate get_collection_name(alias_name), to: ExTypesense.Collection
-  defdelegate drop_collection(collection_name), to: ExTypesense.Collection
-  defdelegate update_collection_fields(collection_name, fields), to: ExTypesense.Collection
+  defdelegate list_collections(conn \\ Connection.new()), to: ExTypesense.Collection
+  defdelegate create_collection(conn \\ Connection.new(), schema), to: ExTypesense.Collection
+  defdelegate get_collection(conn \\ Connection.new(), name), to: ExTypesense.Collection
+
+  defdelegate get_collection_name(conn \\ Connection.new(), alias_name),
+    to: ExTypesense.Collection
+
+  defdelegate drop_collection(conn \\ Connection.new(), collection_name),
+    to: ExTypesense.Collection
+
+  defdelegate update_collection_fields(conn \\ Connection.new(), collection_name, fields),
+    to: ExTypesense.Collection
 
   # collection alias
-  defdelegate list_collection_aliases, to: ExTypesense.Collection
-  defdelegate get_collection_alias(alias_name), to: ExTypesense.Collection
-  defdelegate delete_collection_alias(alias_name), to: ExTypesense.Collection
-  defdelegate upsert_collection_alias(alias_name, collection_name), to: ExTypesense.Collection
+  defdelegate list_collection_aliases(conn \\ Connection.new()), to: ExTypesense.Collection
+
+  defdelegate get_collection_alias(conn \\ Connection.new(), alias_name),
+    to: ExTypesense.Collection
+
+  defdelegate delete_collection_alias(conn \\ Connection.new(), alias_name),
+    to: ExTypesense.Collection
+
+  defdelegate upsert_collection_alias(conn \\ Connection.new(), alias_name, collection_name),
+    to: ExTypesense.Collection
 
   # document-specific tasks
   defdelegate get_document(collection_name, document_id), to: ExTypesense.Document
@@ -87,7 +101,7 @@ defmodule ExTypesense do
   # synonyms
 
   # cluster operations
-  defdelegate api_stats, to: ExTypesense.Cluster
-  defdelegate cluster_metrics, to: ExTypesense.Cluster
-  defdelegate health, to: ExTypesense.Cluster
+  defdelegate api_stats(conn \\ Connection.new()), to: ExTypesense.Cluster
+  defdelegate cluster_metrics(conn \\ Connection.new()), to: ExTypesense.Cluster
+  defdelegate health(conn \\ Connection.new()), to: ExTypesense.Cluster
 end

@@ -1,0 +1,10 @@
+services:
+  typesense:
+    image: docker.io/typesense/typesense:26.0-arm64
+    container_name: typesense
+    restart: on-failure
+    ports:
+      - "8108:8108"
+    volumes:
+      - ./typesense-data:/data
+    command: '--data-dir /data --api-key=xyz --enable-cors'

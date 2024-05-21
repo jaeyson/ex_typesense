@@ -3,9 +3,11 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/ex_typesense)](https://hex.pm/packages/ex_typesense)
 [![Hexdocs.pm](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_typesense)
 [![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](LICENSE)
-[![Typesense badge](https://img.shields.io/badge/Typesense-v0.25.2-darkblue)](https://typesense.org/docs/0.25.2/api)
+[![Typesense badge](https://img.shields.io/badge/Typesense-v26.0-darkblue)](https://typesense.org/docs/26.0/api)
 
 Typesense client for Elixir with support for your Ecto schemas.
+
+**Note**: Breaking changes if you're upgrading from `0.3.x` to upcoming `0.5.x` version.
 
 ## Todo
 
@@ -25,7 +27,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 0.3"}
+    {:ex_typesense, "~> 0.4"}
 
     # Or from GitHub repository, if you want to latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}
@@ -39,7 +41,19 @@ end
 
 After you have setup a [local](./guides/running_local_typesense.md) Typesense or [Cloud hosted](https://cloud.typesense.org) instance, you can set the following config details to the config file:
 
-For local instance:
+#### Run local Typesense instance
+
+```bash
+# Linux
+docker compose -f linux.yml up -d
+
+# Mac OS, the difference is using arm64 arch
+docker compose -f osx.yml up -d
+```
+
+More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense
+
+#### Set credentials via config (e.g. `config/runtime.exs`)
 
 ```elixir
 config :ex_typesense,
@@ -61,7 +75,9 @@ config :ex_typesense,
 
 ### 2. Create a collection
 
-#### Using Ecto
+There are 2 ways to create a collection, either via [Ecto schema](https://hexdocs.pm/ecto/Ecto.Schema.html) or using map ([an Elixir data type](https://hexdocs.pm/elixir/keywords-and-maps.html#maps-as-key-value-pairs)):
+
+#### Option 1: using Ecto
 
 In this example, we're adding `person_id` that points to the id of `persons` schema.
 
@@ -110,7 +126,7 @@ Next, create the collection from a module name.
 ExTypesense.create_collection(Person)
 ```
 
-#### Using Maps
+#### Option 2: using map
 
 ```elixir
 schema = %{
