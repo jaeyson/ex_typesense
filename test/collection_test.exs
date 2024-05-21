@@ -35,7 +35,20 @@ defmodule CollectionTest do
     assert {:error, message} === ExTypesense.drop_collection(conn, schema.name)
   end
 
-  test "success: get specific collection" do
+  test "success: get specific collection", %{conn: conn} do
+    schema = %{
+      name: "specific_collection",
+      fields: [
+        %{name: "collection_name", type: "string"},
+        %{name: "collection_id", type: "int32"}
+      ],
+      default_sorting_field: "collection_id"
+    }
+
+    assert %ExTypesense.Collection{} = ExTypesense.create_collection(conn, schema)
+    collection = ExTypesense.get_collection(conn, schema.name)
+    assert collection.name === schema.name
+    ExTypesense.drop_collection(conn, schema.name)
   end
 
   test "error: get unknown collection", %{conn: conn, schema: schema} do
