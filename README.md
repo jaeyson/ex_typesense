@@ -4,6 +4,7 @@
 [![Hexdocs.pm](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_typesense)
 [![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](LICENSE)
 [![Typesense badge](https://img.shields.io/badge/Typesense-v26.0-darkblue)](https://typesense.org/docs/26.0/api)
+[![Coverage Status](https://coveralls.io/repos/github/jaeyson/ex_typesense/badge.svg?branch=main)](https://coveralls.io/github/jaeyson/ex_typesense?branch=main)
 
 Typesense client for Elixir with support for your Ecto schemas.
 
