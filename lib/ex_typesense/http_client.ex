@@ -39,7 +39,7 @@ defmodule ExTypesense.HttpClient do
         }]
       }
   """
-  @doc since: "0.1.0"
+  @doc since: "0.4.0"
   @spec request(Connection.t(), map()) :: nil
   def request(conn, opts \\ %{}) do
     url =
