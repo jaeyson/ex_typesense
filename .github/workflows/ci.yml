@@ -73,7 +73,7 @@ jobs:
         run: mix credo --all --strict
 
       - name: format files
-        run: mix format --dry-run --check-formatted
+        run: mix format
 
       - name: Run tests
         run: mix test

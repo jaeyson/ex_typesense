@@ -19,6 +19,14 @@ defmodule ExTypesense.HttpClient do
   @doc """
   Command for making http requests.
 
+  ## Options
+
+  - `:body` Payload for passing as request body (defaults to `nil`).
+  - `:path` Request path.
+  - `:method` Request method (e.g. `:get`, `:post`, `:put`, `:patch`, `:delete`). Defaults to `:get`.
+  - `:query` Request query params (defaults to `%{}`).
+  - `:content_type` `"Content-Type"` request header. Defaults to `"application/json"`.
+
   ## Examples
       iex> connection = %ExTypesense.Connection{
       ...>   host: "localhost",
