@@ -79,18 +79,38 @@ defmodule ExTypesense do
     to: ExTypesense.Collection
 
   # document-specific tasks
-  defdelegate get_document(collection_name, document_id), to: ExTypesense.Document
-  defdelegate create_document(document), to: ExTypesense.Document
+  defdelegate get_document(conn \\ Connection.new(), collection_name, document_id),
+    to: ExTypesense.Document
+
+  defdelegate create_document(conn \\ Connection.new(), document), to: ExTypesense.Document
+
+  @deprecated "use delete_document_by_id/3"
   defdelegate delete_document(document), to: ExTypesense.Document
+
+  @deprecated "use delete_document_by_struct/2"
   defdelegate delete_document(collection_name, document_id), to: ExTypesense.Document
-  defdelegate update_document(document), to: ExTypesense.Document
-  defdelegate upsert_document(document), to: ExTypesense.Document
-  defdelegate index_multiple_documents(documents), to: ExTypesense.Document
-  defdelegate update_multiple_documents(documents), to: ExTypesense.Document
-  defdelegate upsert_multiple_documents(documents), to: ExTypesense.Document
+
+  defdelegate delete_document_by_struct(conn \\ Connection.new(), struct),
+    to: ExTypesense.Document
+
+  defdelegate delete_document_by_id(conn \\ Connection.new(), collection_name, document_id),
+    to: ExTypesense.Document
+
+  defdelegate update_document(conn \\ Connection.new(), document), to: ExTypesense.Document
+  defdelegate upsert_document(conn \\ Connection.new(), document), to: ExTypesense.Document
+
+  defdelegate index_multiple_documents(conn \\ Connection.new(), documents),
+    to: ExTypesense.Document
+
+  defdelegate update_multiple_documents(conn \\ Connection.new(), documents),
+    to: ExTypesense.Document
+
+  defdelegate upsert_multiple_documents(conn \\ Connection.new(), documents),
+    to: ExTypesense.Document
 
   # search
-  defdelegate search(collection_name, params), to: ExTypesense.Search
+  defdelegate search(conn \\ Connection.new(), module_or_collection_name, params),
+    to: ExTypesense.Search
 
   # geo search
 

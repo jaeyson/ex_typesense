@@ -6,8 +6,8 @@ defmodule ExTypesense.Collection do
   In Typesense, a [Collection](https://typesense.org/docs/latest/api/collections.html) is a group of related [Documents](https://typesense.org/docs/latest/api/documents.html) that is roughly equivalent to a table in a relational database. When we create a collection, we give it a name and describe the fields that will be indexed when a document is added to the collection.
   """
 
-  alias ExTypesense.HttpClient
   alias ExTypesense.Connection
+  alias ExTypesense.HttpClient
 
   defmodule Field do
     @moduledoc since: "0.1.0"

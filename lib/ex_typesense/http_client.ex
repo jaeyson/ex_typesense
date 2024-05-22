@@ -48,7 +48,7 @@ defmodule ExTypesense.HttpClient do
         host: conn.host,
         port: conn.port,
         path: opts[:path],
-        query: opts[:query]
+        query: URI.encode_query(opts[:query] || %{})
       }
 
     response =
@@ -58,13 +58,18 @@ defmodule ExTypesense.HttpClient do
         url: url
       }
       |> Req.Request.put_header("x-typesense-api-key", conn.api_key)
+      |> Req.Request.put_header("content-type", opts[:content_type] || "application/json")
       |> Req.Request.append_error_steps(retry: &Req.Steps.retry/1)
-      |> Req.Steps.encode_body()
       |> Req.Request.run!()
 
     case response.status in 200..299 do
       true ->
-        {:ok, Jason.decode!(response.body)}
+        body =
+          if opts[:content_type] === "text/plain",
+            do: String.split(response.body, "\n", trim: true) |> Enum.map(&Jason.decode!/1),
+            else: Jason.decode!(response.body)
+
+        {:ok, body}
 
       false ->
         {:error, Jason.decode!(response.body)["message"]}
