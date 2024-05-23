@@ -20,16 +20,30 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        typesense-version: [0.25.2, 26.0]
+    container: typesense/typesense:26.0
 
     env:
       MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    # services:
+    #   typesense:
+    #     image: typesense/typesense:${{ matrix.typesense-version }}
+    #     ports:
+    #       - "8108:8108"
+    #     command: '--data-dir /data --api-key=xyz --enable-cors'
+
     steps:
+      - name: Start Typesense
+        run: |
+          docker run -d \
+          -p 8108:8108 \
+          -v/tmp/typesense:/data \
+          --name typesense \
+          typesense/typesense:26.0 \
+          --api-key=xyz \
+          --data-dir /data \
+          --enable-cors
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
         with:
@@ -45,11 +59,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mixtest-
 
-      - name: Start Typesense
-        uses: jirevwe/typesense-github-action@v1.0.1
-        with:
-          typesense-version: ${{ matrix.typesense-version }}
-          typesense-api-key: xyz
+      # - name: Start Typesense
+      #   uses: jirevwe/typesense-github-action@v1.0.1
+      #   with:
+      #     typesense-version: ${{ matrix.typesense-version }}
+      #     typesense-api-key: xyz
 
       - name: Install Dependencies
         run: |
