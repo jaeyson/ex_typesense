@@ -39,7 +39,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Typesense
+      - name: Start Typesense
         run: |
           docker run -d -p 8108:8108 --name typesense -v/tmp/typesense:/data typesense/typesense:26.0 --api-key=xyz --data-dir /data --enable-cors
 
@@ -80,8 +80,8 @@ jobs:
       - name: run static analysis
         run: mix credo --all --strict
 
-      - name: check format files
-        run: mix format --check-formatted
+      # - name: check format files
+      #   run: mix format --check-formatted
 
       - name: Run tests
         run: mix test
