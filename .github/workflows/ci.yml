@@ -32,6 +32,11 @@ jobs:
     services:
       typesense:
         image: typesense/typesense:${{ matrix.typesense-version }}
+        options: >-
+          --health-cmd "curl http://localhost:8108/health"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout repo
@@ -47,9 +52,6 @@ jobs:
           --api-key=xyz \
           --data-dir /data \
           --enable-cors
-
-      - name: Curl Typesense
-        run: sleep 10 && curl http://localhost:8108/health
 
       - name: Setup Elixir/OTP
         uses: erlef/setup-beam@v1
