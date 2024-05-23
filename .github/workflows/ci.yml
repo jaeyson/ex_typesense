@@ -7,59 +7,92 @@ on:
     branches: ["main"]
 
 jobs:
-  check-commit-message:
-    name: Check commit message for skipping build(s)
-    runs-on: ubuntu-latest
-    # skips CI and prints cli message, without fail build badge
-    if: contains(github.event.head_commit.message, '[skip ci]')
-    steps:
-      - name: print message via cli
-        run: echo "no need to build, based from commit message"
+  # https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs
+  # Workflows that would otherwise be triggered using `on: push` or
+  # `on: pull_request` won't be triggered if you add any of the
+  # following strings to the commit message in a push, or the HEAD
+  # commit of a pull request:
+  # - [skip ci]
+  # - [ci skip]
+  # - [no ci]
+  # - [skip actions]
+  # - [actions skip]
 
   test:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        typesense-version: [0.25.1]
+        typesense-version: ['0.25.2', '26.0']
 
     env:
       MIX_ENV: test
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    services:
+      typesense:
+        image: typesense/typesense:${{ matrix.typesense-version }}
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: erlef/setup-beam@v1
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Start Typesense
+        run: |
+          docker run -d \
+          -p 8108:8108 \
+          --name typesense \
+          -v /tmp/typesense:/data \
+          typesense/typesense:${{ matrix.typesense-version}} \
+          --api-key=xyz \
+          --data-dir /data \
+          --enable-cors
+
+      - name: Curl Typesense
+        run: sleep 10 && curl http://localhost:8108/health
+
+      - name: Setup Elixir/OTP
+        uses: erlef/setup-beam@v1
         with:
           otp-version: '25'
           elixir-version: '1.14.x'
 
-      - uses: actions/cache@v2
-        id: mix-cache
+      - name: Cache dependencies/builds
+        uses: actions/cache@v4
         with:
           path: |
             deps
-          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
+            _build
+          key: ${{ runner.os }}-mixtest-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-
-
-      - name: Start Typesense
-        uses: jirevwe/typesense-github-action@v1.0.1
-        with:
-          typesense-version: ${{ matrix.typesense-version }}
-          typesense-api-key: xyz
+            ${{ runner.os }}-mixtest-
 
       - name: Install Dependencies
         run: |
-          mix local.rebar --force
-          mix local.hex --force
+          mix local.rebar --if-missing
+          mix local.hex --if-missing
           mix deps.get
-          mix format --check-formatted
+
+      # - name: Find unused dependencies
+      #   run: mix deps.unlock --check-unused
+
+      # - name: Check retired dependencies
+      #   run: mix hex.audit
+
+      # - name: Security audit of dependencies
+      #   run: mix deps.audit
 
       - name: Compile project
-        run: mix compile
+        run: mix compile --all-warnings
 
       - name: run static analysis
         run: mix credo --all --strict
 
+      # - name: check format files
+      #   run: mix format --check-formatted
+
       - name: Run tests
         run: mix test
+
+      # - name: Post test coverage to Coveralls
+      #   run: mix coveralls.github
