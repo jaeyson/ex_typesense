@@ -47,7 +47,7 @@ jobs:
           docker run -d \
           -p 8108:8108 \
           --name typesense \
-          -v /tmp/typesense:/data \
+          -v/tmp/typesense:/data \
           typesense/typesense:${{ matrix.typesense-version}} \
           --api-key=xyz \
           --data-dir /data \
