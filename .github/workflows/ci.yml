@@ -32,12 +32,12 @@ jobs:
     services:
       typesense:
         image: typesense/typesense:${{ matrix.typesense-version }}
-        options: >-
-          --health-cmd "curl http://localhost:8108/health"
-          --health-start-period 10s
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        # options: >-
+        #   --health-cmd "curl http://localhost:8108/health"
+        #   --health-start-period 10s
+        #   --health-interval 10s
+        #   --health-timeout 5s
+        #   --health-retries 5
 
     steps:
       - name: Checkout repo
