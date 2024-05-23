@@ -20,37 +20,30 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    container: typesense/typesense:26.0
+    container:
+      image: typesense/typesense:26.0
+      ports: ['8108:8108']
 
     env:
       MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # services:
-    #   typesense:
-    #     image: typesense/typesense:${{ matrix.typesense-version }}
-    #     ports:
-    #       - "8108:8108"
-    #     command: '--data-dir /data --api-key=xyz --enable-cors'
-
     steps:
-      - name: Start Typesense
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Typesense
         run: |
-          docker run -d \
-          -p 8108:8108 \
-          -v/tmp/typesense:/data \
-          --name typesense \
-          typesense/typesense:26.0 \
-          --api-key=xyz \
-          --data-dir /data \
-          --enable-cors
-      - uses: actions/checkout@v4
-      - uses: erlef/setup-beam@v1
+          docker run -d -p 8108:8108 --name typesense -v/tmp/typesense:/data typesense/typesense:26.0 --api-key=xyz --data-dir /data --enable-cors
+
+      - name: Setup Elixir/OTP
+        uses: erlef/setup-beam@v1
         with:
           otp-version: '25'
           elixir-version: '1.14.x'
 
-      - uses: actions/cache@v4
+      - name: Cache dependencies/builds
+        uses: actions/cache@v4
         with:
           path: |
             deps
@@ -58,12 +51,6 @@ jobs:
           key: ${{ runner.os }}-mixtest-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-mixtest-
-
-      # - name: Start Typesense
-      #   uses: jirevwe/typesense-github-action@v1.0.1
-      #   with:
-      #     typesense-version: ${{ matrix.typesense-version }}
-      #     typesense-api-key: xyz
 
       - name: Install Dependencies
         run: |
