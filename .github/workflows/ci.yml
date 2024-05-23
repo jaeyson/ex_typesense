@@ -32,10 +32,9 @@ jobs:
     services:
       typesense:
         image: typesense/typesense:${{ matrix.typesense-version }}
-        ports:
-          - '8108:8108'
         options: >-
           --health-cmd "curl http://localhost:8108/health"
+          --health-start-period 10s
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
