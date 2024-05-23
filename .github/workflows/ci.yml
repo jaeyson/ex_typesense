@@ -23,7 +23,7 @@ jobs:
 
     strategy:
       matrix:
-        typesense-version: ['26.0']
+        typesense-version: ['0.25.2', '26.0']
 
     env:
       MIX_ENV: test
@@ -32,8 +32,6 @@ jobs:
     services:
       typesense:
         image: typesense/typesense:${{ matrix.typesense-version }}
-        # ports:
-        #   - "8108:8108"
 
     steps:
       - name: Checkout repo
@@ -41,7 +39,17 @@ jobs:
 
       - name: Start Typesense
         run: |
-          docker run -d -p 8108:8108 --name typesense -v/tmp/typesense:/data typesense/typesense:26.0 --api-key=xyz --data-dir /data --enable-cors
+          docker run -d \
+          -p 8108:8108 \
+          --name typesense \
+          -v /tmp/typesense:/data \
+          typesense/typesense:${{ matrix.typesense-version}} \
+          --api-key=xyz \
+          --data-dir /data \
+          --enable-cors
+
+      - name: Curl Typesense
+        run: sleep 10 && curl http://localhost:8108/health
 
       - name: Setup Elixir/OTP
         uses: erlef/setup-beam@v1
