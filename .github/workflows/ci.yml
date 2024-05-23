@@ -23,7 +23,7 @@ jobs:
 
     strategy:
       matrix:
-        typesense-version: [26.0]
+        typesense-version: ['26.0']
 
     env:
       MIX_ENV: test
