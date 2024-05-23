@@ -9,6 +9,7 @@ defmodule ExTypesense.HttpClient do
   @type request_body() :: iodata() | nil
   @type request_method() :: :get | :post | :delete | :patch | :put
   @type request_path() :: String.t()
+
   @api_header_name ~c"X-TYPESENSE-API-KEY"
 
   def get_host, do: Application.get_env(:ex_typesense, :host)
