@@ -20,13 +20,16 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    container:
-      image: typesense/typesense:26.0
-      ports: ['8108:8108']
 
     env:
       MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    services:
+      typesense:
+        image: typesense/typesense:${{ matrix.typesense-version }}
+        # ports:
+        #   - "8108:8108"
 
     steps:
       - name: Checkout repo
