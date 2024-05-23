@@ -72,8 +72,8 @@ jobs:
       - name: run static analysis
         run: mix credo --all --strict
 
-      - name: format files
-        run: mix format
+      - name: check format files
+        run: mix format --check-formatted
 
       - name: Run tests
         run: mix test
