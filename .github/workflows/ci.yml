@@ -49,6 +49,9 @@ jobs:
           --data-dir /data \
           --enable-cors
 
+      - name: Curl Typesense
+        run: sleep 1 && curl http://localhost:8108/health
+
       - name: Setup Elixir/OTP
         uses: erlef/setup-beam@v1
         with:
