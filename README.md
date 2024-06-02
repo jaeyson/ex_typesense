@@ -168,6 +168,18 @@ ExTypesense.search(Person, params)
 
 Check [Cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more examples.
 
+## Test
+
+If you want to try/test the package itself, you need Docker for the local typesense instance:
+
+```bash
+# optional, make the script executable
+chmod +x start_local.sh
+
+# run local typesense instance
+./start_local.sh
+```
+
 ## License
 
 Copyright (c) 2021 Jaeyson Anthony Y.
