@@ -12,4 +12,4 @@ else
   export TYPESENSE_IMAGE=${TYPESENSE_IMAGE:-"docker.io/typesense/typesense:26.0"}
 fi
 
-docker compose up -d && docker container logs --follow --tail 50 typesense
+docker compose up -d

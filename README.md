@@ -177,7 +177,7 @@ If you want to try/test the package itself, you need Docker for the local typese
 chmod +x start_local.sh
 
 # run local typesense instance
-./start_local.sh
+source start_local.sh
 ```
 
 ## License
