@@ -1,6 +1,6 @@
 services:
   typesense:
-    image: ${TYPESENSE_IMAGE}
+    image: docker.io/typesense/typesense:26.0
     container_name: typesense
     restart: on-failure
     ports:
