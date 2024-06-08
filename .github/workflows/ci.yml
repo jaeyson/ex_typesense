@@ -46,7 +46,7 @@ jobs:
           -v /tmp/typesense:/data \
           typesense/typesense:${{ matrix.typesense-version}} \
           --api-key=xyz \
-          --data-dir /data \
+          --data-dir=/data \
           --enable-cors
 
       - name: Curl Typesense
