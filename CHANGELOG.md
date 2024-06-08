@@ -16,10 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Refactor `ExTypesense.HttpClient` on how to handle request.
 * Bumped dependencies' version.
+* Dropped usage of `:httpc` in favor of using [`Req library`](https://hex.pm/packages/req).
 
 ### Deprecated
 
-* Some functions from `Cluster`, `Collection`, `Document`, `HttpClient` and `Search` where soft depcrated in order to incorporate the `Connection` module for dynamic connections loaded from Ecto schema. If you read the docs, you might notice it's marked with `deprecated` and encourages to use the newer ones.
+* Some functions from `Document` and `HttpClient` where soft depcrated in order to incorporate the `Connection` module for dynamic connections loaded from Ecto schema. If you read the docs, you might notice it's marked with `deprecated` and encourages to use the newer ones.
 
 ## 0.3.5 (2023.08.13)
 

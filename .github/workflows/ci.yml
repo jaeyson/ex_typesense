@@ -64,9 +64,9 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mixtest-${{ hashFiles('**/mix.lock') }}
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mixtest-
+            ${{ runner.os }}-mix-
 
       - name: Install Dependencies
         run: |
@@ -89,8 +89,8 @@ jobs:
       - name: run static analysis
         run: mix credo --all --strict
 
-      # - name: check format files
-      #   run: mix format --check-formatted
+      - name: check format files
+        run: mix format --check-formatted
 
       - name: Run tests
         run: mix test

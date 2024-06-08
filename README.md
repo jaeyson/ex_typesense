@@ -38,11 +38,7 @@ end
 
 ## Getting started
 
-### 1. Add credential to config
-
-After you have setup a [local](./guides/running_local_typesense.md) Typesense or [Cloud hosted](https://cloud.typesense.org) instance, you can set the following config details to the config file:
-
-#### Run local Typesense instance
+### 0. Run local Typesense instance
 
 ```bash
 # Linux
@@ -54,7 +50,11 @@ docker compose -f osx.yml up -d
 
 More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense
 
-#### Set credentials via config (e.g. `config/runtime.exs`)
+### 1. Add credential to config
+
+After you have setup a [local](./guides/running_local_typesense.md) Typesense or [Cloud hosted](https://cloud.typesense.org) instance, you can set the following config details to the config file:
+
+#### (Option 1) Set credentials via config (e.g. `config/runtime.exs`)
 
 ```elixir
 config :ex_typesense,
@@ -72,6 +72,63 @@ config :ex_typesense,
   host: "111222333aaabbbcc-9.x9.typesense.net" # Nodes
   port: 443,
   scheme: "https"
+```
+
+#### (Option 2) Dynamic connection using an Ecto schema
+
+> By default you don't need to pass connections every
+> time you use a function, if you use "Option 1" above.
+
+You may have a `Connection` Ecto schema in your app and want to pass your own creds dynamically.
+
+```elixir
+defmodule MyApp.Credential do
+  schema "credentials" do
+    field :node, :string
+    field :secret_key, :string
+    field :port, :integer
+  end
+end
+```
+
+```elixir
+credential = MyApp.Credential |> where(id: ^8888) |> Repo.one()
+
+# using Connection struct
+conn = %ExTypesense.Connection{
+  host: credential.node,
+  api_key: credential.secret_key,
+  port: credential.port,
+  scheme: "https"
+}
+
+# or maps, as long as the keys matches in ExTypesense.Connection.t()
+conn = %{
+  host: credential.node,
+  api_key: credential.secret_key,
+  port: credential.port,
+  scheme: "https"
+}
+
+# or convert your struct to map, as long as the keys matches in ExTypesense.Connection.t()
+conn = Map.from_struct(MyApp.Credential)
+
+# or you don't want to change the fields in your schema, thus you convert it to map
+conn = %Credential{
+  node: "localhost",
+  secret_key: "xyz",
+  port: 8108,
+  scheme: "http"
+}
+
+conn =
+  conn
+  |> Map.from_struct()
+  |> Map.drop([:node, :secret_key])
+  |> Map.put(:host, conn.node)
+  |> Map.put(:api_key, conn.secret_key)
+
+ExTypesense.search(conn, collection_name, query)
 ```
 
 ### 2. Create a collection
