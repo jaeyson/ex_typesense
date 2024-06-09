@@ -6,6 +6,7 @@ defmodule ExTypesense.Collection do
   In Typesense, a [Collection](https://typesense.org/docs/latest/api/collections.html) is a group of related [Documents](https://typesense.org/docs/latest/api/documents.html) that is roughly equivalent to a table in a relational database. When we create a collection, we give it a name and describe the fields that will be indexed when a document is added to the collection.
   """
 
+  alias ExTypesense.Connection
   alias ExTypesense.HttpClient
 
   defmodule Field do
@@ -100,9 +101,9 @@ defmodule ExTypesense.Collection do
   Lists all collections.
   """
   @doc since: "0.1.0"
-  @spec list_collections() :: response()
-  def list_collections do
-    case HttpClient.run(:get, @collections_path) do
+  @spec list_collections(Connection.t()) :: response()
+  def list_collections(conn \\ Connection.new()) do
+    case HttpClient.request(conn, %{method: :get, path: @collections_path}) do
       {:ok, collections} ->
         Stream.map(collections, &convert_to_struct/1) |> Enum.to_list()
 
@@ -115,10 +116,10 @@ defmodule ExTypesense.Collection do
   Get the collection name by alias.
   """
   @doc since: "0.3.0"
-  @spec get_collection_name(String.t() | module()) :: String.t()
-  def get_collection_name(alias_name) do
-    alias_name
-    |> get_collection_alias()
+  @spec get_collection_name(Connection.t(), String.t() | module()) :: String.t()
+  def get_collection_name(conn \\ Connection.new(), alias_name) do
+    conn
+    |> get_collection_alias(alias_name)
     |> Map.get("collection_name")
   end
 
@@ -126,23 +127,22 @@ defmodule ExTypesense.Collection do
   Get a specific collection by string or module name.
   """
   @doc since: "0.1.0"
-  @spec get_collection(String.t() | module()) :: response()
-  def get_collection(name) when is_atom(name) do
+  @spec get_collection(Connection.t(), String.t() | module()) :: response()
+  def get_collection(conn \\ Connection.new(), name)
+
+  def get_collection(conn, name) when is_atom(name) do
     collection_name = name.__schema__(:source)
-
-    [@collections_path, collection_name]
-    |> Path.join()
-    |> do_get_collection()
+    path = Path.join([@collections_path, collection_name])
+    do_get_collection(conn, path)
   end
 
-  def get_collection(name) when is_binary(name) do
-    [@collections_path, name]
-    |> Path.join()
-    |> do_get_collection()
+  def get_collection(conn, name) when is_binary(name) do
+    path = Path.join([@collections_path, name])
+    do_get_collection(conn, path)
   end
 
-  defp do_get_collection(path) do
-    case HttpClient.run(:get, path) do
+  defp do_get_collection(conn, path) do
+    case HttpClient.request(conn, %{method: :get, path: path}) do
       {:ok, collection} ->
         convert_to_struct(collection)
 
@@ -189,27 +189,29 @@ defmodule ExTypesense.Collection do
       }
   """
   @doc since: "0.1.0"
-  @spec create_collection(schema :: module() | map()) :: response()
-  def create_collection(schema) when is_atom(schema) do
+  @spec create_collection(Connection.t(), schema :: module() | map()) :: response()
+  def create_collection(conn \\ Connection.new(), schema)
+
+  def create_collection(conn, schema) when is_atom(schema) do
     schema =
       schema.get_field_types()
       |> Map.put(:name, schema.__schema__(:source))
 
-    do_create_collection(schema)
+    do_create_collection(conn, schema)
   end
 
-  def create_collection(schema) when is_map(schema) do
+  def create_collection(conn, schema) when is_map(schema) do
     schema = Map.put(schema, :name, schema[:name])
 
-    do_create_collection(schema)
+    do_create_collection(conn, schema)
   end
 
-  def create_collection(_schema), do: {:error, "wrong argument(s) passed"}
+  def create_collection(_conn, _schema), do: {:error, "wrong argument(s) passed"}
 
-  defp do_create_collection(schema) do
+  defp do_create_collection(conn, schema) do
     body = Jason.encode!(schema)
 
-    case HttpClient.run(:post, @collections_path, body) do
+    case HttpClient.request(conn, %{method: :post, path: @collections_path, body: body}) do
       {:ok, collection} ->
         convert_to_struct(collection)
 
@@ -258,27 +260,26 @@ defmodule ExTypesense.Collection do
       }
   """
   @doc since: "0.1.0"
-  @spec update_collection_fields(name :: String.t() | module(), map()) :: response()
-  def update_collection_fields(name, fields \\ %{})
+  @spec update_collection_fields(Connection.t(), name :: String.t() | module(), map()) ::
+          response()
+  def update_collection_fields(conn \\ Connection.new(), name, fields \\ %{})
 
-  def update_collection_fields(name, fields) when is_atom(name) do
+  def update_collection_fields(conn, name, fields) when is_atom(name) do
     collection_name = name.__schema__(:source)
 
-    [@collections_path, collection_name]
-    |> Path.join()
-    |> do_update_collection_fields(Jason.encode!(fields))
+    path = Path.join([@collections_path, collection_name])
+    do_update_collection_fields(conn, path, Jason.encode!(fields))
   end
 
-  def update_collection_fields(name, fields) when is_binary(name) do
-    [@collections_path, name]
-    |> Path.join()
-    |> do_update_collection_fields(Jason.encode!(fields))
+  def update_collection_fields(conn, name, fields) when is_binary(name) do
+    path = Path.join([@collections_path, name])
+    do_update_collection_fields(conn, path, Jason.encode!(fields))
   end
 
-  def update_collection_fields(_name, _schema), do: {:error, "wrong argument(s) passed"}
+  def update_collection_fields(_conn, _name, _schema), do: {:error, "wrong argument(s) passed"}
 
-  defp do_update_collection_fields(path, body) do
-    case HttpClient.run(:patch, path, body) do
+  defp do_update_collection_fields(conn, path, body) do
+    case HttpClient.request(conn, %{method: :patch, path: path, body: body}) do
       {:ok, collection} ->
         convert_to_struct(collection)
 
@@ -293,23 +294,23 @@ defmodule ExTypesense.Collection do
   **Note**: dropping a collection does not remove the referenced alias, only the indexed documents.
   """
   @doc since: "0.1.0"
-  @spec drop_collection(name :: String.t() | module()) :: response()
-  def drop_collection(name) when is_atom(name) do
+  @spec drop_collection(Connection.t(), name :: String.t() | module()) :: response()
+  def drop_collection(conn \\ Connection.new(), name)
+
+  def drop_collection(conn, name) when is_atom(name) do
     collection_name = name.__schema__(:source)
 
-    [@collections_path, collection_name]
-    |> Path.join()
-    |> do_drop_collection()
+    path = Path.join([@collections_path, collection_name])
+    do_drop_collection(conn, path)
   end
 
-  def drop_collection(name) when is_binary(name) do
-    [@collections_path, name]
-    |> Path.join()
-    |> do_drop_collection()
+  def drop_collection(conn, name) when is_binary(name) do
+    path = Path.join([@collections_path, name])
+    do_drop_collection(conn, path)
   end
 
-  defp do_drop_collection(path) do
-    case HttpClient.run(:delete, path) do
+  defp do_drop_collection(conn, path) do
+    case HttpClient.request(conn, %{method: :delete, path: path}) do
       {:ok, collection} ->
         convert_to_struct(collection)
 
@@ -322,9 +323,9 @@ defmodule ExTypesense.Collection do
   List all aliases and the corresponding collections that they map to.
   """
   @doc since: "0.1.0"
-  @spec list_collection_aliases() :: response()
-  def list_collection_aliases do
-    case HttpClient.run(:get, @aliases_path) do
+  @spec list_collection_aliases(Connection.t()) :: response()
+  def list_collection_aliases(conn \\ Connection.new()) do
+    case HttpClient.request(conn, %{method: :get, path: @aliases_path}) do
       {:ok, %{"aliases" => aliases}} ->
         aliases
 
@@ -337,24 +338,24 @@ defmodule ExTypesense.Collection do
   Get a specific collection alias by string or module name.
   """
   @doc since: "0.1.0"
-  @spec get_collection_alias(String.t() | module()) :: response()
-  def get_collection_alias(alias_name) when is_atom(alias_name) do
-    [@aliases_path, alias_name.__schema__(:source)]
-    |> Path.join()
-    |> do_get_collection_alias()
+  @spec get_collection_alias(Connection.t(), String.t() | module()) :: response()
+  def get_collection_alias(conn \\ Connection.new(), alias_name)
+
+  def get_collection_alias(conn, alias_name) when is_atom(alias_name) do
+    path = Path.join([@aliases_path, alias_name.__schema__(:source)])
+    do_get_collection_alias(conn, path)
   end
 
-  def get_collection_alias(alias_name) when is_binary(alias_name) do
-    [@aliases_path, alias_name]
-    |> Path.join()
-    |> do_get_collection_alias()
+  def get_collection_alias(conn, alias_name) when is_binary(alias_name) do
+    path = Path.join([@aliases_path, alias_name])
+    do_get_collection_alias(conn, path)
   end
 
-  def get_collection_alias(_alias_name), do: {:error, "wrong argument(s) passed"}
+  def get_collection_alias(_conn, _alias_name), do: {:error, "wrong argument(s) passed"}
 
-  @spec do_get_collection_alias(String.t()) :: response()
-  defp do_get_collection_alias(path) do
-    case HttpClient.run(:get, path) do
+  # @spec do_get_collection_alias(String.t()) :: response()
+  defp do_get_collection_alias(conn, path) do
+    case HttpClient.request(conn, %{method: :get, path: path}) do
       {:ok, collection_alias} ->
         collection_alias
 
@@ -367,23 +368,26 @@ defmodule ExTypesense.Collection do
   Upserts a collection alias.
   """
   @doc since: "0.1.0"
-  @spec upsert_collection_alias(String.t() | module(), String.t()) :: response()
-  def upsert_collection_alias(alias_name, collection_name) when is_atom(alias_name) do
+  @spec upsert_collection_alias(Connection.t(), String.t() | module(), String.t()) :: response()
+  def upsert_collection_alias(conn \\ Connection.new(), alias_name, collection_name)
+
+  def upsert_collection_alias(conn, alias_name, collection_name) when is_atom(alias_name) do
     path = Path.join([@aliases_path, alias_name.__schema__(:source)])
     body = Jason.encode!(%{collection_name: collection_name})
-    do_upsert_collection_alias(path, body)
+    do_upsert_collection_alias(conn, path, body)
   end
 
-  def upsert_collection_alias(alias_name, collection_name) when is_binary(alias_name) do
+  def upsert_collection_alias(conn, alias_name, collection_name) when is_binary(alias_name) do
     path = Path.join([@aliases_path, alias_name])
     body = Jason.encode!(%{collection_name: collection_name})
-    do_upsert_collection_alias(path, body)
+    do_upsert_collection_alias(conn, path, body)
   end
 
-  def upsert_collection_alias(_alias_name), do: {:error, "wrong argument(s) passed"}
+  def upsert_collection_alias(_conn, _alias_name, _collection_name),
+    do: {:error, "wrong argument(s) passed"}
 
-  defp do_upsert_collection_alias(path, body) do
-    case HttpClient.run(:put, path, body) do
+  defp do_upsert_collection_alias(conn, path, body) do
+    case HttpClient.request(conn, %{method: :put, path: path, body: body}) do
       {:ok, collection_alias} ->
         collection_alias
 
@@ -397,23 +401,23 @@ defmodule ExTypesense.Collection do
   is not affected by this action.
   """
   @doc since: "0.1.0"
-  @spec delete_collection_alias(String.t() | module()) :: response()
-  def delete_collection_alias(alias_name) when is_atom(alias_name) do
-    [@aliases_path, alias_name.__schema__(:source)]
-    |> Path.join()
-    |> do_delete_collection_alias()
+  @spec delete_collection_alias(Connection.t(), String.t() | module()) :: response()
+  def delete_collection_alias(conn \\ Connection.new(), alias_name)
+
+  def delete_collection_alias(conn, alias_name) when is_atom(alias_name) do
+    path = Path.join([@aliases_path, alias_name.__schema__(:source)])
+    do_delete_collection_alias(conn, path)
   end
 
-  def delete_collection_alias(alias_name) when is_binary(alias_name) do
-    [@aliases_path, alias_name]
-    |> Path.join()
-    |> do_delete_collection_alias()
+  def delete_collection_alias(conn, alias_name) when is_binary(alias_name) do
+    path = Path.join([@aliases_path, alias_name])
+    do_delete_collection_alias(conn, path)
   end
 
-  def delete_collection_alias(_alias_name), do: {:error, "wrong argument(s) passed"}
+  def delete_collection_alias(_conn, _alias_name), do: {:error, "wrong argument(s) passed"}
 
-  defp do_delete_collection_alias(path) do
-    case HttpClient.run(:delete, path) do
+  defp do_delete_collection_alias(conn, path) do
+    case HttpClient.request(conn, %{method: :delete, path: path}) do
       {:ok, collection_alias} ->
         collection_alias
 
