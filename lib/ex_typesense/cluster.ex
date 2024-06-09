@@ -1,18 +1,21 @@
 defmodule ExTypesense.Cluster do
-  alias ExTypesense.HttpClient
-
+  @moduledoc since: "0.3.0"
   @moduledoc """
   Cluster specific operations.
   """
+
+  alias ExTypesense.Connection
+  alias ExTypesense.HttpClient
 
   @type response() :: any() | {:ok, any()} | {:error, map()}
 
   @doc """
   Get health information about a Typesense node.
   """
-  @spec health :: response()
-  def health do
-    case HttpClient.run(:get, "/health") do
+  @doc since: "0.3.0"
+  @spec health(Connection.t()) :: response()
+  def health(conn \\ Connection.new()) do
+    case HttpClient.request(conn, %{method: :get, path: "/health"}) do
       {:ok, %{"ok" => true}} ->
         {:ok, true}
 
@@ -26,16 +29,18 @@ defmodule ExTypesense.Cluster do
 
   This endpoint returns average requests per second and latencies for all requests in the last 10 seconds.
   """
-  @spec api_stats :: response()
-  def api_stats do
-    HttpClient.run(:get, "/stats.json")
+  @doc since: "0.3.0"
+  @spec api_stats(Connection.t()) :: response()
+  def api_stats(connection \\ Connection.new()) do
+    HttpClient.request(connection, %{method: :get, path: "/stats.json"})
   end
 
   @doc """
   Get current RAM, CPU, Disk & Network usage metrics.
   """
-  @spec cluster_metrics :: response()
-  def cluster_metrics do
-    HttpClient.run(:get, "/metrics.json")
+  @doc since: "0.3.0"
+  @spec cluster_metrics(Connection.t()) :: response()
+  def cluster_metrics(connection \\ Connection.new()) do
+    HttpClient.request(connection, %{method: :get, path: "/metrics.json"})
   end
 end
