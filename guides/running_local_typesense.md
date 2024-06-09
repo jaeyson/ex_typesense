@@ -16,18 +16,12 @@ machine:
 - Docker Compose: <https://docs.docker.com/compose/install/> - Docker Compose
   helps manage multi-container applications like Typesense.
 
-Or use the [one line command](https://github.com/docker/docker-install) to install both:
-
-```bash
-# this is slightly edited so that you don't
-# have to save the file on the machine
-curl -sSL https://get.docker.com/ | sh
-```
 
 ## Setting up
 
 We are using Docker compose to bootstrap a local Typesense instance from a
-sample docker compose file.
+sample `docker-compose.yml` file.
+
 
 Clone the `ex_typesense` GitHub repository:
 
@@ -39,15 +33,8 @@ Navigate to the cloned GitHub repository start the Typesense instance:
 
 ```bash
 cd ex_typesense
-
-# using Linux
-docker compose -f linux.yml up -d
-
-# or using Mac OS, the difference is using arm64 arch
-docker compose -f osx.yml up -d
+docker-compose up -d
 ```
-
-More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense
 
 Once you've started Typesense, you can verify its installation by accessing the
 health endpoint through a browser or `curl` in the terminal:
@@ -61,9 +48,5 @@ In a separate terminal, you can view the logs of your local Typesense instance
 using following command:
 
 ```bash
-# using Linux
-docker compose -f linux.yml logs -f
-
-# or using Mac OS
-docker compose -f osx.yml logs -f
+docker-compose logs -f
 ```

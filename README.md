@@ -3,12 +3,9 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/ex_typesense)](https://hex.pm/packages/ex_typesense)
 [![Hexdocs.pm](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_typesense)
 [![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](LICENSE)
-[![Typesense badge](https://img.shields.io/badge/Typesense-v26.0-darkblue)](https://typesense.org/docs/26.0/api)
-[![Coverage Status](https://coveralls.io/repos/github/jaeyson/ex_typesense/badge.svg?branch=main)](https://coveralls.io/github/jaeyson/ex_typesense?branch=main)
+[![Typesense badge](https://img.shields.io/badge/Typesense-v0.25.2-darkblue)](https://typesense.org/docs/0.25.2/api)
 
 Typesense client for Elixir with support for your Ecto schemas.
-
-**Note**: Breaking changes if you're upgrading from `0.3.x` to upcoming `0.5.x` version.
 
 ## Todo
 
@@ -28,7 +25,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 0.4"}
+    {:ex_typesense, "~> 0.3"}
 
     # Or from GitHub repository, if you want to latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}
@@ -38,23 +35,11 @@ end
 
 ## Getting started
 
-### 0. Run local Typesense instance
-
-```bash
-# Linux
-docker compose -f linux.yml up -d
-
-# Mac OS, the difference is using arm64 arch
-docker compose -f osx.yml up -d
-```
-
-More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense
-
 ### 1. Add credential to config
 
 After you have setup a [local](./guides/running_local_typesense.md) Typesense or [Cloud hosted](https://cloud.typesense.org) instance, you can set the following config details to the config file:
 
-#### (Option 1) Set credentials via config (e.g. `config/runtime.exs`)
+For local instance:
 
 ```elixir
 config :ex_typesense,
@@ -74,68 +59,9 @@ config :ex_typesense,
   scheme: "https"
 ```
 
-#### (Option 2) Dynamic connection using an Ecto schema
-
-> By default you don't need to pass connections every
-> time you use a function, if you use "Option 1" above.
-
-You may have a `Connection` Ecto schema in your app and want to pass your own creds dynamically.
-
-```elixir
-defmodule MyApp.Credential do
-  schema "credentials" do
-    field :node, :string
-    field :secret_key, :string
-    field :port, :integer
-  end
-end
-```
-
-```elixir
-credential = MyApp.Credential |> where(id: ^8888) |> Repo.one()
-
-# using Connection struct
-conn = %ExTypesense.Connection{
-  host: credential.node,
-  api_key: credential.secret_key,
-  port: credential.port,
-  scheme: "https"
-}
-
-# or maps, as long as the keys matches in ExTypesense.Connection.t()
-conn = %{
-  host: credential.node,
-  api_key: credential.secret_key,
-  port: credential.port,
-  scheme: "https"
-}
-
-# or convert your struct to map, as long as the keys matches in ExTypesense.Connection.t()
-conn = Map.from_struct(MyApp.Credential)
-
-# or you don't want to change the fields in your schema, thus you convert it to map
-conn = %Credential{
-  node: "localhost",
-  secret_key: "xyz",
-  port: 8108,
-  scheme: "http"
-}
-
-conn =
-  conn
-  |> Map.from_struct()
-  |> Map.drop([:node, :secret_key])
-  |> Map.put(:host, conn.node)
-  |> Map.put(:api_key, conn.secret_key)
-
-ExTypesense.search(conn, collection_name, query)
-```
-
 ### 2. Create a collection
 
-There are 2 ways to create a collection, either via [Ecto schema](https://hexdocs.pm/ecto/Ecto.Schema.html) or using map ([an Elixir data type](https://hexdocs.pm/elixir/keywords-and-maps.html#maps-as-key-value-pairs)):
-
-#### Option 1: using Ecto
+#### Using Ecto
 
 In this example, we're adding `person_id` that points to the id of `persons` schema.
 
@@ -184,7 +110,7 @@ Next, create the collection from a module name.
 ExTypesense.create_collection(Person)
 ```
 
-#### Option 2: using map
+#### Using Maps
 
 ```elixir
 schema = %{
