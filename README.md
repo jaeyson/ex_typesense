@@ -2,7 +2,7 @@
 
 [![Hex.pm](https://img.shields.io/hexpm/v/ex_typesense)](https://hex.pm/packages/ex_typesense)
 [![Hexdocs.pm](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_typesense)
-[![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](LICENSE)
+[![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](https://hexdocs.pm/ex_typesense/license.html)
 [![Typesense badge](https://img.shields.io/badge/Typesense-v26.0-darkblue)](https://typesense.org/docs/26.0/api)
 [![Coverage Status](https://coveralls.io/repos/github/jaeyson/ex_typesense/badge.svg?branch=main)](https://coveralls.io/github/jaeyson/ex_typesense?branch=main)
 
@@ -41,20 +41,18 @@ end
 ### 0. Run local Typesense instance
 
 ```bash
-# Linux
-docker compose -f linux.yml up -d
-
-# Mac OS, the difference is using arm64 arch
-docker compose -f osx.yml up -d
+docker compose up -d
 ```
 
 More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense
 
 ### 1. Add credential to config
 
-After you have setup a [local](./guides/running_local_typesense.md) Typesense or [Cloud hosted](https://cloud.typesense.org) instance, you can set the following config details to the config file:
+After you have setup a [local](./guides/running_local_typesense.md) Typesense or [Cloud hosted](https://cloud.typesense.org) instance, there are 2 ways to set the credentials:
 
-#### (Option 1) Set credentials via config (e.g. `config/runtime.exs`)
+#### Option 1: Set credentials via config (e.g. `config/runtime.exs`)
+
+You can set the following config details to the config file:
 
 ```elixir
 config :ex_typesense,
@@ -74,7 +72,7 @@ config :ex_typesense,
   scheme: "https"
 ```
 
-#### (Option 2) Dynamic connection using an Ecto schema
+#### Option 2: Dynamic connection using an Ecto schema
 
 > By default you don't need to pass connections every
 > time you use a function, if you use "Option 1" above.
@@ -223,7 +221,7 @@ ExTypesense.search(schema.name, params)
 ExTypesense.search(Person, params)
 ```
 
-Check [Cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more examples.
+Check [Cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more usage examples.
 
 ## License
 

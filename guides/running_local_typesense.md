@@ -40,11 +40,7 @@ Navigate to the cloned GitHub repository start the Typesense instance:
 ```bash
 cd ex_typesense
 
-# using Linux
-docker compose -f linux.yml up -d
-
-# or using Mac OS, the difference is using arm64 arch
-docker compose -f osx.yml up -d
+docker compose up -d
 ```
 
 More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense
@@ -61,9 +57,9 @@ In a separate terminal, you can view the logs of your local Typesense instance
 using following command:
 
 ```bash
-# using Linux
-docker compose -f linux.yml logs -f
+# logs from all instances
+docker compose logs -f
 
-# or using Mac OS
-docker compose -f osx.yml logs -f
+# or specifically Typesense
+docker container logs --follow --tail 50 typesense
 ```
