@@ -2,7 +2,7 @@ defmodule ExTypesense.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/jaeyson/ex_typesense"
-  @version "0.4.1"
+  @version "0.4.2"
 
   def project do
     [

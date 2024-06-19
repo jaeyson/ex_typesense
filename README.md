@@ -140,6 +140,7 @@ In this example, we're adding `person_id` that points to the id of `persons` sch
 ```elixir
 defmodule Person do
   use Ecto.Schema
+  @behaviour ExTypesense
 
   defimpl Jason.Encoder, for: __MODULE__ do
     def encode(value, opts) do
@@ -163,6 +164,7 @@ defmodule Person do
     field(:person_id, :integer, virtual: true)
   end
 
+  @impl ExTypesense
   def get_field_types do
     %{
       default_sorting_field: "person_id",

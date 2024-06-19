@@ -7,11 +7,48 @@
 ### Create using schema
 
 ```elixir
+# edit your Ecto schema
+defmodule MyApp.Listings.Company do
+  use Ecto.Schema
+  @behaviour ExTypesense
+
+  defimpl Jason.Encoder, for: __MODULE__ do
+    def encode(value, opts) do
+      value
+      |> Map.take([:company_id, :name, :country])
+      |> Enum.map(fn {key, val} ->
+        if key === :company_id, do: {key, Map.get(value, :id)}, else: {key, val}
+      end)
+      |> Enum.into(%{})
+      |> Jason.Encode.map(opts)
+    end
+  end
+
+  schema "companies" do
+    field(:name, :string)
+    field(:country, :string)
+    field(:company_id, :integer, virtual: true)
+  end
+
+  @impl ExTypesense
+  def get_field_types do
+    %{
+      default_sorting_field: "company_id",
+      fields: [
+        %{name: "company_id", type: "int32"},
+        %{name: "name", type: "string"},
+        %{name: "country", type: "string"}
+      ]
+    }
+  end
+end
+
+# then try this on iex -S mix
 iex> ExTypesense.create_collection(Company)
 {:ok,
   %ExTypesense.Collection{
     "created_at" => 1234567890,
-    "default_sorting_field" => "companies_id",
+    "default_sorting_field" => "company_id",
     "fields" => [...],
     "name" => "companies",
     "num_documents" => 0,

@@ -33,6 +33,7 @@ defmodule ExTypesense do
       field :person_id, :integer, virtual: true
     end
 
+    @impl ExTypesense
     def get_field_types do
       %{
         default_sorting_field: "person_id",
@@ -50,7 +51,10 @@ defmodule ExTypesense do
 
   alias ExTypesense.Connection
 
-  @callback get_field_types :: any()
+  @doc """
+  A callback function for creating the schema fields in Typesense.
+  """
+  @callback get_field_types :: map()
 
   # collection-specific tasks
   defdelegate list_collections(conn \\ Connection.new()), to: ExTypesense.Collection

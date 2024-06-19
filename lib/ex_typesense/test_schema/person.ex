@@ -1,5 +1,6 @@
 defmodule ExTypesense.TestSchema.Person do
   use Ecto.Schema
+  @behaviour ExTypesense
 
   @moduledoc false
 
@@ -21,6 +22,7 @@ defmodule ExTypesense.TestSchema.Person do
     field(:person_id, :integer, virtual: true)
   end
 
+  @impl ExTypesense
   def get_field_types do
     %{
       default_sorting_field: "person_id",
