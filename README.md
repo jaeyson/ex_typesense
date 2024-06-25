@@ -89,10 +89,11 @@ defmodule MyApp.Credential do
 end
 ```
 
+using Connection struct
+
 ```elixir
 credential = MyApp.Credential |> where(id: ^8888) |> Repo.one()
 
-# using Connection struct
 conn = %ExTypesense.Connection{
   host: credential.node,
   api_key: credential.secret_key,
@@ -100,7 +101,12 @@ conn = %ExTypesense.Connection{
   scheme: "https"
 }
 
-# or maps, as long as the keys matches in ExTypesense.Connection.t()
+ExTypesense.search(conn, collection_name, query)
+```
+
+or maps, as long as the keys matches in `ExTypesense.Connection.t()`
+
+```elixir
 conn = %{
   host: credential.node,
   api_key: credential.secret_key,
@@ -108,10 +114,22 @@ conn = %{
   scheme: "https"
 }
 
-# or convert your struct to map, as long as the keys matches in ExTypesense.Connection.t()
+ExTypesense.search(conn, collection_name, query)
+
+```
+
+or convert your struct to map, as long as the keys matches in `ExTypesense.Connection.t()`
+
+```elixir
 conn = Map.from_struct(MyApp.Credential)
 
-# or you don't want to change the fields in your schema, thus you convert it to map
+ExTypesense.search(conn, collection_name, query)
+
+```
+
+or you don't want to change the fields in your schema, thus you convert it to map
+
+```elixir
 conn = %Credential{
   node: "localhost",
   secret_key: "xyz",

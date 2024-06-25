@@ -137,7 +137,7 @@ defmodule ExTypesense.HttpClient do
 
   @doc since: "0.3.0"
   @deprecated "Use request/2 instead"
-  @spec httpc_run(URI.__struct__(), atom(), String.t(), list()) :: {:ok, map()} | {:error, map()}
+  @spec httpc_run(URI.t(), atom(), String.t(), list()) :: {:ok, map()} | {:error, map()}
   def httpc_run(uri, method, payload, content_type \\ ~c"application/json") do
     uri = %URI{
       scheme: get_scheme(),
