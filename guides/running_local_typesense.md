@@ -43,7 +43,7 @@ cd ex_typesense
 docker compose up -d
 ```
 
-More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense
+More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense.html
 
 Once you've started Typesense, you can verify its installation by accessing the
 health endpoint through a browser or `curl` in the terminal:
