@@ -44,7 +44,7 @@ end
 docker compose up -d
 ```
 
-More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense
+More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense.html
 
 ### 1. Add credential to config
 
