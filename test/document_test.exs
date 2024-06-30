@@ -1,20 +1,11 @@
 defmodule DocumentTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias ExTypesense.TestSchema.Person
 
   setup_all do
-    Application.put_all_env(
-      ex_typesense: [
-        api_key: "xyz",
-        host: "localhost",
-        port: 8108,
-        scheme: "http"
-      ]
-    )
-
     schema = %{
-      name: "companies",
+      name: "doc_companies",
       fields: [
         %{name: "company_name", type: "string"},
         %{name: "company_id", type: "int32"},
@@ -24,14 +15,14 @@ defmodule DocumentTest do
     }
 
     document = %{
-      collection_name: "companies",
+      collection_name: "doc_companies",
       company_name: "Test",
       company_id: 1001,
       country: "US"
     }
 
     multiple_documents = %{
-      collection_name: "companies",
+      collection_name: "doc_companies",
       documents: [
         %{
           company_name: "Industrial Mills, Co.",
@@ -46,49 +37,44 @@ defmodule DocumentTest do
       ]
     }
 
-    ExTypesense.create_collection(conn, schema)
-    ExTypesense.create_collection(conn, Person)
+    %{schema: schema, document: document, multiple_documents: multiple_documents}
+  end
+
+  setup %{schema: schema} do
+    ExTypesense.create_collection(schema)
+    ExTypesense.create_collection(Person)
 
     on_exit(fn ->
-      ExTypesense.drop_collection(conn, schema.name)
-      ExTypesense.drop_collection(conn, Person)
-      # from doctest
-      ExTypesense.drop_collection(conn, "posts")
-
-      # this is for deprecated function to set the creds
-      [:api_key, :host, :port, :scheme]
-      |> Enum.each(&Application.delete_env(:ex_typesense, &1))
+      ExTypesense.drop_collection(schema.name)
+      ExTypesense.drop_collection(Person)
     end)
 
-    %{conn: conn, schema: schema, document: document, multiple_documents: multiple_documents}
+    :ok
   end
 
-  test "error: get unknown document", %{conn: conn, schema: schema} do
+  test "error: get unknown document", %{schema: schema} do
     unknown_id = 999
     message = ~s(Could not find a document with id: #{unknown_id})
-    assert {:error, message} === ExTypesense.get_document(conn, schema.name, unknown_id)
+    assert {:error, message} === ExTypesense.get_document(schema.name, unknown_id)
   end
 
-  test "success: index a document using a map then fetch if indexed", %{
-    conn: conn,
-    document: document
-  } do
+  test "success: index a document using a map then fetch if indexed", %{document: document} do
     {:ok, %{"id" => id, "company_name" => company_name}} =
-      ExTypesense.create_document(conn, document)
+      ExTypesense.create_document(document)
 
     id = String.to_integer(id)
-    {:ok, result} = ExTypesense.get_document(conn, "companies", id)
+    {:ok, result} = ExTypesense.get_document("doc_companies", id)
     assert result["company_name"] === company_name
   end
 
-  test "success: adding unknown field", %{conn: conn, document: document} do
+  test "success: adding unknown field", %{document: document} do
     document = Map.put(document, :unknown_field, "unknown_value")
-    {:ok, collection} = ExTypesense.create_document(conn, document)
+    {:ok, collection} = ExTypesense.create_document(document)
     assert Map.has_key?(collection, "unknown_field")
   end
 
-  test "success: upsert to update a document", %{conn: conn, document: document} do
-    {:ok, %{"id" => id}} = ExTypesense.create_document(conn, document)
+  test "success: upsert to update a document", %{document: document} do
+    {:ok, %{"id" => id}} = ExTypesense.create_document(document)
     id = String.to_integer(id)
     company_name = "Stark Industries"
 
@@ -97,25 +83,25 @@ defmodule DocumentTest do
       |> Map.put(:company_name, company_name)
       |> Map.put(:id, id)
 
-    {:ok, result} = ExTypesense.upsert_document(conn, updated_document)
+    {:ok, result} = ExTypesense.upsert_document(updated_document)
 
     assert company_name === result["company_name"]
   end
 
-  test "success: create document using upsert_document/2", %{conn: conn, document: document} do
+  test "success: create document using upsert_document/2", %{document: document} do
     document = Map.put(document, :id, "9999")
-    assert {:ok, %{"id" => "9999"}} = ExTypesense.upsert_document(conn, document)
+    assert {:ok, %{"id" => "9999"}} = ExTypesense.upsert_document(document)
   end
 
-  test "error: creates a document with a specific id twice", %{conn: conn, document: document} do
+  test "error: creates a document with a specific id twice", %{document: document} do
     document = Map.put(document, :id, "99")
-    assert {:ok, %{"id" => id}} = ExTypesense.create_document(conn, document)
-    assert {:error, message} = ExTypesense.create_document(conn, document)
+    assert {:ok, %{"id" => id}} = ExTypesense.create_document(document)
+    assert {:error, message} = ExTypesense.create_document(document)
     assert message === "A document with id #{id} already exists."
   end
 
-  test "success: update a document", %{conn: conn, document: document} do
-    {:ok, %{"id" => id}} = ExTypesense.create_document(conn, document)
+  test "success: update a document", %{document: document} do
+    {:ok, %{"id" => id}} = ExTypesense.create_document(document)
     company_name = "Stark Industries"
 
     updated_document =
@@ -123,46 +109,39 @@ defmodule DocumentTest do
       |> Map.put(:company_name, company_name)
       |> Map.put(:id, id)
 
-    {:ok, result} = ExTypesense.update_document(conn, updated_document)
+    {:ok, result} = ExTypesense.update_document(updated_document)
 
     assert company_name === result["company_name"]
   end
 
-  test "success: (deprecate) deletes a document using map", %{conn: conn, document: document} do
-    {:ok, %{"id" => id}} = ExTypesense.create_document(conn, document)
+  test "success: deletes a document using map", %{document: document} do
+    {:ok, %{"id" => id}} = ExTypesense.create_document(document)
 
     assert {:ok, _} = ExTypesense.delete_document(document.collection_name, String.to_integer(id))
   end
 
-  test "success: deletes a document by struct", %{conn: conn} do
-    person = %Person{id: 0, name: "Tar Zan", person_id: 0, country: "Brazil"}
+  test "success: deletes a document by struct" do
+    person = %Person{id: 0, name: "John Smith", person_id: 0, country: "Brazil"}
 
-    assert {:ok, %{"country" => "Brazil", "id" => "0", "name" => "Tar Zan", "person_id" => 0}} =
-             ExTypesense.create_document(conn, person)
+    assert {:ok, %{"country" => "Brazil", "id" => "0", "name" => "John Smith", "person_id" => 0}} =
+             ExTypesense.create_document(person)
 
-    assert {:ok, _} = ExTypesense.delete_document_by_struct(conn, person)
+    assert {:ok, _} = ExTypesense.delete_document(person)
   end
 
-  test "success: deletes a document by id", %{conn: conn, document: document} do
-    {:ok, %{"id" => id}} = ExTypesense.create_document(conn, document)
+  test "success: deletes a document by id", %{document: document} do
+    {:ok, %{"id" => id}} = ExTypesense.create_document(document)
 
-    assert {:ok, _} =
-             ExTypesense.delete_document_by_id(
-               conn,
-               document.collection_name,
-               String.to_integer(id)
-             )
+    assert {:ok, _} = ExTypesense.delete_document(document.collection_name, String.to_integer(id))
   end
 
-  test "success: index multiple documents", %{conn: conn, multiple_documents: multiple_documents} do
-    conn
-    |> ExTypesense.index_multiple_documents(multiple_documents)
+  test "success: index multiple documents", %{multiple_documents: multiple_documents} do
+    ExTypesense.index_multiple_documents(multiple_documents)
     |> Kernel.===({:ok, [%{"success" => true}, %{"success" => true}]})
     |> assert()
   end
 
   test "success: update multiple documents", %{
-    conn: conn,
     multiple_documents: multiple_documents,
     schema: schema
   } do
@@ -171,8 +150,8 @@ defmodule DocumentTest do
     first_update = "first_update"
     second_update = "second_update"
 
-    {:ok, %{"id" => first_id}} = ExTypesense.create_document(conn, first)
-    {:ok, %{"id" => second_id}} = ExTypesense.create_document(conn, second)
+    {:ok, %{"id" => first_id}} = ExTypesense.create_document(first)
+    {:ok, %{"id" => second_id}} = ExTypesense.create_document(second)
 
     update_1 =
       first
@@ -186,21 +165,19 @@ defmodule DocumentTest do
 
     multiple_documents = Map.put(multiple_documents, :documents, [update_1, update_2])
 
-    conn
-    |> ExTypesense.update_multiple_documents(multiple_documents)
+    ExTypesense.update_multiple_documents(multiple_documents)
     |> Kernel.===({:ok, [%{"success" => true}, %{"success" => true}]})
     |> assert()
 
-    {:ok, first} = ExTypesense.get_document(conn, schema.name, String.to_integer(first_id))
-    {:ok, second} = ExTypesense.get_document(conn, schema.name, String.to_integer(second_id))
+    {:ok, first} = ExTypesense.get_document(schema.name, String.to_integer(first_id))
+    {:ok, second} = ExTypesense.get_document(schema.name, String.to_integer(second_id))
 
     assert first["company_name"] === first_update
     assert second["company_name"] === second_update
   end
 
-  test "success: upsert multiple documents", %{conn: conn, multiple_documents: multiple_documents} do
-    conn
-    |> ExTypesense.upsert_multiple_documents(multiple_documents)
+  test "success: upsert multiple documents", %{multiple_documents: multiple_documents} do
+    ExTypesense.upsert_multiple_documents(multiple_documents)
     |> Kernel.===({:ok, [%{"success" => true}, %{"success" => true}]})
     |> assert()
   end

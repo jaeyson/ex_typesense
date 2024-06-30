@@ -77,7 +77,22 @@ defmodule ExTypesense.HttpClient do
   @doc since: "0.4.0"
   @spec request(Connection.t(), map()) :: {:ok, any()} | {:error, String.t()}
   def request(conn, opts \\ %{}) do
-    retry = if opts[:retry], do: opts[:retry], else: &Req.Steps.retry/1
+    # Req.Request.append_error_steps and its retry option are used here.
+    # options like retry, max_retries, etc. can be found in:
+    # https://hexdocs.pm/req/Req.Steps.html#retry/1
+    # NOTE: look at source code in Github
+    retry = fn request ->
+      if Mix.env() === :test do
+        {req, resp_or_err} = request
+
+        # disabled in order to cut time in tests
+        req = %{req | options: %{retry: false}}
+
+        Req.Steps.retry({req, resp_or_err})
+      else
+        Req.Steps.retry(request)
+      end
+    end
 
     url =
       %URI{

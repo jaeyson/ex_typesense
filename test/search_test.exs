@@ -1,18 +1,12 @@
 defmodule SearchTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   import Ecto.Query, warn: false
-  alias ExTypesense.TestSchema.Person
+
+  alias ExTypesense.TestSchema.Catalog
 
   setup_all do
-    conn = %ExTypesense.Connection{
-      host: "localhost",
-      api_key: "xyz",
-      port: 8108,
-      scheme: "http"
-    }
-
     schema = %{
-      name: "companies",
+      name: "search_companies",
       fields: [
         %{name: "company_name", type: "string"},
         %{name: "company_id", type: "int32"},
@@ -22,58 +16,60 @@ defmodule SearchTest do
     }
 
     document = %{
-      collection_name: "companies",
+      collection_name: "search_companies",
       company_name: "Test",
       company_id: 1001,
       country: "US"
     }
 
-    person = %Person{
+    catalog = %Catalog{
       id: 1002,
-      name: "John Smith",
-      country: "UK",
-      person_id: 1002
+      name: "Rubber Ducky",
+      description: "A tool by articulating a problem in spoken or written natural language.",
+      catalog_id: 1002
     }
 
-    ExTypesense.create_collection(conn, schema)
-    ExTypesense.create_collection(conn, Person)
+    with %ExTypesense.Collection{} <- ExTypesense.create_collection(schema) do
+      {:ok, _} = ExTypesense.create_document(document)
+    end
 
-    {:ok, _} = ExTypesense.create_document(conn, document)
-    {:ok, _} = ExTypesense.create_document(conn, person)
+    with %ExTypesense.Collection{} <- ExTypesense.create_collection(Catalog) do
+      {:ok, _} = ExTypesense.create_document(catalog)
+    end
 
     on_exit(fn ->
-      ExTypesense.drop_collection(conn, schema.name)
-      ExTypesense.drop_collection(conn, Person)
+      ExTypesense.drop_collection(schema.name)
+      ExTypesense.drop_collection(Catalog)
     end)
 
-    %{conn: conn, schema: schema, document: document, person: person}
+    %{schema: schema, document: document, catalog: catalog}
   end
 
-  test "success: search with result", %{conn: conn, schema: schema} do
+  test "success: search with result", %{schema: schema} do
     params = %{
       q: "test",
       query_by: "company_name"
     }
 
-    assert {:ok, _} = ExTypesense.search(conn, schema.name, params)
+    assert {:ok, _} = ExTypesense.search(schema.name, params)
   end
 
-  test "success: search with Ecto", %{conn: conn, person: person} do
+  test "success: search with Ecto", %{catalog: catalog} do
     params = %{
-      q: "UK",
-      query_by: "country"
+      q: "duck",
+      query_by: "name"
     }
 
-    assert %Ecto.Query{} = Person |> where([p], p.id in ^[person.person_id])
-    assert %Ecto.Query{} = ExTypesense.search(conn, Person, params)
+    assert %Ecto.Query{} = Catalog |> where([p], p.id in ^[catalog.catalog_id])
+    assert %Ecto.Query{} = ExTypesense.search(Catalog, params)
   end
 
-  test "success: empty result", %{conn: conn, schema: schema} do
+  test "success: empty result", %{schema: schema} do
     params = %{
       q: "unknown",
       query_by: "company_name"
     }
 
-    assert {:ok, _} = ExTypesense.search(conn, schema.name, params)
+    assert {:ok, %{"found" => 0, "hits" => []}} = ExTypesense.search(schema.name, params)
   end
 end

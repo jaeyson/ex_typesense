@@ -374,69 +374,7 @@ defmodule ExTypesense.Document do
   @doc """
   Deletes a document by struct.
   """
-  @doc since: "0.4.0"
-  @spec delete_document_by_struct(Connection.t(), struct()) :: response()
-  def delete_document_by_struct(conn \\ Connection.new(), struct) when is_struct(struct) do
-    document_id = struct.id
-    collection_name = struct.__struct__.__schema__(:source)
-    do_delete_document(conn, collection_name, document_id)
-  end
-
-  @doc """
-  Deletes a document by collection name and document id.
-
-  ## Examples
-      iex> schema = %{
-      ...>   name: "posts",
-      ...>   fields: [
-      ...>     %{name: "title", type: "string"}
-      ...>   ],
-      ...> }
-      ...> ExTypesense.create_collection(schema)
-      iex> post =
-      ...>  %{
-      ...>    id: "12",
-      ...>    collection_name: "posts",
-      ...>    post_id: 22,
-      ...>    title: "the quick brown fox"
-      ...>  }
-      iex> ExTypesense.create_document(post)
-      iex> ExTypesense.delete_document("posts", 12)
-      {:ok,
-        %{
-          "id" => "12",
-          "post_id" => 22,
-          "title" => "the quick brown fox",
-          "collection_name" => "posts"
-        }
-      }
-  """
-  @doc since: "0.4.0"
-  @spec delete_document_by_id(Connection.t(), String.t(), integer()) :: response()
-  def delete_document_by_id(conn \\ Connection.new(), collection_name, document_id)
-      when is_binary(collection_name) and is_integer(document_id) do
-    do_delete_document(conn, collection_name, document_id)
-  end
-
-  @doc since: "0.4.0"
-  @spec do_delete_document(Connection.t(), String.t(), integer()) :: response()
-  defp do_delete_document(conn, collection_name, document_id) do
-    path =
-      Path.join([
-        @collections_path,
-        collection_name,
-        @documents_path,
-        Jason.encode!(document_id)
-      ])
-
-    HttpClient.request(conn, %{method: :delete, path: path})
-  end
-
-  @doc """
-  Deletes a document by struct.
-  """
   @doc since: "0.3.0"
-  @deprecated "use delete_document_by_struct/2"
   @spec delete_document(struct()) :: response()
   def delete_document(struct) when is_struct(struct) do
     document_id = struct.id
@@ -474,7 +412,6 @@ defmodule ExTypesense.Document do
       }
   """
   @doc since: "0.3.0"
-  @deprecated "use delete_document_by_id/3"
   @spec delete_document(String.t(), integer()) :: response()
   def delete_document(collection_name, document_id)
       when is_binary(collection_name) and is_integer(document_id) do
