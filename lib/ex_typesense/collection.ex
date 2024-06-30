@@ -29,6 +29,7 @@ defmodule ExTypesense.Collection do
       :vec_dist
     ]
 
+    @typedoc since: "0.1.0"
     @type t() :: %__MODULE__{
             facet: boolean(),
             index: boolean(),
@@ -44,6 +45,7 @@ defmodule ExTypesense.Collection do
             vec_dist: String.t()
           }
 
+    @typedoc since: "0.1.0"
     @type field_type() ::
             :string
             | :"string[]"
@@ -95,6 +97,7 @@ defmodule ExTypesense.Collection do
           symbols_to_index: list()
         }
 
+  @typedoc since: "0.1.0"
   @type response() :: t() | [t() | map()] | map() | {:error, map()}
 
   @doc """

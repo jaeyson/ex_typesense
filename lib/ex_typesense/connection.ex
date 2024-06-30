@@ -4,25 +4,44 @@ defmodule ExTypesense.Connection do
   Fetches credentials either from application env or map.
   """
 
-  @derive {Inspect, except: [:api_key]}
-  defstruct host: ExTypesense.HttpClient.get_host(),
-            api_key: ExTypesense.HttpClient.api_key(),
-            port: ExTypesense.HttpClient.get_port(),
-            scheme: ExTypesense.HttpClient.get_scheme()
+  alias ExTypesense.HttpClient
 
-  @type t() :: %__MODULE__{}
+  # @derive {Inspect, except: [:api_key]}
+  # defstruct host: HttpClient.get_host(),
+  #           api_key: HttpClient.api_key(),
+  #           port: HttpClient.get_port(),
+  #           scheme: HttpClient.get_scheme()
+
+  @typedoc since: "0.4.0"
+  @type t() :: %{
+          host: String.t() | nil,
+          api_key: String.t() | nil,
+          port: non_neg_integer() | nil,
+          scheme: String.t() | nil
+        }
 
   @doc """
   Fetches credentials either from application env or map.
   """
   @doc since: "0.4.0"
-  @spec new(connection :: struct() | map()) :: ExTypesense.Connection.t()
-  def new(connection \\ %__MODULE__{}) when is_struct(connection) do
-    %__MODULE__{
+  @spec new(connection :: t() | map()) :: ExTypesense.Connection.t()
+  def new(connection \\ defaults()) when is_map(connection) do
+    %{
       host: Map.get(connection, :host),
       api_key: Map.get(connection, :api_key),
       port: Map.get(connection, :port),
       scheme: Map.get(connection, :scheme)
+    }
+  end
+
+  @doc since: "0.4.3"
+  @spec defaults :: map()
+  defp defaults do
+    %{
+      host: HttpClient.get_host(),
+      api_key: HttpClient.api_key(),
+      port: HttpClient.get_port(),
+      scheme: HttpClient.get_scheme()
     }
   end
 end

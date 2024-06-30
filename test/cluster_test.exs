@@ -1,26 +1,15 @@
 defmodule ClusterTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
-  setup_all do
-    %{
-      conn: %ExTypesense.Connection{
-        host: "localhost",
-        api_key: "xyz",
-        port: 8108,
-        scheme: "http"
-      }
-    }
+  test "health" do
+    assert {:ok, true} = ExTypesense.health()
   end
 
-  test "health", context do
-    assert {:ok, true} = ExTypesense.health(context.conn)
+  test "api status" do
+    assert {:ok, _} = ExTypesense.api_stats()
   end
 
-  test "api status", context do
-    assert {:ok, _} = ExTypesense.api_stats(context.conn)
-  end
-
-  test "cluster metrics", context do
-    assert {:ok, _} = ExTypesense.cluster_metrics(context.conn)
+  test "cluster metrics" do
+    assert {:ok, _} = ExTypesense.cluster_metrics()
   end
 end

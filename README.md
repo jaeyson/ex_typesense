@@ -8,7 +8,7 @@
 
 Typesense client for Elixir with support for your Ecto schemas.
 
-**Note**: Breaking changes if you're upgrading from `0.3.x` to upcoming `0.5.x` version.
+> **Note**: Breaking changes if you're upgrading from `0.3.x` to upcoming `0.5.x` version.
 
 ## Todo
 
@@ -55,12 +55,16 @@ After you have setup a [local](./guides/running_local_typesense.md) Typesense or
 You can set the following config details to the config file:
 
 ```elixir
-config :ex_typesense,
-  api_key: "xyz",
-  host: "localhost",
-  port: 8108,
-  scheme: "http"
+if config_env() == :prod do # if you'll use this in prod environment
+  config :ex_typesense,
+    api_key: "xyz",
+    host: "localhost",
+    port: 8108,
+    scheme: "http"
+  ...
 ```
+
+> **Note**: If you use this for adding test in your app, you might want to add this in `config/test.exs`:
 
 For Cloud hosted, you can generate and obtain the credentials from cluster instance admin interface:
 
@@ -72,12 +76,12 @@ config :ex_typesense,
   scheme: "https"
 ```
 
-#### Option 2: Dynamic connection using an Ecto schema
+#### Option 2: Set credentials from a map
 
 > By default you don't need to pass connections every
 > time you use a function, if you use "Option 1" above.
 
-You may have a `Connection` Ecto schema in your app and want to pass your own creds dynamically.
+You may have a `Connection` Ecto schema in your app and want to pass your own creds dynamically:
 
 ```elixir
 defmodule MyApp.Credential do
@@ -89,24 +93,11 @@ defmodule MyApp.Credential do
 end
 ```
 
-using Connection struct
+As long as the keys matches in `ExTypesense.Connection.t()`:
 
 ```elixir
 credential = MyApp.Credential |> where(id: ^8888) |> Repo.one()
 
-conn = %ExTypesense.Connection{
-  host: credential.node,
-  api_key: credential.secret_key,
-  port: credential.port,
-  scheme: "https"
-}
-
-ExTypesense.search(conn, collection_name, query)
-```
-
-or maps, as long as the keys matches in `ExTypesense.Connection.t()`
-
-```elixir
 conn = %{
   host: credential.node,
   api_key: credential.secret_key,
@@ -115,10 +106,9 @@ conn = %{
 }
 
 ExTypesense.search(conn, collection_name, query)
-
 ```
 
-or convert your struct to map, as long as the keys matches in `ExTypesense.Connection.t()`
+Or convert your struct to map, as long as the keys matches in `ExTypesense.Connection.t()`:
 
 ```elixir
 conn = Map.from_struct(MyApp.Credential)
@@ -127,7 +117,7 @@ ExTypesense.search(conn, collection_name, query)
 
 ```
 
-or you don't want to change the fields in your schema, thus you convert it to map
+Or you don't want to change the fields in your Ecto schema, thus you convert it to map:
 
 ```elixir
 conn = %Credential{

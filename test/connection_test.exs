@@ -1,34 +1,76 @@
 defmodule ConnectionTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   alias ExTypesense.TestSchema.Credential
 
+  @forbidden "Forbidden - a valid `x-typesense-api-key` header must be sent."
+
   setup_all do
-    %{
-      conn: %ExTypesense.Connection{
-        host: "localhost",
-        api_key: "xyz",
-        port: 8108,
-        scheme: "http"
-      }
+    schema = %{
+      name: "connection_companies",
+      fields: [
+        %{name: "company_name", type: "string"},
+        %{name: "company_id", type: "int32"},
+        %{name: "country", type: "string"}
+      ],
+      default_sorting_field: "company_id"
     }
+
+    %{schema: schema}
   end
 
-  test "Using connection struct", context do
-    assert {:ok, true} = ExTypesense.health(context.conn)
+  setup %{schema: schema} do
+    ExTypesense.create_collection(schema)
+
+    on_exit(fn ->
+      ExTypesense.drop_collection(schema.name)
+    end)
+
+    :ok
   end
 
-  test "Using map" do
+  test "error: health check with empty credentials" do
+    conn = %{api_key: nil, host: nil, port: nil, scheme: nil}
+
+    assert_raise FunctionClauseError, fn ->
+      ExTypesense.health(conn)
+    end
+  end
+
+  test "error: health check, with incorrect API key" do
+    conn = %{api_key: "abc", host: "localhost", port: 8109, scheme: "http"}
+
+    assert_raise Req.TransportError, fn ->
+      ExTypesense.health(conn)
+    end
+  end
+
+  test "error: wrong API key was configured" do
     conn = %{
       host: "localhost",
-      api_key: "xyz",
+      api_key: "another_key",
       port: 8108,
       scheme: "http"
     }
 
-    assert {:ok, true} = ExTypesense.health(conn)
+    assert {:error, @forbidden} == ExTypesense.list_collections(conn)
   end
 
-  test "Using a struct converted to map and update its keys" do
+  test "error: overriding config with a wrong API key" do
+    conn = %{
+      host: "localhost",
+      api_key: "another_key",
+      port: 8108,
+      scheme: "http"
+    }
+
+    assert {:error, @forbidden} = ExTypesense.list_collections(conn)
+  end
+
+  test "success: health check" do
+    assert {:ok, true} = ExTypesense.health()
+  end
+
+  test "success: Using a struct converted to map and update its keys" do
     conn = %Credential{
       node: "localhost",
       secret_key: "xyz",
