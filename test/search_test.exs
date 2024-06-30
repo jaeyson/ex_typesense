@@ -1,5 +1,5 @@
 defmodule SearchTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   import Ecto.Query, warn: false
   alias ExTypesense.TestSchema.Person
 

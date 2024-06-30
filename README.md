@@ -55,12 +55,16 @@ After you have setup a [local](./guides/running_local_typesense.md) Typesense or
 You can set the following config details to the config file:
 
 ```elixir
-config :ex_typesense,
-  api_key: "xyz",
-  host: "localhost",
-  port: 8108,
-  scheme: "http"
+if config_env() == :prod do # if you'll use this in prod environment
+  config :ex_typesense,
+    api_key: "xyz",
+    host: "localhost",
+    port: 8108,
+    scheme: "http"
+  ...
 ```
+
+> **Note**: If you use this for adding test in your app, you might want to add this in `config/test.exs`:
 
 For Cloud hosted, you can generate and obtain the credentials from cluster instance admin interface:
 

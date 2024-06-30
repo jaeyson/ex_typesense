@@ -1,5 +1,5 @@
 defmodule DocumentTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias ExTypesense.TestSchema.Person
 
