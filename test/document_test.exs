@@ -1,19 +1,17 @@
 defmodule DocumentTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias ExTypesense.TestSchema.Person
 
   setup_all do
-    # this is for deprecated function to set the creds
-    [{:api_key, "xyz"}, {:host, "localhost"}, {:port, 8108}, {:scheme, "http"}]
-    |> Enum.each(fn {key, val} -> Application.put_env(:ex_typesense, key, val) end)
-
-    conn = %ExTypesense.Connection{
-      host: "localhost",
-      api_key: "xyz",
-      port: 8108,
-      scheme: "http"
-    }
+    Application.put_all_env(
+      ex_typesense: [
+        api_key: "xyz",
+        host: "localhost",
+        port: 8108,
+        scheme: "http"
+      ]
+    )
 
     schema = %{
       name: "companies",

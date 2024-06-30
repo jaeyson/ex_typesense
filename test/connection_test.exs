@@ -1,5 +1,5 @@
 defmodule ConnectionTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   alias ExTypesense.TestSchema.Credential
 
   setup_all do

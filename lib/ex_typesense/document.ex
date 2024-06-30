@@ -12,6 +12,8 @@ defmodule ExTypesense.Document do
   @collections_path @root_path <> "collections"
   @documents_path "documents"
   @import_path "import"
+
+  @typedoc since: "0.1.0"
   @type response :: :ok | {:ok, map()} | {:error, map()}
 
   @doc """

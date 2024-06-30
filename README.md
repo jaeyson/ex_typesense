@@ -8,7 +8,7 @@
 
 Typesense client for Elixir with support for your Ecto schemas.
 
-**Note**: Breaking changes if you're upgrading from `0.3.x` to upcoming `0.5.x` version.
+> **Note**: Breaking changes if you're upgrading from `0.3.x` to upcoming `0.5.x` version.
 
 ## Todo
 

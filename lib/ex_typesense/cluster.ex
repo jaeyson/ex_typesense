@@ -7,6 +7,7 @@ defmodule ExTypesense.Cluster do
   alias ExTypesense.Connection
   alias ExTypesense.HttpClient
 
+  @typedoc since: "0.3.0"
   @type response() :: any() | {:ok, any()} | {:error, map()}
 
   @doc """
