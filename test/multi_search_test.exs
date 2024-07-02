@@ -59,4 +59,18 @@ defmodule MultisearchTest do
     assert [%{"found" => 1, "hits" => hits} | _rest] = results
     assert [%{"document" => %{"company_name" => "Test"}, "vector_distance" => _some_number} | _rest] = hits
   end
+
+  test "error: multi_search with vector_search by an id that doesn't exist", %{conn: conn, schema: schema} do
+    searches = [
+      %{
+        collection: schema.name,
+        q: "*",
+        vector_query: "company_description_embedding:([], id:1)",
+        exclude_fields: "company_description_embedding"
+      }
+    ]
+
+    # Errors are returned per-search and must be extracted separately
+    assert {:ok, %{"results" => [%{"error" => _} | _]}} = ExTypesense.multi_search(conn, searches)
+  end
 end
