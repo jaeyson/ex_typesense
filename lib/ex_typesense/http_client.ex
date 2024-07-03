@@ -6,15 +6,41 @@ defmodule ExTypesense.HttpClient do
 
   alias ExTypesense.Connection
 
+  @typedoc since: "0.1.0"
   @type request_body() :: iodata() | nil
+
+  @typedoc since: "0.1.0"
   @type request_method() :: :get | :post | :delete | :patch | :put
+
+  @typedoc since: "0.1.0"
   @type request_path() :: String.t()
 
   @api_header_name ~c"X-TYPESENSE-API-KEY"
 
+  @doc since: "0.1.0"
+  @spec get_host :: String.t() | nil
   def get_host, do: Application.get_env(:ex_typesense, :host)
-  def get_port, do: Application.get_env(:ex_typesense, :port)
+
+  @doc since: "0.1.0"
+  @spec get_scheme :: String.t() | nil
   def get_scheme, do: Application.get_env(:ex_typesense, :scheme)
+
+  @doc since: "0.1.0"
+  @spec get_port :: non_neg_integer() | nil
+  def get_port do
+    Application.get_env(:ex_typesense, :port)
+  end
+
+  @doc """
+  Returns the Typesense's API key
+
+  > #### Warning {: .warning}
+  >
+  > Even if `api_key` is hidden in `Connection` struct, this
+  > function will still return the key and accessible inside
+  > shell (assuming bad actors [pun unintended `:/`] can get in as well).
+  """
+  @spec api_key :: String.t() | nil
   def api_key, do: Application.get_env(:ex_typesense, :api_key)
 
   @doc """
@@ -49,8 +75,25 @@ defmodule ExTypesense.HttpClient do
       }
   """
   @doc since: "0.4.0"
-  @spec request(Connection.t(), map()) :: nil
+  @spec request(Connection.t(), map()) :: {:ok, any()} | {:error, String.t()}
   def request(conn, opts \\ %{}) do
+    # Req.Request.append_error_steps and its retry option are used here.
+    # options like retry, max_retries, etc. can be found in:
+    # https://hexdocs.pm/req/Req.Steps.html#retry/1
+    # NOTE: look at source code in Github
+    retry = fn request ->
+      if Mix.env() === :test do
+        {req, resp_or_err} = request
+
+        # disabled in order to cut time in tests
+        req = %{req | options: %{retry: false}}
+
+        Req.Steps.retry({req, resp_or_err})
+      else
+        Req.Steps.retry(request)
+      end
+    end
+
     url =
       %URI{
         scheme: conn.scheme,
@@ -68,7 +111,7 @@ defmodule ExTypesense.HttpClient do
       }
       |> Req.Request.put_header("x-typesense-api-key", conn.api_key)
       |> Req.Request.put_header("content-type", opts[:content_type] || "application/json")
-      |> Req.Request.append_error_steps(retry: &Req.Steps.retry/1)
+      |> Req.Request.append_error_steps(retry: retry)
       |> Req.Request.run!()
 
     case response.status in 200..299 do
