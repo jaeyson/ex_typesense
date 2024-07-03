@@ -191,4 +191,8 @@ defmodule DocumentTest do
     assert {:error, ~s(It should be type of map, ":documents" key should contain list of maps)} ===
              ExTypesense.upsert_multiple_documents(persons)
   end
+
+  test "success: delete all documents in a collection", %{schema: schema} do
+    assert %{ok: %{}} == ExTypesense.delete_all_documents(schema.name)
+  end
 end

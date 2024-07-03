@@ -375,6 +375,7 @@ defmodule ExTypesense.Document do
   Deletes a document by struct.
   """
   @doc since: "0.3.0"
+  # TODO: pass optional conn
   @spec delete_document(struct()) :: response()
   def delete_document(struct) when is_struct(struct) do
     document_id = struct.id
@@ -412,10 +413,23 @@ defmodule ExTypesense.Document do
       }
   """
   @doc since: "0.3.0"
+  # TODO: pass optional conn
   @spec delete_document(String.t(), integer()) :: response()
   def delete_document(collection_name, document_id)
       when is_binary(collection_name) and is_integer(document_id) do
     do_delete_document(collection_name, document_id)
+  end
+
+  @doc since: "0.5.0"
+  @spec delete_all_documents(Connection.t(), module() | String.t(), map()) :: response()
+  def delete_all_documents(conn \\ Connection.new(), module_or_collection_name, query \\ %{})
+
+  def delete_all_documents(conn, collection_name, query) when is_binary(collection_name) do
+    %{error: %{message: "not implemented yet"}}
+  end
+
+  def delete_all_documents(conn, module_name, query) when is_atom(module_name) do
+    %{error: %{message: "not implemented yet"}}
   end
 
   @deprecated "use do_delete_document/3"
