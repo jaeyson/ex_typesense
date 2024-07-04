@@ -93,6 +93,7 @@ iex> ExTypesense.create_collection(schema)
 ```elixir
 iex> ExTypesense.list_collections()
 ```
+{: .wrap}
 
 ### Update a collection
 
@@ -140,8 +141,6 @@ iex> ExTypesense.create_document(post, :create)
 }
 ```
 
-{: .wrap}
-
 ### Update a document
 
 ```elixir
@@ -159,8 +158,6 @@ iex> ExTypesense.update_document(post, 0)
 }
 ```
 
-{: .wrap}
-
 
 ### Delete a document
 
@@ -177,8 +174,6 @@ iex> ExTypesense.delete_document(Post, 0)
 }
 ```
 
-{: .wrap}
-
 ### Indexes multiple documents
 
 ```elixir
@@ -187,13 +182,14 @@ iex> ExTypesense.index_multiple_documents(posts, :post_id, :upsert)
 {:ok, [%{"success" => true}, %{"success" => true}]}
 ```
 
-## Search
+## How to use search
 
 {: .col-2}
 
+### Search using Ecto schema (struct)
+
 ```elixir
 iex> params = %{q: "test", query_by: "title"}
-
 iex> ExTypesense.search(Post, params)
 {:ok,
   %{
@@ -204,4 +200,32 @@ iex> ExTypesense.search(Post, params)
     "description" => "lorem ipsum"
   }
 }
+```
+
+### Multi search
+
+```elixir
+iex> ExTypesense.multisearch(Catalog)
+```
+
+### Search using collection name (string)
+
+```elixir
+iex> params = %{q: "test", query_by: "title"}
+iex> ExTypesense.search("posts", params)
+{:ok,
+  %{
+    "id" => "0",
+    "collection_name" => "posts",
+    "post_id" => 34,
+    "title" => "test",
+    "description" => "lorem ipsum"
+  }
+}
+```
+
+### Federated search
+
+```elixir
+iex> ExTypesense.multisearch(Catalog)
 ```
