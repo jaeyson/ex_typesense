@@ -1,4 +1,6 @@
 defmodule ExTypesense.TestSchema.MultiSearch do
+  @moduledoc false
+
   def vector_embeddings do
     [
       0.017149745,
