@@ -13,6 +13,7 @@ defmodule ExTypesense.Search do
   @collections_path @root_path <> "collections"
   @documents_path "documents"
   @search_path "search"
+  @multi_search_path "/multi_search"
   @type response :: Ecto.Query.t() | {:ok, map()} | {:error, map()}
 
   @doc """
@@ -71,5 +72,79 @@ defmodule ExTypesense.Search do
 
     HttpClient.request(conn, %{method: :get, path: path, query: params})
     # HttpClient.run(:get, path, nil, params)
+  end
+
+  @doc """
+  Perform multiple searches at once.
+
+  ## Examples
+      iex> searches = [
+      ...>   %{collection: "companies", params: %{q: "umbrella"}},
+      ...>   %{collection: "companies", params: %{q: "rain"}},
+      ...>   %{collection: "companies", params: %{q: "sun"}}
+      ...> ]
+      iex> ExTypesense.multi_search(searches)
+      {:ok,
+       [
+         %{
+           "facet_counts" => [],
+           "found" => 0,
+           "hits" => [],
+           "out_of" => 0,
+           "page" => 1,
+           "request_params" => %{
+             "collection_name" => "companies",
+             "per_page" => 10,
+             "q" => "umbrella"
+           },
+           "search_cutoff" => false,
+           "search_time_ms" => 5
+         },
+         %{
+           "facet_counts" => [],
+           "found" => 0,
+           "hits" => [],
+           "out_of" => 0,
+           "page" => 1,
+           "request_params" => %{
+             "collection_name" => "companies",
+             "per_page" => 10,
+             "q" => "rain"
+           },
+           "search_cutoff" => false,
+           "search_time_ms" => 5
+         },
+         %{
+           "facet_counts" => [],
+           "found" => 0,
+           "hits" => [],
+           "out_of" => 0,
+           "page" => 1,
+           "request_params" => %{
+             "collection_name" => "companies",
+             "per_page" => 10,
+             "q" => "sun"
+           },
+           "search_cutoff" => false,
+           "search_time_ms" => 5
+         }
+       ]
+      }
+  """
+  @spec multi_search(Connection.t(), [map()]) :: response()
+  def multi_search(conn \\ Connection.new(), searches) do
+    path = @multi_search_path
+
+    response =
+      HttpClient.request(
+        conn,
+        %{
+          method: :post,
+          path: path,
+          body: Jason.encode!(%{searches: searches})
+        }
+      )
+
+    response
   end
 end

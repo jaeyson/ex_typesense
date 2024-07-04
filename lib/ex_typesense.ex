@@ -108,6 +108,7 @@ defmodule ExTypesense do
   # geo search
 
   # multisearch
+  defdelegate multi_search(conn \\ Connection.new(), searches), to: ExTypesense.Search
 
   # curation
 

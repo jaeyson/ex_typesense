@@ -13,7 +13,6 @@ Typesense client for Elixir with support for your Ecto schemas.
 ## Todo
 
 - creating collection using auto schema detection
-- implement multisearch
 - implement geosearch
 - implement curation
 - implement synonyms
