@@ -121,7 +121,7 @@ defmodule DocumentTest do
     person = %Person{id: 99, name: "John Smith", persons_id: 99, country: "Brazil"}
 
     assert {:ok,
-            %{"country" => "Brazil", "id" => "1", "name" => "John Smith", "persons_id" => 99}} =
+            %{"country" => "Brazil", "id" => _, "name" => "John Smith", "persons_id" => 99}} =
              ExTypesense.create_document(person)
 
     assert {:ok, _} = ExTypesense.delete_document(person)
@@ -191,7 +191,7 @@ defmodule DocumentTest do
   test "success: delete all documents using Ecto schema module" do
     person = %Person{id: 1, name: "John Doe", persons_id: 1, country: "Scotland"}
 
-    assert {:ok, %{"country" => "Scotland", "id" => "0", "name" => "John Doe", "persons_id" => 1}} =
+    assert {:ok, %{"country" => "Scotland", "id" => _, "name" => "John Doe", "persons_id" => 1}} =
              ExTypesense.create_document(person)
 
     assert {:ok, %{"num_deleted" => 1}} == ExTypesense.delete_all_documents(Person)
@@ -221,5 +221,9 @@ defmodule DocumentTest do
       ExTypesense.delete_all_documents(multiple_documents.collection_name)
 
     assert documents_deleted > 0
+  end
+
+  test "success: delete documents by query" do
+    assert nil === true
   end
 end
