@@ -87,17 +87,11 @@ defmodule ExTypesense do
     to: ExTypesense.Document
 
   defdelegate create_document(conn \\ Connection.new(), document), to: ExTypesense.Document
-  # TODO: pass optional conn
-  defdelegate delete_document(document), to: ExTypesense.Document
-  # TODO: pass optional conn
-  defdelegate delete_document(collection_name, document_id), to: ExTypesense.Document
+  defdelegate delete_document(conn \\ Connection.new(), document), to: ExTypesense.Document
+  defdelegate delete_documents_by_query(conn \\ Connection.new(), query), to: ExTypesense.Document
 
-  defdelegate delete_all_documents(
-                conn \\ Connection.new(),
-                module_or_collection_name,
-                query \\ %{}
-              ),
-              to: ExTypesense.Document
+  defdelegate delete_all_documents(conn \\ Connection.new(), collection_name),
+    to: ExTypesense.Document
 
   defdelegate update_document(conn \\ Connection.new(), document), to: ExTypesense.Document
   defdelegate upsert_document(conn \\ Connection.new(), document), to: ExTypesense.Document
@@ -112,7 +106,7 @@ defmodule ExTypesense do
     to: ExTypesense.Document
 
   # search
-  defdelegate search(conn \\ Connection.new(), module_or_collection_name, params),
+  defdelegate search(conn \\ Connection.new(), collection_name, params),
     to: ExTypesense.Search
 
   # geo search

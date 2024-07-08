@@ -44,11 +44,11 @@ defmodule ExTypesense.Document do
   """
   @doc since: "0.1.0"
   @spec get_document(Connection.t(), module() | String.t(), integer()) :: response()
-  def get_document(conn \\ Connection.new(), module_name, document_id)
+  def get_document(conn \\ Connection.new(), collection_name, document_id)
 
-  def get_document(conn, module_name, document_id)
-      when is_atom(module_name) and is_integer(document_id) do
-    collection_name = module_name.__schema__(:source)
+  def get_document(conn, collection_name, document_id)
+      when is_atom(collection_name) and is_integer(document_id) do
+    collection_name = collection_name.__schema__(:source)
     do_get_document(conn, collection_name, document_id)
   end
 
@@ -372,21 +372,26 @@ defmodule ExTypesense.Document do
   end
 
   @doc """
-  Deletes a document by struct.
-  """
-  @doc since: "0.3.0"
-  # TODO: pass optional conn
-  @spec delete_document(struct()) :: response()
-  def delete_document(struct) when is_struct(struct) do
-    document_id = struct.id
-    collection_name = struct.__struct__.__schema__(:source)
-    do_delete_document(collection_name, document_id)
-  end
+  Deletes a document by id or struct.
 
-  @doc """
-  Deletes a document by id.
+  > #### Deleting a document by id {: .info}
+  >
+  > If you are deleting by id, pass it as a tuple (`{"collection_name", 23}`)
 
   ## Examples
+      iex> ExTypesense.create_collection(Post)
+      iex> post = Post |> limit(1) |> Repo.one()
+      iex> ExTypesense.create_collection(post)
+      iex> ExTypesense.delete_document(post)
+      {:ok,
+        %{
+          "id" => "1",
+          "post_id" => 1,
+          "title" => "our first post",
+          "collection_name" => "posts"
+        }
+      }
+
       iex> schema = %{
       ...>   name: "posts",
       ...>   fields: [
@@ -402,7 +407,7 @@ defmodule ExTypesense.Document do
       ...>    title: "the quick brown fox"
       ...>  }
       iex> ExTypesense.create_document(post)
-      iex> ExTypesense.delete_document("posts", 12)
+      iex> ExTypesense.delete_document({"posts", 12})
       {:ok,
         %{
           "id" => "12",
@@ -413,27 +418,32 @@ defmodule ExTypesense.Document do
       }
   """
   @doc since: "0.3.0"
-  # TODO: pass optional conn
-  @spec delete_document(String.t(), integer()) :: response()
-  def delete_document(collection_name, document_id)
+  @spec delete_document(Connection.t(), struct() | {String.t(), integer()}) :: response()
+  def delete_document(conn \\ Connection.new(), struct_or_tuple)
+
+  def delete_document(conn, struct) when is_struct(struct) do
+    # document_id = struct.id
+    collection_name = struct.__struct__.__schema__(:source)
+    # delete_document(conn, {collection_name, document_id})
+    filter_by =
+      :virtual_fields
+      |> struct.__struct__.__schema__()
+      |> Enum.filter(&String.contains?(to_string(&1), "_id"))
+      |> Enum.map_join(" || ", fn virtual_field ->
+        value = Map.get(struct, virtual_field)
+        "#{virtual_field}:#{value}"
+      end)
+
+    delete_documents_by_query(conn, collection_name, %{filter_by: filter_by})
+  end
+
+  def delete_document(conn, {collection_name, document_id} = _tuple)
       when is_binary(collection_name) and is_integer(document_id) do
-    do_delete_document(collection_name, document_id)
+    do_delete_document(conn, collection_name, document_id)
   end
 
-  @doc since: "0.5.0"
-  @spec delete_all_documents(Connection.t(), module() | String.t(), map()) :: response()
-  def delete_all_documents(conn \\ Connection.new(), module_or_collection_name, query \\ %{})
-
-  def delete_all_documents(conn, collection_name, query) when is_binary(collection_name) do
-    %{error: %{message: "not implemented yet"}}
-  end
-
-  def delete_all_documents(conn, module_name, query) when is_atom(module_name) do
-    %{error: %{message: "not implemented yet"}}
-  end
-
-  @deprecated "use do_delete_document/3"
-  defp do_delete_document(collection_name, document_id) do
+  @spec do_delete_document(Connection.t(), String.t(), integer()) :: response()
+  defp do_delete_document(conn, collection_name, document_id) do
     path =
       Path.join([
         @collections_path,
@@ -442,6 +452,96 @@ defmodule ExTypesense.Document do
         Jason.encode!(document_id)
       ])
 
-    HttpClient.run(:delete, path)
+    opts = %{
+      method: :delete,
+      path: path
+    }
+
+    HttpClient.request(conn, opts)
   end
+
+  @doc """
+  Deletes documents in a collection by query.
+
+  > #### [Filter and batch size](https://typesense.org/docs/latest/api/documents.html#delete-by-query) {: .info}
+  >
+  > To delete all documents in a collection, you can use a filter that
+  > matches all documents in your collection. For eg, if you have an
+  > int32 field called popularity in your documents, you can use
+  > `filter_by: "popularity:>0"` to delete all documents. Or if you have a
+  > bool field called `in_stock` in your documents, you can use
+  > `filter_by: "in_stock:[true,false]"` to delete all documents.
+  >
+  > Use the `batch_size` to control the number of documents that should
+  > deleted at a time. A larger value will speed up deletions, but will
+  > impact performance of other operations running on the server.
+  >
+  > Filter parameters can be found here: https://typesense.org/docs/latest/api/search.html#filter-parameters
+
+  ## Examples
+      iex> query = %{
+      ...>   filter_by: "num_employees:>100",
+      ...>   batch_size: 100
+      ...> }
+      iex> ExTypesense.delete_documents_by_query(query)
+      {:ok, %{}}
+  """
+  @doc since: "0.5.0"
+  @spec delete_documents_by_query(
+          Connection.t(),
+          module() | String.t(),
+          %{
+            filter_by: String.t(),
+            batch_size: integer() | nil
+          }
+        ) ::
+          response()
+  def delete_documents_by_query(conn \\ Connection.new(), collection_name, query)
+
+  def delete_documents_by_query(conn, collection_name, %{filter_by: filter_by} = query)
+      when not is_nil(filter_by) and is_binary(filter_by) and is_atom(collection_name) do
+    path = Path.join([@collections_path, collection_name, @documents_path])
+    HttpClient.request(conn, %{method: :delete, path: path, query: query})
+  end
+
+  def delete_documents_by_query(conn, collection_name, %{filter_by: filter_by} = query)
+      when not is_nil(filter_by) and is_binary(filter_by) and is_binary(collection_name) do
+    path = Path.join([@collections_path, collection_name, @documents_path])
+    HttpClient.request(conn, %{method: :delete, path: path, query: query})
+  end
+
+  @doc """
+  Deletes all documents in a collection.
+
+  > #### On using this function {: .info}
+  > As of this writing (v0.5.0), there's no built-in way of deleting
+  > all documents via [Typesense docs](https://github.com/typesense/typesense/issues/1613#issuecomment-1994986258).
+  > This function uses `delete_by_query` under the hood.
+  """
+  @doc since: "0.5.0"
+  @spec delete_all_documents(Connection.t(), module() | String.t()) :: response()
+  def delete_all_documents(conn \\ Connection.new(), collection_name)
+
+  def delete_all_documents(conn, collection_name) when is_binary(collection_name) do
+    delete_documents_by_query(conn, collection_name, %{filter_by: "#{collection_name}_id:>=0"})
+  end
+
+  def delete_all_documents(conn, collection_name) when is_atom(collection_name) do
+    name = collection_name.__schema__(:source)
+
+    virtual_field =
+      :virtual_fields
+      |> collection_name.__schema__()
+      |> Enum.filter(&String.contains?(to_string(&1), "_id"))
+      |> hd()
+      |> to_string
+
+    delete_documents_by_query(conn, name, %{filter_by: "#{virtual_field}:>0"})
+  end
+
+  # @spec do_delete_all_documents(Connection.t(), String.t()) :: response()
+  # defp do_delete_all_documents(conn, collection_name) do
+  #   path = Path.join([ @collections_path, collection_name, @documents_path ])
+  #   HttpClient.request(conn, %{method: :delete, path: path})
+  # end
 end

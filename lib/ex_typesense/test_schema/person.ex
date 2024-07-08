@@ -7,9 +7,9 @@ defmodule ExTypesense.TestSchema.Person do
   defimpl Jason.Encoder, for: __MODULE__ do
     def encode(value, opts) do
       value
-      |> Map.take([:person_id, :name, :country])
+      |> Map.take([:persons_id, :name, :country])
       |> Enum.map(fn {key, val} ->
-        if key === :person_id, do: {key, Map.get(value, :id)}, else: {key, val}
+        if key === :persons_id, do: {key, Map.get(value, :id)}, else: {key, val}
       end)
       |> Enum.into(%{})
       |> Jason.Encode.map(opts)
@@ -19,15 +19,17 @@ defmodule ExTypesense.TestSchema.Person do
   schema "persons" do
     field(:name, :string)
     field(:country, :string)
-    field(:person_id, :integer, virtual: true)
+    field(:persons_id, :integer, virtual: true)
   end
 
   @impl ExTypesense
   def get_field_types do
+    primary_field = __MODULE__.__schema__(:source) <> "_id"
+
     %{
-      default_sorting_field: "person_id",
+      default_sorting_field: primary_field,
       fields: [
-        %{name: "person_id", type: "int32"},
+        %{name: primary_field, type: "int32"},
         %{name: "name", type: "string"},
         %{name: "country", type: "string"}
       ]

@@ -8,16 +8,16 @@ defmodule DocumentTest do
       name: "doc_companies",
       fields: [
         %{name: "company_name", type: "string"},
-        %{name: "company_id", type: "int32"},
+        %{name: "doc_companies_id", type: "int32"},
         %{name: "country", type: "string"}
       ],
-      default_sorting_field: "company_id"
+      default_sorting_field: "doc_companies_id"
     }
 
     document = %{
       collection_name: "doc_companies",
       company_name: "Test",
-      company_id: 1001,
+      doc_companies_id: 1001,
       country: "US"
     }
 
@@ -26,21 +26,17 @@ defmodule DocumentTest do
       documents: [
         %{
           company_name: "Industrial Mills, Co.",
-          company_id: 990,
+          doc_companies_id: 990,
           country: "US"
         },
         %{
           company_name: "Washing Machine, Inc.",
-          company_id: 10,
+          doc_companies_id: 10,
           country: "US"
         }
       ]
     }
 
-    %{schema: schema, document: document, multiple_documents: multiple_documents}
-  end
-
-  setup %{schema: schema} do
     ExTypesense.create_collection(schema)
     ExTypesense.create_collection(Person)
 
@@ -49,7 +45,7 @@ defmodule DocumentTest do
       ExTypesense.drop_collection(Person)
     end)
 
-    :ok
+    %{schema: schema, document: document, multiple_documents: multiple_documents}
   end
 
   test "error: get unknown document", %{schema: schema} do
@@ -117,13 +113,15 @@ defmodule DocumentTest do
   test "success: deletes a document using map", %{document: document} do
     {:ok, %{"id" => id}} = ExTypesense.create_document(document)
 
-    assert {:ok, _} = ExTypesense.delete_document(document.collection_name, String.to_integer(id))
+    assert {:ok, _} =
+             ExTypesense.delete_document({document.collection_name, String.to_integer(id)})
   end
 
   test "success: deletes a document by struct" do
-    person = %Person{id: 0, name: "John Smith", person_id: 0, country: "Brazil"}
+    person = %Person{id: 99, name: "John Smith", persons_id: 99, country: "Brazil"}
 
-    assert {:ok, %{"country" => "Brazil", "id" => "0", "name" => "John Smith", "person_id" => 0}} =
+    assert {:ok,
+            %{"country" => "Brazil", "id" => "1", "name" => "John Smith", "persons_id" => 99}} =
              ExTypesense.create_document(person)
 
     assert {:ok, _} = ExTypesense.delete_document(person)
@@ -132,13 +130,13 @@ defmodule DocumentTest do
   test "success: deletes a document by id", %{document: document} do
     {:ok, %{"id" => id}} = ExTypesense.create_document(document)
 
-    assert {:ok, _} = ExTypesense.delete_document(document.collection_name, String.to_integer(id))
+    assert {:ok, _} =
+             ExTypesense.delete_document({document.collection_name, String.to_integer(id)})
   end
 
   test "success: index multiple documents", %{multiple_documents: multiple_documents} do
-    ExTypesense.index_multiple_documents(multiple_documents)
-    |> Kernel.===({:ok, [%{"success" => true}, %{"success" => true}]})
-    |> assert()
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.index_multiple_documents(multiple_documents)
   end
 
   test "success: update multiple documents", %{
@@ -165,9 +163,8 @@ defmodule DocumentTest do
 
     multiple_documents = Map.put(multiple_documents, :documents, [update_1, update_2])
 
-    ExTypesense.update_multiple_documents(multiple_documents)
-    |> Kernel.===({:ok, [%{"success" => true}, %{"success" => true}]})
-    |> assert()
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.update_multiple_documents(multiple_documents)
 
     {:ok, first} = ExTypesense.get_document(schema.name, String.to_integer(first_id))
     {:ok, second} = ExTypesense.get_document(schema.name, String.to_integer(second_id))
@@ -177,9 +174,8 @@ defmodule DocumentTest do
   end
 
   test "success: upsert multiple documents", %{multiple_documents: multiple_documents} do
-    ExTypesense.upsert_multiple_documents(multiple_documents)
-    |> Kernel.===({:ok, [%{"success" => true}, %{"success" => true}]})
-    |> assert()
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.upsert_multiple_documents(multiple_documents)
   end
 
   test "error: upsert multiple documents with struct type" do
@@ -192,7 +188,38 @@ defmodule DocumentTest do
              ExTypesense.upsert_multiple_documents(persons)
   end
 
-  test "success: delete all documents in a collection", %{schema: schema} do
-    assert %{ok: %{}} == ExTypesense.delete_all_documents(schema.name)
+  test "success: delete all documents using Ecto schema module" do
+    person = %Person{id: 1, name: "John Doe", persons_id: 1, country: "Scotland"}
+
+    assert {:ok, %{"country" => "Scotland", "id" => "0", "name" => "John Doe", "persons_id" => 1}} =
+             ExTypesense.create_document(person)
+
+    assert {:ok, %{"num_deleted" => 1}} == ExTypesense.delete_all_documents(Person)
+  end
+
+  test "success: delete all documents in a collection" do
+    multiple_documents = %{
+      collection_name: "doc_companies",
+      documents: [
+        %{
+          company_name: "Boca Cola",
+          doc_companies_id: 227,
+          country: "SG"
+        },
+        %{
+          company_name: "Motor, Inc.",
+          doc_companies_id: 99,
+          country: "TH"
+        }
+      ]
+    }
+
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.index_multiple_documents(multiple_documents)
+
+    {:ok, %{"num_deleted" => documents_deleted}} =
+      ExTypesense.delete_all_documents(multiple_documents.collection_name)
+
+    assert documents_deleted > 0
   end
 end

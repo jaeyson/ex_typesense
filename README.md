@@ -105,6 +105,8 @@ conn = %{
   scheme: "https"
 }
 
+# NOTE: create a collection and import documents
+# first before using the command below
 ExTypesense.search(conn, collection_name, query)
 ```
 
@@ -113,6 +115,8 @@ Or convert your struct to map, as long as the keys matches in `ExTypesense.Conne
 ```elixir
 conn = Map.from_struct(MyApp.Credential)
 
+# NOTE: create a collection and import documents
+# first before using the command below
 ExTypesense.search(conn, collection_name, query)
 
 ```
@@ -134,6 +138,8 @@ conn =
   |> Map.put(:host, conn.node)
   |> Map.put(:api_key, conn.secret_key)
 
+# NOTE: create a collection and import documents
+# first before using the command below
 ExTypesense.search(conn, collection_name, query)
 ```
 

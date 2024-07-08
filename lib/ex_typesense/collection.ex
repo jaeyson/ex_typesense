@@ -26,7 +26,11 @@ defmodule ExTypesense.Collection do
       :optional,
       :sort,
       :type,
-      :vec_dist
+      :vec_dist,
+      :store,
+      :reference,
+      :range_index,
+      :stem
     ]
 
     @typedoc since: "0.1.0"
@@ -42,7 +46,11 @@ defmodule ExTypesense.Collection do
             optional: boolean(),
             sort: boolean(),
             type: field_type(),
-            vec_dist: String.t()
+            vec_dist: String.t(),
+            store: boolean(),
+            reference: String.t(),
+            range_index: boolean(),
+            stem: boolean()
           }
 
     @typedoc since: "0.1.0"
@@ -62,6 +70,8 @@ defmodule ExTypesense.Collection do
             | :object
             | :"object[]"
             | :"string*"
+            | :image
+            | :auto
   end
 
   @collections_path "/collections"
@@ -433,14 +443,12 @@ defmodule ExTypesense.Collection do
     collection =
       Map.new(collection, fn {k, v} ->
         if k === :fields do
-          Map.new(v, &to_atom/1)
+          Map.new(v, fn {k, v} -> {String.to_existing_atom(k), v} end)
         else
-          {String.to_atom(k), v}
+          {String.to_existing_atom(k), v}
         end
       end)
 
     struct(__MODULE__, collection)
   end
-
-  defp to_atom({k, v}), do: {String.to_atom(k), v}
 end
