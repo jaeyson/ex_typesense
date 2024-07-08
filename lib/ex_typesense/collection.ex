@@ -174,15 +174,15 @@ defmodule ExTypesense.Collection do
       ...>   name: "companies",
       ...>   fields: [
       ...>     %{name: "company_name", type: "string"},
-      ...>     %{name: "company_id", type: "int32"},
+      ...>     %{name: "companies_id", type: "int32"},
       ...>     %{name: "country", type: "string", facet: true}
       ...>   ],
-      ...>   default_sorting_field: "company_id"
+      ...>   default_sorting_field: "companies_id"
       ...> }
       iex> ExTypesense.create_collection(schema)
       %ExTypesense.Collection{
         created_at: 1234567890,
-        default_sorting_field: "company_id",
+        default_sorting_field: "companies_id",
         fields: [...],
         name: "companies",
         num_documents: 0,
@@ -193,7 +193,7 @@ defmodule ExTypesense.Collection do
       iex> ExTypesense.create_collection(Person)
       %ExTypesense.Collection{
         created_at: 1234567890,
-        default_sorting_field: "person_id",
+        default_sorting_field: "persons_id",
         fields: [...],
         name: "persons",
         num_documents: 0,
@@ -254,18 +254,7 @@ defmodule ExTypesense.Collection do
       %ExTypesense.Collection{
         created_at: 1234567890,
         name: companies,
-        default_sorting_field: "company_id",
-        fields: [...],
-        num_documents: 0,
-        symbols_to_index: [],
-        token_separators: []
-      }
-
-      iex> ExTypesense.update_collection_fields(Company, fields)
-      %ExTypesense.Collection{
-        created_at: 1234567890,
-        name: companies,
-        default_sorting_field: "company_id",
+        default_sorting_field: "companies_id",
         fields: [...],
         num_documents: 0,
         symbols_to_index: [],
@@ -304,7 +293,8 @@ defmodule ExTypesense.Collection do
   @doc """
   Permanently drops a collection by collection name or module name.
 
-  **Note**: dropping a collection does not remove the referenced alias, only the indexed documents.
+  **Note**: dropping a collection does not remove the referenced
+  alias, only the indexed documents.
   """
   @doc since: "0.1.0"
   @spec drop_collection(Connection.t(), name :: String.t() | module()) :: response()

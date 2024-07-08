@@ -149,7 +149,10 @@ There are 2 ways to create a collection, either via [Ecto schema](https://hexdoc
 
 #### Option 1: using Ecto
 
-In this example, we're adding `person_id` that points to the id of `persons` schema.
+In this example, we're adding `persons_id` that points to the id of `persons` schema.
+
+> **Note**: we're using `<TABLE_NAME>_id`. If you have table
+> e.g. named `persons`, it'll be `persons_id`.
 
 ```elixir
 defmodule Person do
@@ -159,11 +162,11 @@ defmodule Person do
   defimpl Jason.Encoder, for: __MODULE__ do
     def encode(value, opts) do
       value
-      |> Map.take([:id, :person_id, :name, :country])
+      |> Map.take([:id, :persons_id, :name, :country])
       |> Enum.map(fn {key, val} ->
         cond do
           key === :id -> {key, to_string(Map.get(value, :id))}
-          key === :person_id -> {key, Map.get(value, :id)}
+          key === :persons_id -> {key, Map.get(value, :id)}
           true -> {key, val}
         end
       end)
@@ -175,15 +178,18 @@ defmodule Person do
   schema "persons" do
     field(:name, :string)
     field(:country, :string)
-    field(:person_id, :integer, virtual: true)
+    field(:persons_id, :integer, virtual: true)
   end
 
   @impl ExTypesense
   def get_field_types do
+    primary_field = __MODULE__.__schema__(:source) <> "_id"
+
     %{
-      default_sorting_field: "person_id",
+      # Or might as well just write persons_id instead. Up to you.
+      default_sorting_field: primary_field,
       fields: [
-        %{name: "person_id", type: "int32"},
+        %{name: primary_field, type: "int32"},
         %{name: "name", type: "string"},
         %{name: "country", type: "string"}
       ]
@@ -205,10 +211,10 @@ schema = %{
   name: "companies",
   fields: [
     %{name: "company_name", type: "string"},
-    %{name: "company_id", type: "int32"},
+    %{name: "companies_id", type: "int32"},
     %{name: "country", type: "string"}
   ],
-  default_sorting_field: "company_id"
+  default_sorting_field: "companies_id"
 }
 
 ExTypesense.create_collection(schema)

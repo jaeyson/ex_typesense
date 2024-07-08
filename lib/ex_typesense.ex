@@ -14,11 +14,11 @@ defmodule ExTypesense do
     defimpl Jason.Encoder, for: __MODULE__ do
       def encode(value, opts) do
         value
-        |> Map.take([:id, :person_id, :name, :age])
+        |> Map.take([:id, :persons_id, :name, :age])
         |> Enum.map(fn {key, val} ->
           cond do
             key === :id -> {key, to_string(Map.get(value, :id))}
-            key === :person_id -> {key, Map.get(value, :id)}
+            key === :persons_id -> {key, Map.get(value, :id)}
             true -> {key, val}
           end
         end)
@@ -30,16 +30,18 @@ defmodule ExTypesense do
     schema "persons" do
       field :name, :string
       field :age, :integer
-      field :person_id, :integer, virtual: true
+      field :persons_id, :integer, virtual: true
     end
 
     @impl ExTypesense
     def get_field_types do
+      primary_field = __MODULE__.__schema__(:source) <> "_id"
+
       %{
-        default_sorting_field: "person_id",
+        default_sorting_field: primary_field,
         fields:
           [
-            %{name: "person_id", type: "int32"},
+            %{name: primary_field, type: "int32"},
             %{name: "name", type: "string"},
             %{name: "age", type: "integer"}
           ]

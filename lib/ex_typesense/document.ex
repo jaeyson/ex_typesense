@@ -235,7 +235,7 @@ defmodule ExTypesense.Document do
       ...>  %{
       ...>    id: "34",
       ...>    collection_name: "posts",
-      ...>    post_id: 34,
+      ...>    posts_id: 34,
       ...>    title: "the quick brown fox",
       ...>    description: "jumps over the lazy dog"
       ...>  }
@@ -244,7 +244,7 @@ defmodule ExTypesense.Document do
         %{
           "id" => "34",
           "collection_name" => "posts",
-          "post_id" => 34,
+          "posts_id" => 34,
           "title" => "the quick brown fox",
           "description" => "jumps over the lazy dog"
         }
@@ -284,7 +284,7 @@ defmodule ExTypesense.Document do
       ...>  %{
       ...>    id: "94",
       ...>    collection_name: "posts",
-      ...>    post_id: 94,
+      ...>    posts_id: 94,
       ...>    title: "the quick brown fox"
       ...>  }
       iex> ExTypesense.create_document(post)
@@ -292,7 +292,7 @@ defmodule ExTypesense.Document do
       ...>  %{
       ...>    id: "94",
       ...>    collection_name: "posts",
-      ...>    post_id: 94,
+      ...>    posts_id: 94,
       ...>    title: "test"
       ...>  }
       iex> ExTypesense.update_document(updated_post)
@@ -300,8 +300,8 @@ defmodule ExTypesense.Document do
         %{
           "id" => "94",
           "collection_name" => "posts",
-          "post_id" => 94,
-          "title" => "test"
+          "posts_id" => 94,
+          "title" => "sample post"
         }
       }
   """
@@ -386,7 +386,7 @@ defmodule ExTypesense.Document do
       {:ok,
         %{
           "id" => "1",
-          "post_id" => 1,
+          "posts_id" => 1,
           "title" => "our first post",
           "collection_name" => "posts"
         }
@@ -403,7 +403,7 @@ defmodule ExTypesense.Document do
       ...>  %{
       ...>    id: "12",
       ...>    collection_name: "posts",
-      ...>    post_id: 22,
+      ...>    posts_id: 22,
       ...>    title: "the quick brown fox"
       ...>  }
       iex> ExTypesense.create_document(post)
@@ -411,7 +411,7 @@ defmodule ExTypesense.Document do
       {:ok,
         %{
           "id" => "12",
-          "post_id" => 22,
+          "posts_id" => 22,
           "title" => "the quick brown fox",
           "collection_name" => "posts"
         }
