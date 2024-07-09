@@ -120,8 +120,7 @@ defmodule DocumentTest do
   test "success: deletes a document by struct" do
     person = %Person{id: 99, name: "John Smith", persons_id: 99, country: "Brazil"}
 
-    assert {:ok,
-            %{"country" => "Brazil", "id" => _, "name" => "John Smith", "persons_id" => 99}} =
+    assert {:ok, %{"country" => "Brazil", "id" => _, "name" => "John Smith", "persons_id" => 99}} =
              ExTypesense.create_document(person)
 
     assert {:ok, _} = ExTypesense.delete_document(person)

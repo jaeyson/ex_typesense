@@ -96,6 +96,7 @@ defmodule ExTypesense.Collection do
     symbols_to_index: []
   ]
 
+  @typedoc since: "0.1.0"
   @type t() :: %__MODULE__{
           created_at: integer(),
           name: String.t(),

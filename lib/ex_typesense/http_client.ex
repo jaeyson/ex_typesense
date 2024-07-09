@@ -38,6 +38,7 @@ defmodule ExTypesense.HttpClient do
   > function will still return the key and accessible inside
   > shell (assuming bad actors [pun unintended `:/`] can get in as well).
   """
+  @doc since: "0.1.0"
   @spec api_key :: String.t() | nil
   def api_key, do: Application.get_env(:ex_typesense, :api_key)
 

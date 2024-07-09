@@ -3,6 +3,7 @@ defmodule ExTypesense.ResultParser do
 
   @moduledoc false
 
+  @doc since: "0.1.0"
   @spec hits_to_query(Enum.t(), module()) :: Ecto.Query.t()
   def hits_to_query(hits, module_name) do
     if Enum.empty?(hits) do

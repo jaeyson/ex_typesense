@@ -13,6 +13,8 @@ defmodule ExTypesense.Search do
   @collections_path @root_path <> "collections"
   @documents_path "documents"
   @search_path "search"
+
+  @typedoc since: "0.1.0"
   @type response :: Ecto.Query.t() | {:ok, map()} | {:error, map()}
 
   @doc """
