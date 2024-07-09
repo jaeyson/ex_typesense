@@ -500,6 +500,7 @@ defmodule ExTypesense.Document do
 
   def delete_documents_by_query(conn, collection_name, %{filter_by: filter_by} = query)
       when not is_nil(filter_by) and is_binary(filter_by) and is_atom(collection_name) do
+    collection_name = collection_name.__schema__(:source)
     path = Path.join([@collections_path, collection_name, @documents_path])
     HttpClient.request(conn, %{method: :delete, path: path, query: query})
   end

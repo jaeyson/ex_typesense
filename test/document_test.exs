@@ -48,6 +48,18 @@ defmodule DocumentTest do
     %{schema: schema, document: document, multiple_documents: multiple_documents}
   end
 
+  setup %{multiple_documents: multiple_documents} do
+    assert {:ok, %{"num_deleted" => _}} =
+             ExTypesense.delete_documents_by_query(multiple_documents.collection_name, %{
+               filter_by: "doc_companies_id:>=0"
+             })
+
+    assert {:ok, %{"num_deleted" => _}} =
+             ExTypesense.delete_documents_by_query(Person, %{filter_by: "persons_id:>=0"})
+
+    :ok
+  end
+
   test "error: get unknown document", %{schema: schema} do
     unknown_id = 999
     message = ~s(Could not find a document with id: #{unknown_id})
@@ -222,7 +234,43 @@ defmodule DocumentTest do
     assert documents_deleted > 0
   end
 
-  test "success: delete documents by query" do
-    assert nil === true
+  test "success: delete documents by query (Ecto schema)" do
+    john_toe = %Person{id: 32, name: "John Toe", persons_id: 32, country: "Egypt"}
+    john_foe = %Person{id: 14, name: "John Foe", persons_id: 14, country: "Cuba"}
+
+    assert {:ok, %{"country" => "Egypt", "id" => _, "name" => "John Toe", "persons_id" => 32}} =
+             ExTypesense.create_document(john_toe)
+
+    assert {:ok, %{"country" => "Cuba", "id" => _, "name" => "John Foe", "persons_id" => 14}} =
+             ExTypesense.create_document(john_foe)
+
+    assert {:ok, %{"num_deleted" => 2}} =
+             ExTypesense.delete_documents_by_query(Person, %{filter_by: "persons_id:>=0"})
+  end
+
+  test "success: delete documents by query (map)" do
+    documents = %{
+      collection_name: "doc_companies",
+      documents: [
+        %{
+          company_name: "Doctor & Gamble",
+          doc_companies_id: 19,
+          country: "ES"
+        },
+        %{
+          company_name: "The Daily Bribe",
+          doc_companies_id: 84,
+          country: "PH"
+        }
+      ]
+    }
+
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.index_multiple_documents(documents)
+
+    assert {:ok, %{"num_deleted" => 2}} =
+             ExTypesense.delete_documents_by_query(documents.collection_name, %{
+               filter_by: "doc_companies_id:>=0"
+             })
   end
 end
