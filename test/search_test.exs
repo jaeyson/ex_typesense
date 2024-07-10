@@ -78,13 +78,13 @@ defmodule SearchTest do
     assert {:ok, %{"found" => 0, "hits" => []}} = ExTypesense.search(schema.name, params)
   end
 
-  # test "success: multi_search Ecto", %{catalog: catalog} do
-  #   assert nil == true
-  # end
+  test "success: multi_search Ecto", %{catalog: catalog} do
+    assert nil == true
+  end
 
-  # test "success: multi_search contains string or module name as collection name", %{schema: schema} do
-  #   assert nil == true
-  # end
+  test "success: multi_search string or module collection name", %{schema: schema} do
+    assert nil == true
+  end
 
   test "success: multi_search (vector) with result", %{schema: schema} do
     searches = [
