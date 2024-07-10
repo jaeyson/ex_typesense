@@ -56,6 +56,22 @@ defmodule CollectionTest do
              ExTypesense.list_collection_aliases()
   end
 
+  test "success: dropping collection deletes all documents", %{schema: schema} do
+    ExTypesense.create_collection(schema)
+
+    multiple_documents = %{
+      collection_name: "collection_companies",
+      documents: [
+        %{company_name: "Noogle, Inc.", company_id: 56, country: "AO"},
+        %{company_name: "Tikipedia", company_id: 62, country: "BD"}
+      ]
+    }
+
+    assert {:ok, _} = ExTypesense.upsert_multiple_documents(multiple_documents)
+    assert %ExTypesense.Collection{} = ExTypesense.drop_collection(schema.name)
+    assert {:error, "Not Found"} = ExTypesense.get_document(schema.name, 1)
+  end
+
   test "error: dropping unknown collection" do
     collection_name = "unknown"
     message = ~s(No collection with name `#{collection_name}` found.)
