@@ -51,6 +51,9 @@ defmodule CollectionTest do
 
     assert %{"collection_name" => _collection_name, "name" => _alias} =
              ExTypesense.get_collection_alias(alias)
+
+    assert [%{"collection_name" => _collection_name, "name" => _alias}] =
+             ExTypesense.list_collection_aliases()
   end
 
   test "error: dropping unknown collection" do
