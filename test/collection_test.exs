@@ -1,6 +1,8 @@
 defmodule CollectionTest do
   use ExUnit.Case, async: true
 
+  alias ExTypesense.TestSchema.Product
+
   setup_all do
     schema = %{
       name: "collection_companies",
@@ -14,22 +16,47 @@ defmodule CollectionTest do
 
     on_exit(fn ->
       ExTypesense.drop_collection(schema.name)
+      ExTypesense.drop_collection(Product)
     end)
 
     %{schema: schema}
   end
 
   test "success: create and drop collection", %{schema: schema} do
-    collection = ExTypesense.create_collection(schema)
-    assert %ExTypesense.Collection{} = collection
+    products = ExTypesense.create_collection(Product)
+    collection_companies = ExTypesense.create_collection(schema)
+
+    assert %ExTypesense.Collection{} = products
+    assert %ExTypesense.Collection{} = collection_companies
+
+    ExTypesense.drop_collection(Product)
+    assert {:error, "Not Found"} === ExTypesense.get_collection(Product)
 
     ExTypesense.drop_collection(schema.name)
     assert {:error, "Not Found"} === ExTypesense.get_collection(schema.name)
   end
 
-  test "error: dropping unknown collection", %{schema: schema} do
-    message = ~s(No collection with name `#{schema.name}` found.)
-    assert {:error, message} === ExTypesense.drop_collection(schema.name)
+  test "success: dropping collection won't affect alias", %{schema: schema} do
+    assert %ExTypesense.Collection{} = ExTypesense.create_collection(Product)
+    assert %ExTypesense.Collection{} = ExTypesense.create_collection(schema)
+
+    assert %{"collection_name" => _collection_name, "name" => alias} =
+             ExTypesense.upsert_collection_alias(schema.name <> "_alias", schema.name)
+
+    ExTypesense.drop_collection(schema.name)
+    ExTypesense.drop_collection(Product)
+
+    assert {:error, "Not Found"} === ExTypesense.get_collection(schema.name)
+    assert {:error, "Not Found"} === ExTypesense.get_collection(Product)
+
+    assert %{"collection_name" => _collection_name, "name" => _alias} =
+             ExTypesense.get_collection_alias(alias)
+  end
+
+  test "error: dropping unknown collection" do
+    collection_name = "unknown"
+    message = ~s(No collection with name `#{collection_name}` found.)
+    assert {:error, message} === ExTypesense.drop_collection(collection_name)
   end
 
   test "success: get specific collection" do
@@ -48,8 +75,8 @@ defmodule CollectionTest do
     ExTypesense.drop_collection(schema.name)
   end
 
-  test "error: get unknown collection", %{schema: schema} do
-    assert {:error, "Not Found"} === ExTypesense.get_collection(schema.name)
+  test "error: get unknown collection" do
+    assert {:error, "Not Found"} === ExTypesense.get_collection("unknown_collection_name")
   end
 
   test "success: update schema fields", %{schema: schema} do
@@ -84,46 +111,35 @@ defmodule CollectionTest do
   end
 
   test "success: list aliases", %{schema: schema} do
-    ExTypesense.upsert_collection_alias(schema.name, schema.name)
-    count = length(ExTypesense.list_collection_aliases())
-    assert count === 1
+    assert %{"collection_name" => _collection_name, "name" => alias} =
+             ExTypesense.upsert_collection_alias(schema.name <> "_alias", schema.name)
 
-    ExTypesense.delete_collection_alias(schema.name)
+    refute Enum.empty?(ExTypesense.list_collection_aliases())
+
+    assert %{"collection_name" => _collection_name, "name" => _alias} =
+             ExTypesense.delete_collection_alias(alias)
+
+    assert Enum.empty?(ExTypesense.list_collection_aliases())
   end
 
-  test "success: create and delete alias", %{schema: schema} do
-    collection_alias = ExTypesense.upsert_collection_alias(schema.name, schema.name)
-    assert is_map(collection_alias) === true
-    assert Enum.empty?(collection_alias) === false
+  test "success: create, get, delete alias", %{schema: schema} do
+    assert %{"collection_name" => _collection_name, "name" => alias} =
+             ExTypesense.upsert_collection_alias(schema.name <> "_alias", schema.name)
 
-    ExTypesense.delete_collection_alias(schema.name)
-    assert {:error, "Not Found"} === ExTypesense.get_collection_alias(schema.name)
+    assert %{"collection_name" => _collection_name, "name" => alias} =
+             ExTypesense.get_collection_alias(alias)
+
+    assert %{"collection_name" => _collection_name, "name" => alias} =
+             ExTypesense.delete_collection_alias(alias)
+
+    assert {:error, "Not Found"} === ExTypesense.get_collection_alias(alias)
   end
 
-  test "success: get collection name by alias", %{schema: schema} do
-    %{"collection_name" => collection_name, "name" => collection_alias} =
-      ExTypesense.upsert_collection_alias(schema.name, schema.name)
-
-    assert collection_name === ExTypesense.get_collection_name(collection_alias)
-
-    ExTypesense.delete_collection_alias(schema.name)
+  test "error: get unknown alias" do
+    assert {:error, "Not Found"} === ExTypesense.get_collection_alias("unknown_alias")
   end
 
-  test "success: get specific alias", %{schema: schema} do
-    ExTypesense.upsert_collection_alias(schema.name, schema.name)
-    collection_alias = ExTypesense.get_collection_alias(schema.name)
-
-    assert is_map(collection_alias)
-    assert collection_alias["name"] === schema.name
-
-    ExTypesense.delete_collection_alias(schema.name)
-  end
-
-  test "error: get unknown alias", %{schema: schema} do
-    assert {:error, "Not Found"} === ExTypesense.get_collection_alias(schema.name)
-  end
-
-  test "error: delete unknown alias", %{schema: schema} do
-    assert {:error, "Not Found"} === ExTypesense.delete_collection_alias(schema.name)
+  test "error: delete unknown alias" do
+    assert {:error, "Not Found"} === ExTypesense.delete_collection_alias("unknown_alias")
   end
 end

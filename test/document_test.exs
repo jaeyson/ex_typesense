@@ -208,6 +208,35 @@ defmodule DocumentTest do
     assert {:ok, %{"num_deleted" => 1}} == ExTypesense.delete_all_documents(Person)
   end
 
+  test "success: deleting all documents won't drop the collection" do
+    multiple_documents = %{
+      collection_name: "doc_companies",
+      documents: [
+        %{
+          company_name: "Boca Cola",
+          doc_companies_id: 227,
+          country: "SG"
+        },
+        %{
+          company_name: "Motor, Inc.",
+          doc_companies_id: 99,
+          country: "TH"
+        }
+      ]
+    }
+
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.index_multiple_documents(multiple_documents)
+
+    {:ok, %{"num_deleted" => documents_deleted}} =
+      ExTypesense.delete_all_documents(multiple_documents.collection_name)
+
+    assert documents_deleted > 0
+
+    assert %ExTypesense.Collection{name: "doc_companies"} =
+             ExTypesense.get_collection(multiple_documents.collection_name)
+  end
+
   test "success: delete all documents in a collection" do
     multiple_documents = %{
       collection_name: "doc_companies",
