@@ -8,16 +8,16 @@ defmodule DocumentTest do
       name: "doc_companies",
       fields: [
         %{name: "company_name", type: "string"},
-        %{name: "company_id", type: "int32"},
+        %{name: "doc_companies_id", type: "int32"},
         %{name: "country", type: "string"}
       ],
-      default_sorting_field: "company_id"
+      default_sorting_field: "doc_companies_id"
     }
 
     document = %{
       collection_name: "doc_companies",
       company_name: "Test",
-      company_id: 1001,
+      doc_companies_id: 1001,
       country: "US"
     }
 
@@ -26,21 +26,17 @@ defmodule DocumentTest do
       documents: [
         %{
           company_name: "Industrial Mills, Co.",
-          company_id: 990,
+          doc_companies_id: 990,
           country: "US"
         },
         %{
           company_name: "Washing Machine, Inc.",
-          company_id: 10,
+          doc_companies_id: 10,
           country: "US"
         }
       ]
     }
 
-    %{schema: schema, document: document, multiple_documents: multiple_documents}
-  end
-
-  setup %{schema: schema} do
     ExTypesense.create_collection(schema)
     ExTypesense.create_collection(Person)
 
@@ -48,6 +44,18 @@ defmodule DocumentTest do
       ExTypesense.drop_collection(schema.name)
       ExTypesense.drop_collection(Person)
     end)
+
+    %{schema: schema, document: document, multiple_documents: multiple_documents}
+  end
+
+  setup %{multiple_documents: multiple_documents} do
+    assert {:ok, %{"num_deleted" => _}} =
+             ExTypesense.delete_documents_by_query(multiple_documents.collection_name, %{
+               filter_by: "doc_companies_id:>=0"
+             })
+
+    assert {:ok, %{"num_deleted" => _}} =
+             ExTypesense.delete_documents_by_query(Person, %{filter_by: "persons_id:>=0"})
 
     :ok
   end
@@ -117,13 +125,14 @@ defmodule DocumentTest do
   test "success: deletes a document using map", %{document: document} do
     {:ok, %{"id" => id}} = ExTypesense.create_document(document)
 
-    assert {:ok, _} = ExTypesense.delete_document(document.collection_name, String.to_integer(id))
+    assert {:ok, _} =
+             ExTypesense.delete_document({document.collection_name, String.to_integer(id)})
   end
 
   test "success: deletes a document by struct" do
-    person = %Person{id: 0, name: "John Smith", person_id: 0, country: "Brazil"}
+    person = %Person{id: 99, name: "John Smith", persons_id: 99, country: "Brazil"}
 
-    assert {:ok, %{"country" => "Brazil", "id" => "0", "name" => "John Smith", "person_id" => 0}} =
+    assert {:ok, %{"country" => "Brazil", "id" => _, "name" => "John Smith", "persons_id" => 99}} =
              ExTypesense.create_document(person)
 
     assert {:ok, _} = ExTypesense.delete_document(person)
@@ -132,13 +141,13 @@ defmodule DocumentTest do
   test "success: deletes a document by id", %{document: document} do
     {:ok, %{"id" => id}} = ExTypesense.create_document(document)
 
-    assert {:ok, _} = ExTypesense.delete_document(document.collection_name, String.to_integer(id))
+    assert {:ok, _} =
+             ExTypesense.delete_document({document.collection_name, String.to_integer(id)})
   end
 
   test "success: index multiple documents", %{multiple_documents: multiple_documents} do
-    ExTypesense.index_multiple_documents(multiple_documents)
-    |> Kernel.===({:ok, [%{"success" => true}, %{"success" => true}]})
-    |> assert()
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.index_multiple_documents(multiple_documents)
   end
 
   test "success: update multiple documents", %{
@@ -165,9 +174,8 @@ defmodule DocumentTest do
 
     multiple_documents = Map.put(multiple_documents, :documents, [update_1, update_2])
 
-    ExTypesense.update_multiple_documents(multiple_documents)
-    |> Kernel.===({:ok, [%{"success" => true}, %{"success" => true}]})
-    |> assert()
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.update_multiple_documents(multiple_documents)
 
     {:ok, first} = ExTypesense.get_document(schema.name, String.to_integer(first_id))
     {:ok, second} = ExTypesense.get_document(schema.name, String.to_integer(second_id))
@@ -177,9 +185,8 @@ defmodule DocumentTest do
   end
 
   test "success: upsert multiple documents", %{multiple_documents: multiple_documents} do
-    ExTypesense.upsert_multiple_documents(multiple_documents)
-    |> Kernel.===({:ok, [%{"success" => true}, %{"success" => true}]})
-    |> assert()
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.upsert_multiple_documents(multiple_documents)
   end
 
   test "error: upsert multiple documents with struct type" do
@@ -190,5 +197,109 @@ defmodule DocumentTest do
 
     assert {:error, ~s(It should be type of map, ":documents" key should contain list of maps)} ===
              ExTypesense.upsert_multiple_documents(persons)
+  end
+
+  test "success: delete all documents using Ecto schema module" do
+    person = %Person{id: 1, name: "John Doe", persons_id: 1, country: "Scotland"}
+
+    assert {:ok, %{"country" => "Scotland", "id" => _, "name" => "John Doe", "persons_id" => 1}} =
+             ExTypesense.create_document(person)
+
+    assert {:ok, %{"num_deleted" => 1}} == ExTypesense.delete_all_documents(Person)
+  end
+
+  test "success: deleting all documents won't drop the collection" do
+    multiple_documents = %{
+      collection_name: "doc_companies",
+      documents: [
+        %{
+          company_name: "Boca Cola",
+          doc_companies_id: 227,
+          country: "SG"
+        },
+        %{
+          company_name: "Motor, Inc.",
+          doc_companies_id: 99,
+          country: "TH"
+        }
+      ]
+    }
+
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.index_multiple_documents(multiple_documents)
+
+    {:ok, %{"num_deleted" => documents_deleted}} =
+      ExTypesense.delete_all_documents(multiple_documents.collection_name)
+
+    assert documents_deleted > 0
+
+    assert %ExTypesense.Collection{name: "doc_companies"} =
+             ExTypesense.get_collection(multiple_documents.collection_name)
+  end
+
+  test "success: delete all documents in a collection" do
+    multiple_documents = %{
+      collection_name: "doc_companies",
+      documents: [
+        %{
+          company_name: "Boca Cola",
+          doc_companies_id: 227,
+          country: "SG"
+        },
+        %{
+          company_name: "Motor, Inc.",
+          doc_companies_id: 99,
+          country: "TH"
+        }
+      ]
+    }
+
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.index_multiple_documents(multiple_documents)
+
+    {:ok, %{"num_deleted" => documents_deleted}} =
+      ExTypesense.delete_all_documents(multiple_documents.collection_name)
+
+    assert documents_deleted > 0
+  end
+
+  test "success: delete documents by query (Ecto schema)" do
+    john_toe = %Person{id: 32, name: "John Toe", persons_id: 32, country: "Egypt"}
+    john_foe = %Person{id: 14, name: "John Foe", persons_id: 14, country: "Cuba"}
+
+    assert {:ok, %{"country" => "Egypt", "id" => _, "name" => "John Toe", "persons_id" => 32}} =
+             ExTypesense.create_document(john_toe)
+
+    assert {:ok, %{"country" => "Cuba", "id" => _, "name" => "John Foe", "persons_id" => 14}} =
+             ExTypesense.create_document(john_foe)
+
+    assert {:ok, %{"num_deleted" => 2}} =
+             ExTypesense.delete_documents_by_query(Person, %{filter_by: "persons_id:>=0"})
+  end
+
+  test "success: delete documents by query (map)" do
+    documents = %{
+      collection_name: "doc_companies",
+      documents: [
+        %{
+          company_name: "Doctor & Gamble",
+          doc_companies_id: 19,
+          country: "ES"
+        },
+        %{
+          company_name: "The Daily Bribe",
+          doc_companies_id: 84,
+          country: "PH"
+        }
+      ]
+    }
+
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+             ExTypesense.index_multiple_documents(documents)
+
+    assert {:ok, %{"num_deleted" => 2}} =
+             ExTypesense.delete_documents_by_query(documents.collection_name, %{
+               filter_by: "doc_companies_id:>=0"
+             })
   end
 end

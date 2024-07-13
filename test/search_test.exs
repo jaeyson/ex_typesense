@@ -12,26 +12,26 @@ defmodule SearchTest do
       name: "search_companies",
       fields: [
         %{name: "company_name", type: "string"},
-        %{name: "company_id", type: "int32"},
-        %{name: "country", type: "string"},
-        %{name: "company_description_embedding", type: "float[]", num_dim: 1536}
+        %{name: "company_description_embedding", type: "float[]", num_dim: 1536},
+        %{name: "search_companies_id", type: "int32"},
+        %{name: "country", type: "string"}
       ],
-      default_sorting_field: "company_id"
+      default_sorting_field: "search_companies_id"
     }
 
     document = %{
       collection_name: "search_companies",
       company_name: "Test",
-      company_id: 1001,
-      country: "US",
-      company_description_embedding: @embedding
+      company_description_embedding: @embedding,
+      search_companies_id: 1001,
+      country: "US"
     }
 
     catalog = %Catalog{
       id: 1002,
       name: "Rubber Ducky",
       description: "A tool by articulating a problem in spoken or written natural language.",
-      catalog_id: 1002
+      catalogs_id: 1002
     }
 
     with %ExTypesense.Collection{} <- ExTypesense.create_collection(schema) do
@@ -65,7 +65,7 @@ defmodule SearchTest do
       query_by: "name"
     }
 
-    assert %Ecto.Query{} = Catalog |> where([p], p.id in ^[catalog.catalog_id])
+    assert %Ecto.Query{} = Catalog |> where([p], p.id in ^[catalog.catalogs_id])
     assert %Ecto.Query{} = ExTypesense.search(Catalog, params)
   end
 
@@ -78,11 +78,11 @@ defmodule SearchTest do
     assert {:ok, %{"found" => 0, "hits" => []}} = ExTypesense.search(schema.name, params)
   end
 
-  test "success: multi_search Ecto", %{catalog: catalog} do
+  test "success: multi_search Ecto" do
     assert nil == true
   end
 
-  test "success: multi_search string or module collection name", %{schema: schema} do
+  test "success: multi_search string or module collection name" do
     assert nil == true
   end
 
@@ -119,6 +119,6 @@ defmodule SearchTest do
 
     # Errors are returned per-search and must be extracted separately
     reason = "Document id referenced in vector query is not found."
-    assert {:ok, %{"results" => [%{"error" => reason} | _]}} = ExTypesense.multi_search(searches)
+    assert {:ok, %{"results" => [%{"error" => ^reason} | _]}} = ExTypesense.multi_search(searches)
   end
 end

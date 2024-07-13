@@ -14,7 +14,9 @@ defmodule ExTypesense.Search do
   @documents_path "documents"
   @search_path "search"
   @multi_search_path "/multi_search"
-  @type response :: {:ok, map()} | {:error, map()}
+
+  @typedoc since: "0.1.0"
+  @type response :: Ecto.Query.t() | {:ok, map()} | {:error, map()}
 
   @doc """
   Search from a document or Ecto Schema.
@@ -64,21 +66,20 @@ defmodule ExTypesense.Search do
   @spec search(Connection.t(), module() | String.t(), map()) :: Ecto.Query.t() | response()
   def search(conn \\ Connection.new(), module_or_collection_name, params)
 
-  def search(conn, module_name, params) when is_atom(module_name) and is_map(params) do
-    collection_name = module_name.__schema__(:source)
+  def search(conn, collection_name, params) when is_atom(collection_name) and is_map(params) do
+    collection = collection_name.__schema__(:source)
 
     path =
       Path.join([
         @collections_path,
-        collection_name,
+        collection,
         @documents_path,
         @search_path
       ])
 
     {:ok, result} = HttpClient.request(conn, %{method: :get, path: path, query: params})
-    # {:ok, result} = HttpClient.run(:get, path, nil, params)
 
-    ResultParser.hits_to_query(result["hits"], module_name)
+    ResultParser.hits_to_query(result["hits"], collection_name)
   end
 
   def search(conn, collection_name, params) when is_binary(collection_name) and is_map(params) do
@@ -91,7 +92,6 @@ defmodule ExTypesense.Search do
       ])
 
     HttpClient.request(conn, %{method: :get, path: path, query: params})
-    # HttpClient.run(:get, path, nil, params)
   end
 
   @doc """
