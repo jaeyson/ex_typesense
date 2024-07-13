@@ -8,7 +8,7 @@
 
 Typesense client for Elixir with support for your Ecto schemas.
 
-> **Note**: Breaking changes if you're upgrading from `0.3.x` to upcoming `0.5.x` version.
+> **Note**: Breaking changes if you're upgrading from `0.3.x` to `0.5.x` version.
 
 ## Todo
 
@@ -28,7 +28,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 0.4"}
+    {:ex_typesense, "~> 0.5"}
 
     # Or from GitHub repository, if you want to latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}
@@ -118,7 +118,6 @@ conn = Map.from_struct(MyApp.Credential)
 # NOTE: create a collection and import documents
 # first before using the command below
 ExTypesense.search(conn, collection_name, query)
-
 ```
 
 Or you don't want to change the fields in your Ecto schema, thus you convert it to map:

@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.5.0 (2024.07.13)
+
+### Changed
+
+* `README` regarding `default_sorting_field`, where it joins the table name with "_id" (e.g. `images` is `images_id` instead of `image_id`).
+
+### Added
+
+* Function: [delete by query](https://typesense.org/docs/26.0/api/documents.html#delete-by-query).
+* Function: [delete all documents](https://github.com/typesense/typesense/issues/1613#issuecomment-1994986258) in a collection.
+* Collection's schema [field parameters](https://typesense.org/docs/26.0/api/collections.html#field-parameters):
+  - `:vec_dist`
+  - `:store`
+  - `:reference`
+  - `:range_index`
+  - `:stem`
+
+### Removed
+
+- `HttpClient.run` and `HttpClient.httpc_run` function (use `HttpClient.request`).
+
 ## 0.4.3 (2024.07.03)
 
 ### Changed
