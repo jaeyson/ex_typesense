@@ -26,7 +26,11 @@ defmodule ExTypesense.Collection do
       :optional,
       :sort,
       :type,
-      :vec_dist
+      :vec_dist,
+      :store,
+      :reference,
+      :range_index,
+      :stem
     ]
 
     @typedoc since: "0.1.0"
@@ -42,7 +46,11 @@ defmodule ExTypesense.Collection do
             optional: boolean(),
             sort: boolean(),
             type: field_type(),
-            vec_dist: String.t()
+            vec_dist: String.t(),
+            store: boolean(),
+            reference: String.t(),
+            range_index: boolean(),
+            stem: boolean()
           }
 
     @typedoc since: "0.1.0"
@@ -62,6 +70,8 @@ defmodule ExTypesense.Collection do
             | :object
             | :"object[]"
             | :"string*"
+            | :image
+            | :auto
   end
 
   @collections_path "/collections"
@@ -86,6 +96,7 @@ defmodule ExTypesense.Collection do
     symbols_to_index: []
   ]
 
+  @typedoc since: "0.1.0"
   @type t() :: %__MODULE__{
           created_at: integer(),
           name: String.t(),
@@ -164,15 +175,15 @@ defmodule ExTypesense.Collection do
       ...>   name: "companies",
       ...>   fields: [
       ...>     %{name: "company_name", type: "string"},
-      ...>     %{name: "company_id", type: "int32"},
+      ...>     %{name: "companies_id", type: "int32"},
       ...>     %{name: "country", type: "string", facet: true}
       ...>   ],
-      ...>   default_sorting_field: "company_id"
+      ...>   default_sorting_field: "companies_id"
       ...> }
       iex> ExTypesense.create_collection(schema)
       %ExTypesense.Collection{
         created_at: 1234567890,
-        default_sorting_field: "company_id",
+        default_sorting_field: "companies_id",
         fields: [...],
         name: "companies",
         num_documents: 0,
@@ -183,7 +194,7 @@ defmodule ExTypesense.Collection do
       iex> ExTypesense.create_collection(Person)
       %ExTypesense.Collection{
         created_at: 1234567890,
-        default_sorting_field: "person_id",
+        default_sorting_field: "persons_id",
         fields: [...],
         name: "persons",
         num_documents: 0,
@@ -244,18 +255,7 @@ defmodule ExTypesense.Collection do
       %ExTypesense.Collection{
         created_at: 1234567890,
         name: companies,
-        default_sorting_field: "company_id",
-        fields: [...],
-        num_documents: 0,
-        symbols_to_index: [],
-        token_separators: []
-      }
-
-      iex> ExTypesense.update_collection_fields(Company, fields)
-      %ExTypesense.Collection{
-        created_at: 1234567890,
-        name: companies,
-        default_sorting_field: "company_id",
+        default_sorting_field: "companies_id",
         fields: [...],
         num_documents: 0,
         symbols_to_index: [],
@@ -294,7 +294,8 @@ defmodule ExTypesense.Collection do
   @doc """
   Permanently drops a collection by collection name or module name.
 
-  **Note**: dropping a collection does not remove the referenced alias, only the indexed documents.
+  **Note**: dropping a collection does not remove the referenced
+  alias, only the indexed documents.
   """
   @doc since: "0.1.0"
   @spec drop_collection(Connection.t(), name :: String.t() | module()) :: response()
@@ -433,14 +434,12 @@ defmodule ExTypesense.Collection do
     collection =
       Map.new(collection, fn {k, v} ->
         if k === :fields do
-          Map.new(v, &to_atom/1)
+          Map.new(v, fn {k, v} -> {String.to_existing_atom(k), v} end)
         else
-          {String.to_atom(k), v}
+          {String.to_existing_atom(k), v}
         end
       end)
 
     struct(__MODULE__, collection)
   end
-
-  defp to_atom({k, v}), do: {String.to_atom(k), v}
 end

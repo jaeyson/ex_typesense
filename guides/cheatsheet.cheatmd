@@ -15,9 +15,9 @@ defmodule MyApp.Listings.Company do
   defimpl Jason.Encoder, for: __MODULE__ do
     def encode(value, opts) do
       value
-      |> Map.take([:company_id, :name, :country])
+      |> Map.take([:companies_id, :name, :country])
       |> Enum.map(fn {key, val} ->
-        if key === :company_id, do: {key, Map.get(value, :id)}, else: {key, val}
+        if key === :companies_id, do: {key, Map.get(value, :id)}, else: {key, val}
       end)
       |> Enum.into(%{})
       |> Jason.Encode.map(opts)
@@ -27,15 +27,17 @@ defmodule MyApp.Listings.Company do
   schema "companies" do
     field(:name, :string)
     field(:country, :string)
-    field(:company_id, :integer, virtual: true)
+    field(:companies_id, :integer, virtual: true)
   end
 
   @impl ExTypesense
   def get_field_types do
+    primary_field = __MODULE__.__schema__(:source) <> "_id"
+
     %{
-      default_sorting_field: "company_id",
+      default_sorting_field: primary_field,
       fields: [
-        %{name: "company_id", type: "int32"},
+        %{name: primary_field, type: "int32"},
         %{name: "name", type: "string"},
         %{name: "country", type: "string"}
       ]
@@ -48,7 +50,7 @@ iex> ExTypesense.create_collection(Company)
 {:ok,
   %ExTypesense.Collection{
     "created_at" => 1234567890,
-    "default_sorting_field" => "company_id",
+    "default_sorting_field" => "companies_id",
     "fields" => [...],
     "name" => "companies",
     "num_documents" => 0,
@@ -67,17 +69,17 @@ iex> schema =
 ...>   name: "companies",
 ...>   fields: [
 ...>     %{name: "company_name", type: "string"},
-...>     %{name: "num_employees", type: "int32"},
+...>     %{name: "companies_id", type: "int32"},
 ...>     %{name: "country", type: "string", facet: true}
 ...>   ],
-...>   default_sorting_field: "num_employees"
+...>   default_sorting_field: "companies_id"
 ...> }
 
 iex> ExTypesense.create_collection(schema)
 {:ok,
   %ExTypesense.Collection{
     "created_at" => 1234567890,
-    "default_sorting_field" => "num_employees",
+    "default_sorting_field" => "companies_id",
     "fields" => [...],
     "name" => "companies",
     "num_documents" => 0,
@@ -110,7 +112,7 @@ iex> ExTypesense.update_collection("companies", schema)
   %ExTypesense.Collection{
     "created_at" => nil,
     "name" => nil,
-    "default_sorting_field" => nil,
+    "default_sorting_field" => "companies_id",
     "fields" => [...],
     "num_documents" => 0,
     "symbols_to_index" => [],
@@ -133,7 +135,7 @@ iex> ExTypesense.create_document(post, :create)
 {:ok,
   %{
     "id" => "12",
-    "post_id" => 12,
+    "posts_id" => 12,
     "title" => "the quick brown fox",
     "collection_name" => "posts"
   }
@@ -152,7 +154,7 @@ iex> ExTypesense.update_document(post, 0)
   %{
     "id" => "0",
     "collection_name" => "posts",
-    "post_id" => 34,
+    "posts_id" => 34,
     "title" => "test",
     "description" => "lorem ipsum"
   }
@@ -170,7 +172,7 @@ iex> ExTypesense.delete_document(Post, 0)
   %{
     "id" => "0",
     "collection_name" => "posts",
-    "post_id" => 34,
+    "posts_id" => 34,
     "title" => "test",
     "description" => "lorem ipsum"
   }
@@ -178,6 +180,17 @@ iex> ExTypesense.delete_document(Post, 0)
 ```
 
 {: .wrap}
+
+### Delete a document by query
+
+```elixir
+iex> query = %{
+...>   filter_by: "num_employees:>100",
+...>   batch_size: 100
+...> }
+iex> ExTypesense.delete_documents_by_query(Employee, query)
+{:ok, %{}}
+```
 
 ### Indexes multiple documents
 
@@ -199,7 +212,7 @@ iex> ExTypesense.search(Post, params)
   %{
     "id" => "0",
     "collection_name" => "posts",
-    "post_id" => 34,
+    "posts_id" => 34,
     "title" => "test",
     "description" => "lorem ipsum"
   }

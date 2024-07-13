@@ -6,3 +6,4 @@ alias ExTypesense.HttpClient
 alias ExTypesense.Search
 alias ExTypesense.TestSchema.Credential
 alias ExTypesense.TestSchema.Person
+alias ExTypesense.TestSchema.Catalog

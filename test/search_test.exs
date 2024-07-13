@@ -9,16 +9,16 @@ defmodule SearchTest do
       name: "search_companies",
       fields: [
         %{name: "company_name", type: "string"},
-        %{name: "company_id", type: "int32"},
+        %{name: "search_companies_id", type: "int32"},
         %{name: "country", type: "string"}
       ],
-      default_sorting_field: "company_id"
+      default_sorting_field: "search_companies_id"
     }
 
     document = %{
       collection_name: "search_companies",
       company_name: "Test",
-      company_id: 1001,
+      search_companies_id: 1001,
       country: "US"
     }
 
@@ -26,7 +26,7 @@ defmodule SearchTest do
       id: 1002,
       name: "Rubber Ducky",
       description: "A tool by articulating a problem in spoken or written natural language.",
-      catalog_id: 1002
+      catalogs_id: 1002
     }
 
     with %ExTypesense.Collection{} <- ExTypesense.create_collection(schema) do
@@ -60,7 +60,7 @@ defmodule SearchTest do
       query_by: "name"
     }
 
-    assert %Ecto.Query{} = Catalog |> where([p], p.id in ^[catalog.catalog_id])
+    assert %Ecto.Query{} = Catalog |> where([p], p.id in ^[catalog.catalogs_id])
     assert %Ecto.Query{} = ExTypesense.search(Catalog, params)
   end
 

@@ -1,4 +1,4 @@
-defmodule ExTypesense.TestSchema.Person do
+defmodule ExTypesense.TestSchema.Product do
   use Ecto.Schema
   @behaviour ExTypesense
 
@@ -7,19 +7,19 @@ defmodule ExTypesense.TestSchema.Person do
   defimpl Jason.Encoder, for: __MODULE__ do
     def encode(value, opts) do
       value
-      |> Map.take([:persons_id, :name, :country])
+      |> Map.take([:poducts_id, :name, :description])
       |> Enum.map(fn {key, val} ->
-        if key === :persons_id, do: {key, Map.get(value, :id)}, else: {key, val}
+        if key === :products_id, do: {key, Map.get(value, :id)}, else: {key, val}
       end)
       |> Enum.into(%{})
       |> Jason.Encode.map(opts)
     end
   end
 
-  schema "persons" do
+  schema "products" do
     field(:name, :string)
-    field(:country, :string)
-    field(:persons_id, :integer, virtual: true)
+    field(:description, :string)
+    field(:products_id, :integer, virtual: true)
   end
 
   @impl ExTypesense
@@ -31,7 +31,7 @@ defmodule ExTypesense.TestSchema.Person do
       fields: [
         %{name: primary_field, type: "int32"},
         %{name: "name", type: "string"},
-        %{name: "country", type: "string"}
+        %{name: "description", type: "string"}
       ]
     }
   end
