@@ -220,7 +220,21 @@ iex> ExTypesense.search(Post, params)
 ### Multi search
 
 ```elixir
-iex> ExTypesense.multisearch(Catalog)
+iex> searches = [
+...>   %{collection: "companies", q: "Loca Cola"},
+...>   %{collection: Company, q: "Burgler King"},
+...>   %{collection: Catalog, q: "umbrella"}
+...> ]
+iex> ExTypesense.multi_search(searches)
+{:ok,
+  [
+    {
+      %{"facet_counts" => [], "found" => 0, "hits" => [], ...},
+      %{"facet_counts" => [], "found" => 0, "hits" => [], ...},
+      %{"facet_counts" => [], "found" => 0, "hits" => [], ...},
+    }
+  ]
+}
 ```
 
 ### Search using collection name (string)
@@ -237,10 +251,4 @@ iex> ExTypesense.search("posts", params)
     "description" => "lorem ipsum"
   }
 }
-```
-
-### Federated search
-
-```elixir
-iex> ExTypesense.multisearch(Catalog)
 ```
