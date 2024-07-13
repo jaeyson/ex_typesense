@@ -83,7 +83,9 @@ defmodule SearchTest do
   end
 
   test "success: multi_search string or module collection name" do
-    assert nil == true
+    searches = [%{collection: Catalog, q: "duck", query_by: "name"}]
+
+    assert {:ok, %{"results" => [%{"found" => 1}]}} = ExTypesense.multi_search(searches)
   end
 
   test "success: multi_search (vector) with result", %{schema: schema} do
@@ -112,7 +114,6 @@ defmodule SearchTest do
         collection: schema.name,
         q: "*",
         vector_query: "company_description_embedding:([], id: 1)",
-        # ~s/company_description_embedding:([0.03906331, 0.03257466, 0.011654927, 0.057165816, 0.01777397], id: 1)/,
         exclude_fields: "company_description_embedding"
       }
     ]
