@@ -181,6 +181,17 @@ iex> ExTypesense.delete_document(Post, 0)
 
 {: .wrap}
 
+### Delete a document by query
+
+```elixir
+iex> query = %{
+...>   filter_by: "num_employees:>100",
+...>   batch_size: 100
+...> }
+iex> ExTypesense.delete_documents_by_query(Employee, query)
+{:ok, %{}}
+```
+
 ### Indexes multiple documents
 
 ```elixir

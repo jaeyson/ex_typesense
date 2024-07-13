@@ -483,7 +483,7 @@ defmodule ExTypesense.Document do
       ...>   filter_by: "num_employees:>100",
       ...>   batch_size: 100
       ...> }
-      iex> ExTypesense.delete_documents_by_query(query)
+      iex> ExTypesense.delete_documents_by_query(Employee, query)
       {:ok, %{}}
   """
   @doc since: "0.5.0"
