@@ -5,7 +5,7 @@ defmodule ExTypesense.ResultParser do
 
   @doc since: "0.1.0"
   @spec hits_to_query(Enum.t(), module() | String.t()) :: Ecto.Query.t()
-  def hits_to_query(hits, schema_name) when length(hits) == 0 do
+  def hits_to_query(hits, schema_name) when hits == [] do
     schema_name
     |> where([i], i.id in [])
   end
