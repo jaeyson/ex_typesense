@@ -8,12 +8,11 @@
 
 Typesense client for Elixir with support for your Ecto schemas.
 
-> **Note**: Breaking changes if you're upgrading from `0.3.x` to `0.5.x` version.
+> **Note**: Breaking changes if you're upgrading from `0.3.x` to `0.5.x` version and above.
 
 ## Todo
 
 - creating collection using auto schema detection
-- implement multisearch
 - implement geosearch
 - implement curation
 - implement synonyms
@@ -28,7 +27,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 0.5"}
+    {:ex_typesense, "~> 0.6"}
 
     # Or from GitHub repository, if you want to latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}

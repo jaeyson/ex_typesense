@@ -537,12 +537,6 @@ defmodule ExTypesense.Document do
       |> hd()
       |> to_string
 
-    delete_documents_by_query(conn, name, %{filter_by: "#{virtual_field}:>0"})
+    delete_documents_by_query(conn, name, %{filter_by: "#{virtual_field}:>=0"})
   end
-
-  # @spec do_delete_all_documents(Connection.t(), String.t()) :: response()
-  # defp do_delete_all_documents(conn, collection_name) do
-  #   path = Path.join([ @collections_path, collection_name, @documents_path ])
-  #   HttpClient.request(conn, %{method: :delete, path: path})
-  # end
 end
