@@ -79,7 +79,12 @@ defmodule SearchTest do
   end
 
   test "success: multi_search Ecto" do
-    assert nil == true
+    searches = [
+      %{collection: Catalog, q: "duck", query_by: "name"},
+      %{collection: "catalogs", q: "umbrella", query_by: "name"}
+    ]
+
+    assert [%Ecto.Query{}, %Ecto.Query{}] = ExTypesense.multi_search_ecto(searches)
   end
 
   test "success: multi_search string or module collection name" do

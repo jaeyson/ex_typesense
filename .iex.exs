@@ -1,3 +1,4 @@
+import Ecto.Query, warn: false
 alias ExTypesense.Cluster
 alias ExTypesense.Collection
 alias ExTypesense.Connection

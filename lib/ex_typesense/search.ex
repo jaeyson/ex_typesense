@@ -16,7 +16,7 @@ defmodule ExTypesense.Search do
   @multi_search_path "/multi_search"
 
   @typedoc since: "0.1.0"
-  @type response :: Ecto.Query.t() | {:ok, map()} | {:error, map()}
+  @type response :: {:ok, map()} | {:error, map()}
 
   @doc """
   Search from a document or Ecto Schema.
@@ -186,5 +186,15 @@ defmodule ExTypesense.Search do
         body: Jason.encode!(%{searches: searches})
       }
     )
+  end
+
+  @spec multi_search_ecto(Connection.t(), [map()]) :: Ecto.Query.t()
+  def multi_search_ecto(conn \\ Connection.new(), searches) do
+    {:ok, %{"results" => results}} = multi_search(conn, searches)
+
+    Enum.map(results, fn result ->
+      collection_name = get_in(result, ["request_params", "collection_name"])
+      ResultParser.hits_to_query(result["hits"], collection_name)
+    end)
   end
 end

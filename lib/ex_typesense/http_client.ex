@@ -54,12 +54,14 @@ defmodule ExTypesense.HttpClient do
   - `:content_type` `"Content-Type"` request header. Defaults to `"application/json"`.
 
   ## Examples
+
       iex> connection = %ExTypesense.Connection{
       ...>   host: "localhost",
       ...>   api_key: "some_api_key",
       ...>   port: "8108",
       ...>   scheme: "http"
       ...> }
+
       iex> HttpClient.request(connection, %{method: :post, path: "/collections", body: ExTypesense.TestSchema.Person})
       {:ok,
         [%{

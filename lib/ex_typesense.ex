@@ -115,6 +115,7 @@ defmodule ExTypesense do
 
   # multisearch
   defdelegate multi_search(conn \\ Connection.new(), searches), to: ExTypesense.Search
+  defdelegate multi_search_ecto(conn \\ Connection.new(), searches), to: ExTypesense.Search
 
   # curation
 

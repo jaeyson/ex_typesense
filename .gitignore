@@ -25,6 +25,9 @@ ex_typesense-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
+# Zed editor
+/.zed/
+
 # Typesense local dev data folder.
 /typesense-data
 
