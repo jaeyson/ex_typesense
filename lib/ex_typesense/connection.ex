@@ -6,6 +6,7 @@ defmodule ExTypesense.Connection do
 
   alias ExTypesense.HttpClient
 
+  @derive {Inspect, except: [:api_key]}
   defstruct [:host, :api_key, :port, :scheme]
 
   @typedoc since: "0.4.0"
@@ -17,20 +18,21 @@ defmodule ExTypesense.Connection do
         }
 
   @doc """
-  Fetches credentials either from application env or map.
+  Setting new connection or using the default config.
+
+  > #### On using this function {: .info}
+  > Functions e.g. `ExTypesense.search` don't need to explicitly pass this
+  > unless you want to use another connection. See `README` for more details.
+  > Also, `api_key` is hidden when invoking this function.
 
   ## Examples
-
-  Using the default credential from local development Typesense instance:
-
       iex> conn = ExTypesense.Connection.new()
       %ExTypesense.Connection{
         host: "localhost",
-        api_key: "xyz",
         port: 8108,
-        scheme: "http"
+        scheme: "http",
+        ...
       }
-
   """
   @doc since: "0.4.0"
   @spec new(connection :: t() | map()) :: ExTypesense.Connection.t()
