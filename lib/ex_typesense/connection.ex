@@ -6,27 +6,36 @@ defmodule ExTypesense.Connection do
 
   alias ExTypesense.HttpClient
 
-  # @derive {Inspect, except: [:api_key]}
-  # defstruct host: HttpClient.get_host(),
-  #           api_key: HttpClient.api_key(),
-  #           port: HttpClient.get_port(),
-  #           scheme: HttpClient.get_scheme()
+  defstruct [:host, :api_key, :port, :scheme]
 
   @typedoc since: "0.4.0"
   @type t() :: %{
-          host: String.t() | nil,
-          api_key: String.t() | nil,
+          host: binary() | nil,
+          api_key: binary() | nil,
           port: non_neg_integer() | nil,
-          scheme: String.t() | nil
+          scheme: binary() | nil
         }
 
   @doc """
   Fetches credentials either from application env or map.
+
+  ## Examples
+
+  Using the default credential from local development Typesense instance:
+
+      iex> conn = ExTypesense.Connection.new()
+      %ExTypesense.Connection{
+        host: "localhost",
+        api_key: "xyz",
+        port: 8108,
+        scheme: "http"
+      }
+
   """
   @doc since: "0.4.0"
   @spec new(connection :: t() | map()) :: ExTypesense.Connection.t()
   def new(connection \\ defaults()) when is_map(connection) do
-    %{
+    %ExTypesense.Connection{
       host: Map.get(connection, :host),
       api_key: Map.get(connection, :api_key),
       port: Map.get(connection, :port),
