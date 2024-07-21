@@ -63,3 +63,13 @@ docker compose logs -f
 # or specifically Typesense
 docker container logs --follow --tail 50 typesense
 ```
+
+This Docker Compose setup exposes three services with dedicated URLs:
+
+- http://localhost:8107 (Internal Server Status), provides information about the
+  health and status of your internal server.
+- http://localhost:8108 (Typesense Server and API), allows you to interact with
+  the Typesense search engine and its API functionalities.
+- http://localhost:8109 (Typesense Dashboard), opens the Typesense web interface
+  for managing your search collections and settings.
+
