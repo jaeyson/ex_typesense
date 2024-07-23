@@ -36,15 +36,15 @@ defmodule ConnectionTest do
     end
   end
 
-  test "error: health check, with incorrect API key" do
-    conn = %{api_key: "abc", host: "localhost", port: 8109, scheme: "http"}
+  test "error: health check, with incorrect port number" do
+    conn = %{api_key: "abc", host: "localhost", port: 8100, scheme: "http"}
 
     assert_raise Req.TransportError, fn ->
       ExTypesense.health(conn)
     end
   end
 
-  test "error: wrong API key was configured" do
+  test "error: wrong api key was configured" do
     conn = %{
       host: "localhost",
       api_key: "another_key",
