@@ -82,23 +82,6 @@ defmodule ExTypesense.HttpClient do
   @doc since: "0.4.0"
   @spec request(Connection.t(), map()) :: {:ok, any()} | {:error, String.t()}
   def request(conn, opts \\ %{}) do
-    # Req.Request.append_error_steps and its retry option are used here.
-    # options like retry, max_retries, etc. can be found in:
-    # https://hexdocs.pm/req/Req.Steps.html#retry/1
-    # NOTE: look at source code in Github
-    retry = fn request ->
-      if Mix.env() === :test do
-        {req, resp_or_err} = request
-
-        # disabled in order to cut time in tests
-        req = %{req | options: %{retry: false}}
-
-        Req.Steps.retry({req, resp_or_err})
-      else
-        Req.Steps.retry(request)
-      end
-    end
-
     url =
       %URI{
         scheme: conn.scheme,
@@ -117,7 +100,7 @@ defmodule ExTypesense.HttpClient do
       }
       |> Req.Request.put_header("x-typesense-api-key", conn.api_key)
       |> Req.Request.put_header("content-type", opts[:content_type] || "application/json")
-      |> Req.Request.append_error_steps(retry: retry)
+      |> Req.Request.append_error_steps(retry: &maybe_retry/1)
       |> Req.Request.run!()
 
     case response.status in 200..299 do
@@ -131,6 +114,19 @@ defmodule ExTypesense.HttpClient do
 
       false ->
         {:error, Jason.decode!(response.body)["message"]}
+    end
+  end
+
+  # Req.Request.append_error_steps and its retry option are used here.
+  # options like retry, max_retries, etc. can be found in:
+  # https://hexdocs.pm/req/Req.Steps.html#retry/1
+  # NOTE: look at source code in Github
+  defp maybe_retry({req, resp}) do
+    if Application.get_env(:ex_typesense, :retry) === false do
+      req = %{req | options: %{retry: false}}
+      Req.Steps.retry({req, resp})
+    else
+      Req.Steps.retry({req, resp})
     end
   end
 end
