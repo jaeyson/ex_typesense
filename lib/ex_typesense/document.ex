@@ -524,7 +524,7 @@ defmodule ExTypesense.Document do
   def delete_all_documents(conn \\ Connection.new(), collection_name)
 
   def delete_all_documents(conn, collection_name) when is_binary(collection_name) do
-    delete_documents_by_query(conn, collection_name, %{filter_by: "#{collection_name}_id:>=0"})
+    delete_documents_by_query(conn, collection_name, %{filter_by: "id:!=0"})
   end
 
   def delete_all_documents(conn, collection_name) when is_atom(collection_name) do
