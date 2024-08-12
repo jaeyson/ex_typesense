@@ -8,6 +8,7 @@ services:
       - 8108:8108 # typesense server
     volumes:
       - ./typesense-data:/data
+<<<<<<< Updated upstream
     command: '--data-dir /data --api-key=xyz --enable-cors'
   typesense_dashboard:
     image: ghcr.io/bfritscher/typesense-dashboard:latest
@@ -19,3 +20,6 @@ services:
       - ./config/config.json:/srv/config.json
     depends_on:
       - typesense
+=======
+    command: "--data-dir /data --api-key=xyz --enable-cors"
+>>>>>>> Stashed changes
