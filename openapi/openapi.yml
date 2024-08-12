@@ -1944,6 +1944,37 @@ components:
           type: boolean
           description: >
             Indicates whether search query tokens that exist in the override's rule should be removed from the search query.
+        metadata:
+          type: object
+          description: >
+            Return a custom JSON object in the Search API response, when this rule is triggered. This can can be used to display a pre-defined message (eg: a promotion banner) on the front-end when a particular rule is triggered.
+        sort_by:
+          type: string
+          description: >
+            A sort by clause that is applied to any search query that matches the override rule.
+        replace_query:
+          type: string
+          description: >
+            Replaces the current search query with this value, when the search query matches the override rule.
+        filter_curated_hits:
+          type: boolean
+          description: >
+            When set to true, the filter conditions of the query is applied to the curated records as well.
+            Default: false.
+        effective_from_ts:
+          type: integer
+          description: >
+            A Unix timestamp that indicates the date/time from which the override will be active. You can use this to create override rules that start applying from a future point in time.
+        effective_to_ts:
+          type: integer
+          description: >
+            A Unix timestamp that indicates the date/time until which the override will be active. You can use this to create override rules that stop applying after a period of time.
+        stop_processing:
+          type: boolean
+          description: >
+            When set to true, override processing will stop at the first matching rule. When set to false override processing will continue and multiple override actions will be triggered in sequence.
+            Overrides are processed in the lexical sort order of their id field.
+            Default: true.
     SearchOverride:
       allOf:
         - $ref: "#/components/schemas/SearchOverrideSchema"
@@ -1956,10 +1987,12 @@ components:
               readOnly: true
     SearchOverrideRule:
       type: object
-      required:
-        - query
-        - match
       properties:
+        tags:
+          type: array
+          description: List of tag values to associate with this override rule.
+          items:
+            type: string
         query:
           type: string
           description: Indicates what search queries should be overridden
@@ -1972,11 +2005,10 @@ components:
           enum:
             - exact
             - contains
-        tags:
-          type: array
-          description: List of tags.
-          items:
-            type: string
+        filter_by:
+          type: string
+          description: >
+            Indicates that the override should apply when the filter_by parameter in a search query exactly matches the string specified here (including backticks, spaces, brackets, etc).
     SearchOverrideInclude:
       type: object
       required:
