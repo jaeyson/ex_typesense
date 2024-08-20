@@ -248,10 +248,6 @@ Check [Cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more usa
 ### OpenAPI generator
 
 ```bash
-# default in ./openapi/generator/ExTypesense
-mix api.gen
-
-# another profile
 mix api.gen default priv/openapi.yml
 ```
 

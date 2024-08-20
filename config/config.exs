@@ -13,7 +13,7 @@ config :oapi_generator,
   default: [
     output: [
       base_module: OpenApiTypesense,
-      location: "lib/open_api_typesense"
+      location: "lib/open_api_typesense",
       operation_subdirectory: "operations/",
       schema_subdirectory: "schemas/"      
     ]

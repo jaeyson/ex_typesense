@@ -34,6 +34,3 @@ ex_typesense-*.tar
 # Misc.
 .elixir_ls
 **.DS_Store
-
-# openapi generator files
-/openapi/generator/
