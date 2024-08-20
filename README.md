@@ -252,7 +252,7 @@ Check [Cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more usa
 mix api.gen
 
 # another profile
-mix api.gen default path/to/rest-api-description/spec.yaml
+mix api.gen default priv/openapi.yml
 ```
 
 ## License
