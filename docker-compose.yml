@@ -8,7 +8,7 @@ services:
       - 8108:8108 # typesense server
     volumes:
       - ./typesense-data:/data
-    command: '--data-dir /data --api-key=xyz --enable-cors'
+    command: "--data-dir /data --api-key=xyz --enable-cors"
   typesense_dashboard:
     image: ghcr.io/bfritscher/typesense-dashboard:latest
     container_name: typesense_dashboard

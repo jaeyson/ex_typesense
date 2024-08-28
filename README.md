@@ -243,6 +243,14 @@ ExTypesense.search(Person, params)
 
 Check [Cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more usage examples.
 
+## Miscellaneous
+
+### OpenAPI generator
+
+```bash
+mix api.gen default priv/openapi.yml
+```
+
 ## License
 
 Copyright (c) 2021 Jaeyson Anthony Y.

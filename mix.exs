@@ -41,7 +41,8 @@ defmodule ExTypesense.MixProject do
       {:req, "~> 0.5"},
       {:ecto, "~> 3.11"},
       {:excoveralls, "~> 0.10", only: :test},
-      {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false}
+      {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
+      {:oapi_generator, "~> 0.2.0", only: :dev, runtime: false}
     ]
   end
 
