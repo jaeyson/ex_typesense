@@ -19,6 +19,10 @@ defmodule ExTypesense.HttpClient do
   @spec get_host :: String.t() | nil
   def get_host, do: Application.get_env(:ex_typesense, :host)
 
+  @doc since: "0.6.1"
+  @spec get_options :: Keyword.t()
+  def get_options, do: Application.get_env(:ex_typesense, :options, %{})
+
   @doc since: "0.1.0"
   @spec get_scheme :: String.t() | nil
   def get_scheme, do: Application.get_env(:ex_typesense, :scheme)
@@ -108,7 +112,8 @@ defmodule ExTypesense.HttpClient do
       %Req.Request{
         body: opts[:body],
         method: opts[:method] || :get,
-        url: url
+        url: url,
+        options: get_options()
       }
       |> Req.Request.put_header("x-typesense-api-key", conn.api_key)
       |> Req.Request.put_header("content-type", opts[:content_type] || "application/json")
