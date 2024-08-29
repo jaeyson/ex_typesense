@@ -59,9 +59,12 @@ if config_env() == :prod do # if you'll use this in prod environment
     api_key: "xyz",
     host: "localhost",
     port: 8108,
-    scheme: "http"
+    scheme: "http",
+    options: %{}
   ...
 ```
+
+> **Note**: The `options` key can be used to pass additional configuration options such as custom Finch instance or receive timeout settings. You can add any options supported by Req here. For more details check [Req documentation](https://hexdocs.pm/req/Req.Steps.html#run_finch/1-request-options).
 
 > **Note**: If you use this for adding test in your app, you might want to add this in `config/test.exs`:
 
@@ -72,7 +75,8 @@ config :ex_typesense,
   api_key: "credential", # Admin API key
   host: "111222333aaabbbcc-9.x9.typesense.net" # Nodes
   port: 443,
-  scheme: "https"
+  scheme: "https",
+  options: %{}
 ```
 
 #### Option 2: Set credentials from a map
