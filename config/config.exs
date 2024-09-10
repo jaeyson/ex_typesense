@@ -6,6 +6,6 @@ if config_env() in [:dev, :test] do
     host: "localhost",
     port: 8108,
     scheme: "http",
-    retry: :false,
+    retry: false,
     options: %{}
 end

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.7.0 (2024.09.10)
+
+### Changed
+
+* HTTP request construction in `ExTypesense.HttpClient` to include `options`.
+* Bumped dependencies
+
+### Added
+
+* `options` in config `config/configx.exs`.
+* `get_options/0` function in `HttpClient` to fetch the `options` configuration.
+* tests for `get_options/0` in `ExTypesense.HttpClientTest`.
+
 ## 0.6.0 (2024.07.15)
 
 ### Changed
@@ -19,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* `README` regarding `default_sorting_field`, where it joins the table name with "_id" (e.g. `images` is `images_id` instead of `image_id`).
+* `README` regarding `default_sorting_field`, where it joins the table name with `_id` (e.g. `images` is `images_id` instead of `image_id`).
 
 ### Added
 

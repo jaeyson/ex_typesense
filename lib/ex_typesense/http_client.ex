@@ -19,7 +19,7 @@ defmodule ExTypesense.HttpClient do
   @spec get_host :: String.t() | nil
   def get_host, do: Application.get_env(:ex_typesense, :host)
 
-  @doc since: "0.6.1"
+  @doc since: "0.7.0"
   @spec get_options :: Keyword.t()
   def get_options, do: Application.get_env(:ex_typesense, :options, %{})
 

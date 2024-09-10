@@ -2,6 +2,7 @@
 
 [![Hex.pm](https://img.shields.io/hexpm/v/ex_typesense)](https://hex.pm/packages/ex_typesense)
 [![Hexdocs.pm](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_typesense)
+[![Actions Status](https://github.com/jaeyson/ex_typesense/actions/workflows/ci.yml/badge.svg)](https://github.com/jaeyson/ex_typesense/actions)
 [![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](https://hexdocs.pm/ex_typesense/license.html)
 [![Typesense badge](https://img.shields.io/badge/Typesense-v26.0-darkblue)](https://typesense.org/docs/26.0/api)
 [![Coverage Status](https://coveralls.io/repos/github/jaeyson/ex_typesense/badge.svg?branch=main)](https://coveralls.io/github/jaeyson/ex_typesense?branch=main)
@@ -27,7 +28,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 0.6"}
+    {:ex_typesense, "~> 0.7"}
 
     # Or from GitHub repository, if you want to latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}
@@ -246,6 +247,21 @@ ExTypesense.search(Person, params)
 ```
 
 Check [Cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more usage examples.
+
+## Miscellaneous
+
+### Use non-default Finch adapter
+
+For instance, in a scenario where an application has multiple Finch pools configured for different services, a developer might want to specify a particular Finch pool for the `HttpClient` to use. This can be achieved by configuring the options as follows:
+
+```elixir
+config :ex_typesense,
+  api_key: "XXXXXX",
+  #...
+  options: [finch: MyApp.CustomFinch]
+```
+
+In this example, `MyApp.CustomFinch` is a custom Finch pool that the developer has configured with specific connection options or other settings that differ from the default Finch pool.
 
 ## License
 

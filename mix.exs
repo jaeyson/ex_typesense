@@ -2,7 +2,7 @@ defmodule ExTypesense.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/jaeyson/ex_typesense"
-  @version "0.6.0"
+  @version "0.7.0"
 
   def project do
     [
@@ -36,11 +36,11 @@ defmodule ExTypesense.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.32", only: [:dev, :test], runtime: false},
-      {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.34", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7.7", only: [:dev, :test], runtime: false},
       {:req, "~> 0.5"},
-      {:ecto, "~> 3.11"},
-      {:excoveralls, "~> 0.10", only: :test},
+      {:ecto, "~> 3.12"},
+      {:excoveralls, "~> 0.18", only: :test},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false}
     ]
   end
