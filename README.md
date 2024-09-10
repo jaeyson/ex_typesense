@@ -2,7 +2,7 @@
 
 [![Hex.pm](https://img.shields.io/hexpm/v/ex_typesense)](https://hex.pm/packages/ex_typesense)
 [![Hexdocs.pm](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_typesense)
-[![Actions Status](https://github.com/jaeyson/ex_typesense/actions/workflows/ci.yml/badge.svg)](https://github.com/jaeyson/ex_typesense/actions)
+[![Actions Status](https://github.com/jaeyson/ex_typesense/actions/workflows/ci.yml/badge.svg)](https://github.com/jaeyson/ex_typesense/actions/workflows/ci.yml)
 [![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](https://hexdocs.pm/ex_typesense/license.html)
 [![Typesense badge](https://img.shields.io/badge/Typesense-v26.0-darkblue)](https://typesense.org/docs/26.0/api)
 [![Coverage Status](https://coveralls.io/repos/github/jaeyson/ex_typesense/badge.svg?branch=main)](https://coveralls.io/github/jaeyson/ex_typesense?branch=main)
