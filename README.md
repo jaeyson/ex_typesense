@@ -74,7 +74,7 @@ For Cloud hosted, you can generate and obtain the credentials from cluster insta
 ```elixir
 config :ex_typesense,
   api_key: "credential", # Admin API key
-  host: "111222333aaabbbcc-9.x9.typesense.net" # Nodes
+  host: "111222333aaabbbcc-9.x9.typesense.net", # Nodes
   port: 443,
   scheme: "https",
   options: %{}
