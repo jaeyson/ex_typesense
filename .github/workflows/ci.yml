@@ -23,8 +23,26 @@ jobs:
 
     strategy:
       matrix:
-        typesense-version: ['0.25.2', '26.0']
-        typesense-port: ['8108:8108']
+        include:
+        - typesense: '0.25.2'
+          otp: '25'
+          elixir: '1.14'
+        - typesense: '26.0'
+          otp: '25'
+          elixir: '1.14'
+        - typesense: '27.1'
+          otp: '25'
+          elixir: '1.14'
+        - typesense: '0.25.2'
+          otp: '27'
+          elixir: '1.17'
+        - typesense: '26.0'
+          otp: '27'
+          elixir: '1.17'
+        - typesense: '27.1'
+          otp: '27'
+          elixir: '1.17'
+          lint: true
 
     env:
       MIX_ENV: test
@@ -32,7 +50,7 @@ jobs:
 
     services:
       typesense:
-        image: typesense/typesense:${{ matrix.typesense-version }}
+        image: typesense/typesense:${{ matrix.typesense }}
 
     steps:
       - name: Checkout repo
@@ -41,10 +59,10 @@ jobs:
       - name: Start Typesense
         run: |
           docker run -d \
-          -p ${{ matrix.typesense-port }} \
+          -p 8108:8108 \
           --name typesense \
           -v /tmp/typesense-data:/data \
-          typesense/typesense:${{ matrix.typesense-version}} \
+          typesense/typesense:${{ matrix.typesense}} \
           --api-key=xyz \
           --data-dir /data \
           --enable-cors
@@ -55,8 +73,8 @@ jobs:
       - name: Setup Elixir/OTP
         uses: erlef/setup-beam@v1
         with:
-          otp-version: '25'
-          elixir-version: '1.14.x'
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
 
       - name: Cache dependencies/builds
         uses: actions/cache@v4
@@ -64,9 +82,9 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mix-typesense-${{ matrix.typesense-version }}-${{ hashFiles('**/mix.lock') }}
+          key: ${{ runner.os }}-mix-typesense-${{ matrix.typesense}}-${{ matrix.otp}}-${{ matrix.elixir}}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-typesense-${{ matrix.typesense-version }}
+            ${{ runner.os }}-mix-typesense-${{ matrix.typesense}}
 
       - name: Install Dependencies
         run: |
@@ -76,21 +94,26 @@ jobs:
 
       - name: Find unused dependencies
         run: mix deps.unlock --check-unused
+        if: ${{ matrix.lint }}
 
       - name: Check retired dependencies
         run: mix hex.audit
+        if: ${{ matrix.lint }}
 
       - name: Security audit of dependencies
         run: mix deps.audit
+        if: ${{ matrix.lint }}
 
       - name: Compile project
         run: mix compile --all-warnings
 
-      - name: run static analysis
+      - name: Run static analysis
         run: mix credo --all --strict
+        if: ${{ matrix.lint }}
 
-      # - name: check format files
-      #   run: mix format --check-formatted
+      - name: Check format files
+        run: mix format --check-formatted
+        if: ${{ matrix.lint }}
 
       - name: Run tests
         run: mix test
