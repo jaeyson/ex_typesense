@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## major.minor.patch (yyyy.mm.dd)
+
+## 0.7.2 (2024.11.07)
+
+### Changed
+
+- Use `v27.1` of [Typesense](https://typesense.org/docs/27.1/api) in CI and local development.
+
 ## 0.7.1 (2024.09.10)
 
 ### Removed
