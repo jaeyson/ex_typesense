@@ -7,6 +7,41 @@ seamlessly.
 
 ## Prerequisites
 
+### Install Elixir
+
+This project uses **Elixir version** `>= v1.14`
+
+There are 4 ways to install Elixir:
+
+#### Option A: via Official page
+
+https://elixir-lang.org/install.html
+
+#### Option B: via [`asdf`](https://asdf-vm.com)
+
+1. https://asdf-vm.com/guide/getting-started.html
+2. https://github.com/asdf-vm/asdf-elixir
+3. https://github.com/asdf-vm/asdf-erlang?tab=readme-ov-file#before-asdf-install
+4. `asdf global elixir VERSION && asdf global erlang VERSION`
+
+#### Option C: via [`vfox`](https://vfox.lhan.me)
+
+1. https://vfox.lhan.me/guides/quick-start.html
+2. https://github.com/version-fox/vfox-elixir
+3. https://github.com/version-fox/vfox-erlang
+4. `vfox use -g erlang@VERSION && vfox use -g elixir@VERSION`
+
+#### Option D: via Docker/docker-compose
+
+Please refer to this repo: https://github.com/jaeyson/docker-dev-setup/tree/master/elixir.
+
+> **Note**: you might need to omit packages like `postgres-client`
+in the `elixir.dockerfile`, since we won't use such package. Also remove
+the line that contains `RUN mix archive.install hex phx_new --force` since
+we won't install Phoenix framework.
+
+### Install Docker
+
 Before we begin, ensure you have the following installed on your development
 machine:
 

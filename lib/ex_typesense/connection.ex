@@ -4,18 +4,36 @@ defmodule ExTypesense.Connection do
   Fetches credentials either from application env or map.
   """
 
-  alias ExTypesense.HttpClient
+  @doc since: "0.8.0"
+  @spec get_host :: String.t() | nil
+  def get_host, do: Application.get_env(:ex_typesense, :host)
 
-  @derive {Inspect, except: [:api_key]}
-  defstruct [:host, :api_key, :port, :scheme]
+  @doc since: "0.8.0"
+  @spec get_options :: Keyword.t()
+  def get_options, do: Application.get_env(:ex_typesense, :options, %{})
 
-  @typedoc since: "0.4.0"
-  @type t() :: %{
-          host: binary() | nil,
-          api_key: binary() | nil,
-          port: non_neg_integer() | nil,
-          scheme: binary() | nil
-        }
+  @doc since: "0.8.0"
+  @spec get_scheme :: String.t() | nil
+  def get_scheme, do: Application.get_env(:ex_typesense, :scheme)
+
+  @doc since: "0.8.0"
+  @spec get_port :: non_neg_integer() | nil
+  def get_port do
+    Application.get_env(:ex_typesense, :port)
+  end
+
+  @doc """
+  Returns the Typesense's API key
+
+  > #### Warning {: .warning}
+  >
+  > Even if `api_key` is hidden in `Connection` struct, this
+  > function will still return the key and accessible inside
+  > shell (assuming bad actors [pun unintended `:/`] can get in as well).
+  """
+  @doc since: "0.8.0"
+  @spec api_key :: String.t() | nil
+  def api_key, do: Application.get_env(:ex_typesense, :api_key)
 
   @doc """
   Setting new connection or using the default config.
@@ -27,32 +45,28 @@ defmodule ExTypesense.Connection do
 
   ## Examples
       iex> conn = ExTypesense.Connection.new()
-      %ExTypesense.Connection{
+      %OpenApiTypesense.Connection{
         host: "localhost",
         port: 8108,
         scheme: "http",
         ...
       }
   """
+
   @doc since: "0.4.0"
-  @spec new(connection :: t() | map()) :: ExTypesense.Connection.t()
+  @spec new(connection :: map()) :: OpenApiTypesense.Connection.t()
   def new(connection \\ defaults()) when is_map(connection) do
-    %ExTypesense.Connection{
-      host: Map.get(connection, :host),
-      api_key: Map.get(connection, :api_key),
-      port: Map.get(connection, :port),
-      scheme: Map.get(connection, :scheme)
-    }
+    OpenApiTypesense.Connection.new(connection)
   end
 
   @doc since: "0.4.3"
   @spec defaults :: map()
   defp defaults do
     %{
-      host: HttpClient.get_host(),
-      api_key: HttpClient.api_key(),
-      port: HttpClient.get_port(),
-      scheme: HttpClient.get_scheme()
+      host: get_host(),
+      api_key: api_key(),
+      port: get_port(),
+      scheme: get_scheme()
     }
   end
 end

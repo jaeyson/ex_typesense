@@ -1,21 +1,40 @@
-# ExTypesense
+<p align="center">
+  <img alt="Typesense logo" src="https://github.com/typesense/typesense/raw/main/assets/typesense_logo.svg" width="298">
+  <img alt="lightning-bolt.svg" src="https://github.com/jaeyson/ex_typesense/raw/main/assets/lightning-bolt.svg" width="200">
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/elixir-lang/elixir-lang.github.com/raw/main/images/logo/logo-dark.png">
+  <img alt="Elixir logo" src="https://github.com/elixir-lang/elixir-lang.github.com/raw/main/images/logo/logo.png" width="200">
+</p>
 
-[![Hex.pm](https://img.shields.io/hexpm/v/ex_typesense)](https://hex.pm/packages/ex_typesense)
-[![Hexdocs.pm](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_typesense)
-[![Hex.pm](https://img.shields.io/hexpm/l/ex_typesense)](https://hexdocs.pm/ex_typesense/license.html)
-[![Typesense badge](https://img.shields.io/badge/Typesense-v26.0-darkblue)](https://typesense.org/docs/26.0/api)
-[![Coverage Status](https://coveralls.io/repos/github/jaeyson/ex_typesense/badge.svg?branch=main)](https://coveralls.io/github/jaeyson/ex_typesense?branch=main)
+<h1 align="center">ExTypesense</h1>
 
-Typesense client for Elixir with support for your Ecto schemas.
+<p align="center">
+  <a href="https://hex.pm/packages/ex_typesense">
+    <img src="https://img.shields.io/hexpm/v/ex_typesense">
+  </a>
+  <a href="https://hexdocs.pm/ex_typesense">
+    <img src="https://img.shields.io/badge/hex-docs-lightgreen.svg">
+  </a>
+  <a href="https://github.com/jaeyson/ex_typesense/actions/workflows/ci.yml">
+    <img src="https://github.com/jaeyson/ex_typesense/actions/workflows/ci.yml/badge.svg">
+  </a>
+  <a href="https://hexdocs.pm/ex_typesense/license.html">
+    <img src="https://img.shields.io/hexpm/l/ex_typesense">
+  </a>
+  <a href="https://typesense.org/docs/27.1/api">
+    <img src="https://img.shields.io/badge/Typesense-v27.1-darkblue">
+  </a>
+  <a href="https://coveralls.io/github/jaeyson/ex_typesense?branch=main">
+    <img src="https://coveralls.io/repos/github/jaeyson/ex_typesense/badge.svg?branch=main">
+  </a>
+</p>
 
-> **Note**: Breaking changes if you're upgrading from `0.3.x` to `0.5.x` version and above.
+[Typesense](https://typesense.org) client for [Elixir](https://elixir-lang.org) with support for your Ecto schemas.
 
-## Todo
+> Under the hood, this library utilizes [open_api_typesense](https://github.com/jaeyson/open_api_typesense) to make sure it adheres to [Typesense's OpenAPI spec](https://github.com/typesense/typesense-api-spec).
 
-- creating collection using auto schema detection
-- implement geosearch
-- implement curation
-- implement synonyms
+> **Note**: `0.8.0` contains **LOTS** of breaking changes.
+
+> **Note**: Breaking changes if you're upgrading from `0.3.x` to `0.5.x` versions and above.
 
 ## Installation
 
@@ -27,9 +46,9 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 0.6"}
+    {:ex_typesense, "~> 0.8"}
 
-    # Or from GitHub repository, if you want to latest greatest from main branch
+    # Or from GitHub repository, if you want the latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}
   ]
 end
@@ -37,13 +56,17 @@ end
 
 ## Getting started
 
-### 0. Run local Typesense instance
+### 0. (Optional) Run local Typesense instance
+
+If you want to try this library locally:
 
 ```bash
 docker compose up -d
 ```
 
 More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense.html
+
+Otherwise, go to step #1 if you're using [Cloud hosted](https://cloud.typesense.org) instance instead.
 
 ### 1. Add credential to config
 
@@ -54,25 +77,30 @@ After you have setup a [local](./guides/running_local_typesense.md) Typesense or
 You can set the following config details to the config file:
 
 ```elixir
+# e.g. config/runtime.exs
 if config_env() == :prod do # if you'll use this in prod environment
   config :ex_typesense,
     api_key: "xyz",
     host: "localhost",
     port: 8108,
-    scheme: "http"
+    scheme: "http",
+    options: %{}
   ...
 ```
 
-> **Note**: If you use this for adding test in your app, you might want to add this in `config/test.exs`:
+> **Note**: The `options` key can be used to pass additional configuration options such as custom Finch instance or receive timeout settings. You can add any options supported by Req here. For more details check [Req documentation](https://hexdocs.pm/req/Req.Steps.html#run_finch/1-request-options).
+
+> **Note**: If you use this for adding tests in your app, you might want to add this in `config/test.exs`:
 
 For Cloud hosted, you can generate and obtain the credentials from cluster instance admin interface:
 
 ```elixir
 config :ex_typesense,
   api_key: "credential", # Admin API key
-  host: "111222333aaabbbcc-9.x9.typesense.net" # Nodes
+  host: "111222333aaabbbcc-9.x9.typesense.net", # Nodes
   port: 443,
-  scheme: "https"
+  scheme: "https",
+  options: %{}
 ```
 
 #### Option 2: Set credentials from a map
@@ -248,8 +276,21 @@ Check [Cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more usa
 ### OpenAPI generator
 
 ```bash
-mix api.gen default priv/openapi.yml
+mix api.gen default priv/open_api.yml
 ```
+
+### Use non-default Finch adapter
+
+For instance, in a scenario where an application has multiple Finch pools configured for different services, a developer might want to specify a particular Finch pool for the `HttpClient` to use. This can be achieved by configuring the options as follows:
+
+```elixir
+config :ex_typesense,
+  api_key: "XXXXXX",
+  #...
+  options: [finch: MyApp.CustomFinch]
+```
+
+In this example, `MyApp.CustomFinch` is a custom Finch pool that the developer has configured with specific connection options or other settings that differ from the default Finch pool.
 
 ## License
 

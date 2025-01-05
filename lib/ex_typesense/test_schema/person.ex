@@ -24,9 +24,11 @@ defmodule ExTypesense.TestSchema.Person do
 
   @impl ExTypesense
   def get_field_types do
-    primary_field = __MODULE__.__schema__(:source) <> "_id"
+    name = __MODULE__.__schema__(:source)
+    primary_field = name <> "_id"
 
     %{
+      name: name,
       default_sorting_field: primary_field,
       fields: [
         %{name: primary_field, type: "int32"},

@@ -5,6 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## major.minor.patch (yyyy.mm.dd)
+
+## 0.8.0 (2024.12.xx)
+
+### Added
+
+* Use [`open_api_typesense` library](https://github.com/jaeyson/open_api_typesense)
+* Moar teztsss for coverage.
+
+### Changed
+
+* Internal implementation and used `OpenApiTypesense`
+
+### Removed
+
+* This version has lots of backwards-incompatible
+changes that the following Modules are removed,
+in favor of using [`OpenApiTypesense`](https://github.com/jaeyson/open_api_typesense):
+  - `Cluster`
+  - `Collection`
+  - `Document`
+  - `HttpClient`
+  - `Search`
+
+### Added
+
+* `{:error, String.t()}` type for `Search.search/3`
+
+## 0.7.3 (2024.11.11)
+
+### Added
+
+* `{:error, String.t()}` type for `Search.search/3`
+
+## 0.7.2 (2024.11.07)
+
+### Changed
+
+* Use `v27.1` of [Typesense](https://typesense.org/docs/27.1/api) in CI and local development.
+
+## 0.7.1 (2024.09.10)
+
+### Removed
+
+* `:castore` dependency not passing on CI test
+
+## 0.7.0 (2024.09.10)
+
+### Changed
+
+* HTTP request construction in `ExTypesense.HttpClient` to include `options`.
+* Bumped dependencies
+
+### Added
+
+* `options` in config `config/config.exs`.
+* `get_options/0` function in `HttpClient` to fetch the `options` configuration.
+* tests for `get_options/0` in `ExTypesense.HttpClientTest`.
+
 ## 0.6.0 (2024.07.15)
 
 ### Changed
@@ -19,7 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-* `README` regarding `default_sorting_field`, where it joins the table name with "_id" (e.g. `images` is `images_id` instead of `image_id`).
+* `README` regarding `default_sorting_field`, where it joins the table name with `_id` (e.g. `images` is `images_id` instead of `image_id`).
 
 ### Added
 
@@ -110,11 +169,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed url request path for aliases.
 
 ### Changed
+
 * Refactor functions inside collection and document.
 * Changed return values from `{:ok, t()}` to `t()` only.
 * Parse schema field types for `float`, `boolean`, `string`, `integer` and a list with these corresponding types.
 
 ### Added
+
 * Added cheatsheet section on docs.
 
 ## 0.2.2 (2023.01.26)

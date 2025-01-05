@@ -16,7 +16,7 @@ defmodule ExTypesense.Search do
   @multi_search_path "/multi_search"
 
   @typedoc since: "0.1.0"
-  @type response :: {:ok, map()} | {:error, map()}
+  @type response :: {:ok, map()} | {:error, map()} | {:error, String.t()}
 
   @doc """
   Search from a document or Ecto Schema.
