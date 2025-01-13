@@ -5,11 +5,16 @@ defmodule ExTypesense do
   Public API functions to interact with Typesense.
 
   If you want to implement field types for your Ecto schema,
-  you may need to encode the schema and add the callback `get_field_types/0`:
+  you may need to encode the schema and add the callback [`get_field_types/0`](`c:ExTypesense.get_field_types/0`):
+
+  > #### Schema and field types for Ecto {: .info}
+  >
+  > The code below is when you're using it with Ecto schema.
+  > Skip this if you just want plain old maps
 
   ```elixir
-  # this example module can be found at: lib/ex_typesense/test_schema/person.ex
   defmodule App.Person do
+    use Ecto.Schema
     @behaviour ExTypesense
 
     defimpl Jason.Encoder, for: __MODULE__ do
@@ -56,8 +61,39 @@ defmodule ExTypesense do
 
   alias ExTypesense.Connection
 
+  @doc since: "1.0.0"
   @doc """
   A callback function for creating the schema fields in Typesense.
+
+  > #### Where to add {: .info}
+  >
+  > This function should be added in the Ecto Schema that you
+  > will be use to import to Typesense.
+
+  ```elixir
+  defmodule MyApp.Accounts.User do
+    use Ecto.Schema
+    @behaviour ExTypesense
+
+    #... Lots of user-related code + Ecto schema
+
+    @impl ExTypesense
+    def get_field_types do
+      name = __MODULE__.__schema__(:source)
+      primary_field = name <> "_id"
+
+      %{
+        name: name,
+        default_sorting_field: primary_field,
+        fields:
+          [
+            %{name: primary_field, type: "int32"},
+            %{name: "name", type: "string"},
+            %{name: "age", type: "integer"}
+          ]
+      }
+    end
+  ```
   """
   @callback get_field_types :: map()
 
@@ -76,8 +112,10 @@ defmodule ExTypesense do
   defdelegate clone_collection(conn, src_coll, new_coll), to: ExTypesense.Collection
 
   defdelegate get_collection(name), to: ExTypesense.Collection
-  defdelegate get_collection(conn, name), to: ExTypesense.Collection
+  defdelegate get_collection(conn, coll_name), to: ExTypesense.Collection
+
   defdelegate get_collection_name(alias_name), to: ExTypesense.Collection
+  defdelegate get_collection_name(conn, alias_name), to: ExTypesense.Collection
 
   defdelegate drop_collection(name), to: ExTypesense.Collection
   defdelegate drop_collection(conn, name), to: ExTypesense.Collection
@@ -108,65 +146,73 @@ defmodule ExTypesense do
   ##########################################################
   # start document-specific tasks
   ##########################################################
-  defdelegate get_document(collection_name, document_id), to: ExTypesense.Document
-  defdelegate get_document(conn, collection_name, document_id), to: ExTypesense.Document
+  defdelegate get_document(coll_name, doc_id), to: ExTypesense.Document
+  defdelegate get_document(conn, coll_name, doc_id), to: ExTypesense.Document
+  defdelegate get_document(conn, coll_name, doc_id, opts), to: ExTypesense.Document
 
-  defdelegate index_document(collection_name, body), to: ExTypesense.Document
-  defdelegate index_document(collection_name, body, opts), to: ExTypesense.Document
-  defdelegate index_document(conn, collection_name, body, opts), to: ExTypesense.Document
+  defdelegate index_document(document), to: ExTypesense.Document
+  defdelegate index_document(collection_name, document), to: ExTypesense.Document
+  defdelegate index_document(conn, collection_name, document), to: ExTypesense.Document
+  defdelegate index_document(conn, collection_name, document, opts), to: ExTypesense.Document
 
-  defdelegate delete_document(record), to: ExTypesense.Document
-  defdelegate delete_document(conn_or_coll_name, record_or_doc_id), to: ExTypesense.Document
-  defdelegate delete_document(coll_name, doc_id, ignore_not_found), to: ExTypesense.Document
+  defdelegate delete_document(document), to: ExTypesense.Document
+  defdelegate delete_document(coll_name, doc_id), to: ExTypesense.Document
+  defdelegate delete_document(conn, coll_name, doc_id), to: ExTypesense.Document
   defdelegate delete_document(conn, coll_name, doc_id, ignore_not_found), to: ExTypesense.Document
 
-  defdelegate delete_documents_by_query(collection_name, query), to: ExTypesense.Document
-  defdelegate delete_documents_by_query(conn, collection_name, query), to: ExTypesense.Document
+  defdelegate delete_documents_by_query(collection_name, opts), to: ExTypesense.Document
+  defdelegate delete_documents_by_query(conn, collection_name, opts), to: ExTypesense.Document
 
-  defdelegate import_documents(coll_name, documents), to: ExTypesense.Document
-  defdelegate import_documents(coll_name, documents, opts), to: ExTypesense.Document
+  defdelegate import_documents(documents), to: ExTypesense.Document
+  defdelegate import_documents(conn, documents), to: ExTypesense.Document
+  defdelegate import_documents(conn, coll_name, documents), to: ExTypesense.Document
   defdelegate import_documents(conn, coll_name, documents, opts), to: ExTypesense.Document
 
-  defdelegate export_documents(collection_name), to: ExTypesense.Document
-  defdelegate export_documents(conn_or_coll_name, coll_name_or_opts), to: ExTypesense.Document
-  defdelegate export_documents(conn, collection_name, opts), to: ExTypesense.Document
+  defdelegate export_documents(coll_name), to: ExTypesense.Document
+  defdelegate export_documents(conn, coll_name), to: ExTypesense.Document
+  defdelegate export_documents(conn, coll_name, opts), to: ExTypesense.Document
 
   defdelegate delete_all_documents(collection_name), to: ExTypesense.Document
   defdelegate delete_all_documents(conn, collection_name), to: ExTypesense.Document
 
   defdelegate update_document(document), to: ExTypesense.Document
-  defdelegate update_document(conn_or_doc_or_record, record_or_opts), to: ExTypesense.Document
+  defdelegate update_document(conn, document), to: ExTypesense.Document
   defdelegate update_document(conn, document, opts), to: ExTypesense.Document
 
   defdelegate update_documents_by_query(coll_name, body, opts), to: ExTypesense.Document
   defdelegate update_documents_by_query(conn, coll_name, body, opts), to: ExTypesense.Document
-
-  defdelegate upsert_document(document), to: ExTypesense.Document
-  defdelegate upsert_document(conn, document), to: ExTypesense.Document
   ##########################################################
   # end document-specific tasks
   ##########################################################
 
   ##########################################################
-  # start operations
+  # start search
+  ##########################################################
+  defdelegate search(coll_name, opts), to: ExTypesense.Search
+  defdelegate search(conn, coll_name, opts), to: ExTypesense.Search
+
+  defdelegate multi_search(searches), to: ExTypesense.Search
+
+  defdelegate multi_search_ecto(searches), to: ExTypesense.Search
+  defdelegate multi_search_ecto(conn, searches), to: ExTypesense.Search
+  defdelegate multi_search_ecto(conn, searches, opts), to: ExTypesense.Search
+  ##########################################################
+  # end search
+  ##########################################################
+
+  ##########################################################
+  # start curation
   ##########################################################
   ##########################################################
-  # end operations
+  # end curation
   ##########################################################
 
-  # search
-  defdelegate search(conn \\ Connection.new(), collection_name, params),
-    to: ExTypesense.Search
-
-  # geo search
-
-  # multisearch
-  defdelegate multi_search(conn \\ Connection.new(), searches), to: ExTypesense.Search
-  defdelegate multi_search_ecto(conn \\ Connection.new(), searches), to: ExTypesense.Search
-
-  # curation
-
-  # synonyms
+  ##########################################################
+  # start synonyms
+  ##########################################################
+  ##########################################################
+  # end synonyms
+  ##########################################################
 
   ##########################################################
   # start cluster operations
@@ -182,6 +228,18 @@ defmodule ExTypesense do
 
   defdelegate create_snapshot(snapshot_path), to: ExTypesense.Cluster
   defdelegate create_snapshot(conn, snapshot_path), to: ExTypesense.Cluster
+
+  defdelegate compact_db, to: ExTypesense.Cluster
+  defdelegate compact_db(conn), to: ExTypesense.Cluster
+
+  defdelegate clear_cache, to: ExTypesense.Cluster
+  defdelegate clear_cache(conn), to: ExTypesense.Cluster
+
+  defdelegate toggle_slow_request_log(config), to: ExTypesense.Cluster
+  defdelegate toggle_slow_request_log(conn, config), to: ExTypesense.Cluster
+
+  defdelegate vote, to: ExTypesense.Cluster
+  defdelegate vote(conn), to: ExTypesense.Cluster
   ##########################################################
   # end cluster operations
   ##########################################################

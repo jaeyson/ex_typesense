@@ -99,15 +99,25 @@ defmodule ExTypesense.Search do
   searches at once.
   Search params can be found [here](https://typesense.org/docs/latest/api/search.html#search-parameters).
 
+  > #### Federated search {: .info}
+  >
   > This is especially useful to avoid round-trip network latencies
   > incurred otherwise if each of these requests are sent in separate
   > HTTP requests.
-
-  > You can also use this feature to do a federated search across
+  >
+  > You can also use this feature to do a **federated search** across
   > multiple collections in a single HTTP request. For eg: in an
   > ecommerce products dataset, you can show results from both a
   > "products" collection, and a "brands" collection to the user, by
   > searching them in parallel with a multi_search request.
+
+  ## Options
+
+    * `limit_multi_searches`: Max number of search requests that can be sent in a
+    multi-search request. Default 50
+    * `x-typesense-api-key`: You can embed a separate search API key for each search
+    within a multi_search request. This is useful when you want to apply different
+    embedded filters for each collection in individual scoped API keys.
 
   ## Examples
       iex> searches = [
@@ -163,6 +173,7 @@ defmodule ExTypesense.Search do
        ]
       }
   """
+  @doc since: "1.0.0"
   @spec multi_search(Connection.t(), [map()]) :: response()
   def multi_search(conn \\ Connection.new(), searches) do
     path = @multi_search_path
@@ -188,6 +199,7 @@ defmodule ExTypesense.Search do
     )
   end
 
+  @doc since: "1.0.0"
   @spec multi_search_ecto(Connection.t(), [map()]) :: Ecto.Query.t()
   def multi_search_ecto(conn \\ Connection.new(), searches) do
     {:ok, %{"results" => results}} = multi_search(conn, searches)

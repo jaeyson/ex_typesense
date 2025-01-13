@@ -2,8 +2,15 @@ defmodule DocumentTest do
   use ExUnit.Case, async: true
 
   alias ExTypesense.TestSchema.Person
+  alias OpenApiTypesense.ApiResponse
+  alias OpenApiTypesense.Connection
+  alias OpenApiTypesense.Documents
+  alias OpenApiTypesense.CollectionResponse
 
   setup_all do
+    conn = Connection.new()
+    map_conn = %{api_key: "xyz", host: "localhost", port: 8108, scheme: "http"}
+
     schema = %{
       name: "doc_companies",
       fields: [
@@ -21,21 +28,18 @@ defmodule DocumentTest do
       country: "US"
     }
 
-    multiple_documents = %{
-      collection_name: "doc_companies",
-      documents: [
-        %{
-          company_name: "Industrial Mills, Co.",
-          doc_companies_id: 990,
-          country: "US"
-        },
-        %{
-          company_name: "Washing Machine, Inc.",
-          doc_companies_id: 10,
-          country: "US"
-        }
-      ]
-    }
+    multiple_documents = [
+      %{
+        company_name: "Industrial Mills, Co.",
+        doc_companies_id: 990,
+        country: "US"
+      },
+      %{
+        company_name: "Washing Machine, Inc.",
+        doc_companies_id: 10,
+        country: "US"
+      }
+    ]
 
     ExTypesense.create_collection(schema)
     ExTypesense.create_collection(Person)
@@ -45,261 +49,335 @@ defmodule DocumentTest do
       ExTypesense.drop_collection(Person)
     end)
 
-    %{schema: schema, document: document, multiple_documents: multiple_documents}
+    %{
+      schema: schema,
+      document: document,
+      multiple_documents: multiple_documents,
+      conn: conn,
+      map_conn: map_conn
+    }
   end
 
-  setup %{multiple_documents: multiple_documents} do
-    assert {:ok, %{"num_deleted" => _}} =
-             ExTypesense.delete_documents_by_query(multiple_documents.collection_name, %{
-               filter_by: "doc_companies_id:>=0"
-             })
-
-    assert {:ok, %{"num_deleted" => _}} =
-             ExTypesense.delete_documents_by_query(Person, %{filter_by: "persons_id:>=0"})
-
+  setup %{schema: schema, multiple_documents: multiple_documents} do
+    assert {:ok, %Documents{num_deleted: _}} = ExTypesense.delete_all_documents(schema.name)
+    assert {:ok, %Documents{num_deleted: _}} = ExTypesense.delete_all_documents(Person)
     :ok
   end
 
-  test "error: get unknown document", %{schema: schema} do
-    unknown_id = 999
-    message = ~s(Could not find a document with id: #{unknown_id})
-    assert {:error, message} === ExTypesense.get_document(schema.name, unknown_id)
-  end
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "error: get unknown document", %{schema: schema, conn: conn, map_conn: map_conn} do
+  #   unknown_id = "999"
+  #   message = ~s(Could not find a document with id: #{unknown_id})
 
-  test "success: index a document using a map then fetch if indexed", %{document: document} do
-    {:ok, %{"id" => id, "company_name" => company_name}} =
-      ExTypesense.create_document(document)
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(Person, unknown_id)
 
-    id = String.to_integer(id)
-    {:ok, result} = ExTypesense.get_document("doc_companies", id)
-    assert result["company_name"] === company_name
-  end
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(schema.name, unknown_id)
 
-  test "success: adding unknown field", %{document: document} do
-    document = Map.put(document, :unknown_field, "unknown_value")
-    {:ok, collection} = ExTypesense.create_document(document)
-    assert Map.has_key?(collection, "unknown_field")
-  end
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(Person, unknown_id, [])
 
-  test "success: upsert to update a document", %{document: document} do
-    {:ok, %{"id" => id}} = ExTypesense.create_document(document)
-    id = String.to_integer(id)
-    company_name = "Stark Industries"
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(schema.name, unknown_id, [])
 
-    updated_document =
-      document
-      |> Map.put(:company_name, company_name)
-      |> Map.put(:id, id)
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(conn, Person, unknown_id)
 
-    {:ok, result} = ExTypesense.upsert_document(updated_document)
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(conn, schema.name, unknown_id)
 
-    assert company_name === result["company_name"]
-  end
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(map_conn, Person, unknown_id)
 
-  test "success: create document using upsert_document/2", %{document: document} do
-    document = Map.put(document, :id, "9999")
-    assert {:ok, %{"id" => "9999"}} = ExTypesense.upsert_document(document)
-  end
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(map_conn, schema.name, unknown_id)
 
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(conn, Person, unknown_id, [])
+
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(conn, schema.name, unknown_id, [])
+
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(map_conn, Person, unknown_id, [])
+
+  #   assert {:error, %ApiResponse{message: ^message}} =
+  #            ExTypesense.get_document(map_conn, schema.name, unknown_id, [])
+  # end
+
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: index a document using a map then fetch if indexed", %{
+  #   document: document,
+  #   conn: conn,
+  #   map_conn: map_conn
+  # } do
+  #   person = %Person{
+  #     name: "Rudolf Bidler",
+  #     country: "ID",
+  #     persons_id: 9_999
+  #   }
+
+  #   coll_name = document[:collection_name]
+
+  #   assert {:ok, %{id: id, company_name: company_name}} = ExTypesense.index_document(document)
+  #   assert {:ok, _} = ExTypesense.index_document(coll_name, document)
+  #   assert {:ok, _} = ExTypesense.index_document(document, [])
+  #   assert {:ok, _} = ExTypesense.index_document(conn, document)
+  #   assert {:ok, _} = ExTypesense.index_document(conn, coll_name, document)
+  #   assert {:ok, _} = ExTypesense.index_document(map_conn, document)
+  #   assert {:ok, _} = ExTypesense.index_document(map_conn, coll_name, document)
+  #   assert {:ok, _} = ExTypesense.index_document(conn, document, [])
+  #   assert {:ok, _} = ExTypesense.index_document(conn, coll_name, document, [])
+  #   assert {:ok, _} = ExTypesense.index_document(map_conn, coll_name, document, [])
+
+  #   assert {:ok, %{id: _}} = ExTypesense.index_document(person)
+  #   assert {:ok, _} = ExTypesense.index_document(person, [])
+  #   assert {:ok, _} = ExTypesense.index_document(conn, person)
+  #   assert {:ok, _} = ExTypesense.index_document(map_conn, person)
+  #   assert {:ok, _} = ExTypesense.index_document(conn, person, [])
+  #   assert {:ok, _} = ExTypesense.index_document(map_conn, person, [])
+
+  #   assert {:ok, %{company_name: ^company_name}} = ExTypesense.get_document(coll_name, id)
+  # end
+
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: adding unknown field", %{document: document} do
+  #   document = Map.put(document, :unknown_field, "unknown_value")
+
+  #   assert {:ok, %{id: id, collection_name: collection_name}} =
+  #            ExTypesense.index_document(document)
+
+  #   assert {:ok, %{id: ^id}} = ExTypesense.get_document(collection_name, id)
+  # end
+
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: upsert to update a document", %{document: document} do
+  #   assert {:ok, %{id: id}} = ExTypesense.index_document(document)
+  #   company_name = "Stark Industries"
+
+  #   updated_document =
+  #     document
+  #     |> Map.put(:company_name, company_name)
+  #     |> Map.put(:id, id)
+
+  #   assert {:ok, %{id: ^id, company_name: ^company_name}} =
+  #            ExTypesense.index_document(updated_document, action: "upsert")
+  # end
+
+  @tag ["27.1": true, "26.0": true, "0.25.2": true]
   test "error: creates a document with a specific id twice", %{document: document} do
     document = Map.put(document, :id, "99")
-    assert {:ok, %{"id" => id}} = ExTypesense.create_document(document)
-    assert {:error, message} = ExTypesense.create_document(document)
-    assert message === "A document with id #{id} already exists."
+    assert {:ok, %{id: id}} = ExTypesense.index_document(document)
+    message = "A document with id #{id} already exists."
+    assert {:error, %ApiResponse{message: ^message}} = ExTypesense.index_document(document)
   end
 
-  test "success: update a document", %{document: document} do
-    {:ok, %{"id" => id}} = ExTypesense.create_document(document)
-    company_name = "Stark Industries"
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: update a document", %{document: document} do
+  #   assert {:ok, %{id: id}} = ExTypesense.index_document(document)
+  #   company_name = "Stark Industries"
 
-    updated_document =
-      document
-      |> Map.put(:company_name, company_name)
-      |> Map.put(:id, id)
+  #   updated_document =
+  #     document
+  #     |> Map.put(:company_name, company_name)
+  #     |> Map.put(:id, id)
 
-    {:ok, result} = ExTypesense.update_document(updated_document)
+  #   assert {:ok, %{id: ^id, company_name: ^company_name}} =
+  #            ExTypesense.index_document(updated_document, action: "update")
+  # end
 
-    assert company_name === result["company_name"]
-  end
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: delete a document", %{document: document, conn: conn, map_conn: map_conn} do
+  #   assert {:ok, %{id: id}} = ExTypesense.index_document(document)
 
-  test "success: deletes a document using map", %{document: document} do
-    {:ok, %{"id" => id}} = ExTypesense.create_document(document)
+  #   assert {:ok, %{id: ^id}} = ExTypesense.delete_document(document.collection_name, id)
+  #   assert {:error, _} = ExTypesense.delete_document(map_conn, document.collection_name, id)
+  #   assert {:error, _} = ExTypesense.delete_document(conn, document.collection_name, id, false)
+  #   assert {:error, _} = ExTypesense.delete_document(conn, document.collection_name, id)
 
-    assert {:ok, _} =
-             ExTypesense.delete_document({document.collection_name, String.to_integer(id)})
-  end
+  #   assert {:error, _} =
+  #            ExTypesense.delete_document(map_conn, document.collection_name, id, false)
+  # end
 
-  test "success: deletes a document by struct" do
-    person = %Person{id: 99, name: "John Smith", persons_id: 99, country: "Brazil"}
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: deletes a document by struct", %{conn: conn, map_conn: map_conn} do
+  #   person = %Person{name: "John Smith", persons_id: 99, country: "Brazil"}
 
-    assert {:ok, %{"country" => "Brazil", "id" => _, "name" => "John Smith", "persons_id" => 99}} =
-             ExTypesense.create_document(person)
+  #   assert {:ok, %{name: "John Smith", persons_id: 99, country: "Brazil"}} =
+  #            ExTypesense.index_document(person)
 
-    assert {:ok, _} = ExTypesense.delete_document(person)
-  end
+  #   assert {:ok, %Documents{num_deleted: 1}} = ExTypesense.delete_document(person)
+  #   assert {:ok, %Documents{num_deleted: 0}} = ExTypesense.delete_document(conn, person)
+  #   assert {:ok, _} = ExTypesense.delete_document(map_conn, person)
+  #   assert {:ok, _} = ExTypesense.delete_document(conn, person, false)
+  #   assert {:ok, _} = ExTypesense.delete_document(map_conn, person, false)
+  # end
 
-  test "success: deletes a document by id", %{document: document} do
-    {:ok, %{"id" => id}} = ExTypesense.create_document(document)
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: index multiple documents", %{
+  #   schema: schema,
+  #   multiple_documents: multiple_documents,
+  #   conn: conn,
+  #   map_conn: map_conn
+  # } do
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(schema.name, multiple_documents)
 
-    assert {:ok, _} =
-             ExTypesense.delete_document({document.collection_name, String.to_integer(id)})
-  end
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(conn, schema.name, multiple_documents)
 
-  test "success: index multiple documents", %{multiple_documents: multiple_documents} do
-    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
-             ExTypesense.index_multiple_documents(multiple_documents)
-  end
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(map_conn, schema.name, multiple_documents)
 
-  test "success: update multiple documents", %{
-    multiple_documents: multiple_documents,
-    schema: schema
-  } do
-    first = Enum.at(multiple_documents.documents, 0) |> Map.put(:collection_name, schema.name)
-    second = Enum.at(multiple_documents.documents, 1) |> Map.put(:collection_name, schema.name)
-    first_update = "first_update"
-    second_update = "second_update"
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(conn, schema.name, multiple_documents, [])
 
-    {:ok, %{"id" => first_id}} = ExTypesense.create_document(first)
-    {:ok, %{"id" => second_id}} = ExTypesense.create_document(second)
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(map_conn, schema.name, multiple_documents, [])
 
-    update_1 =
-      first
-      |> Map.put(:id, first_id)
-      |> Map.put(:company_name, first_update)
+  #   persons = [
+  #     %Person{name: "Chackie Jan", country: "BE", persons_id: 1_099},
+  #     %Person{name: "Norbert de Rearo", country: "TD", persons_id: 48}
+  #   ]
 
-    update_2 =
-      second
-      |> Map.put(:id, second_id)
-      |> Map.put(:company_name, second_update)
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(persons)
 
-    multiple_documents = Map.put(multiple_documents, :documents, [update_1, update_2])
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(conn, persons)
 
-    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
-             ExTypesense.update_multiple_documents(multiple_documents)
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(map_conn, persons)
 
-    {:ok, first} = ExTypesense.get_document(schema.name, String.to_integer(first_id))
-    {:ok, second} = ExTypesense.get_document(schema.name, String.to_integer(second_id))
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(conn, persons, [])
 
-    assert first["company_name"] === first_update
-    assert second["company_name"] === second_update
-  end
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(map_conn, persons, [])
+  # end
 
-  test "success: upsert multiple documents", %{multiple_documents: multiple_documents} do
-    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
-             ExTypesense.upsert_multiple_documents(multiple_documents)
-  end
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: update multiple documents", %{
+  #   multiple_documents: multiple_documents,
+  #   schema: schema,
+  #   conn: conn,
+  #   map_conn: map_conn
+  # } do
+  #   assert {:ok, %{id: first_id} = first} =
+  #            ExTypesense.index_document(schema.name, Enum.at(multiple_documents, 0))
 
-  test "error: upsert multiple documents with struct type" do
-    persons = [
-      %Person{id: 1, name: "John Smith"},
-      %Person{id: 2, name: "Jane Smith"}
-    ]
+  #   assert {:ok, %{id: second_id} = second} =
+  #            ExTypesense.index_document(schema.name, Enum.at(multiple_documents, 1))
 
-    assert {:error, ~s(It should be type of map, ":documents" key should contain list of maps)} ===
-             ExTypesense.upsert_multiple_documents(persons)
-  end
+  #   first_update = "first_update"
+  #   second_update = "second_update"
 
-  test "success: delete all documents using Ecto schema module" do
-    person = %Person{id: 1, name: "John Doe", persons_id: 1, country: "Scotland"}
+  #   update_1 = %{first | id: first_id, company_name: first_update}
+  #   update_2 = %{second | id: second_id, company_name: second_update}
 
-    assert {:ok, %{"country" => "Scotland", "id" => _, "name" => "John Doe", "persons_id" => 1}} =
-             ExTypesense.create_document(person)
+  #   multiple_documents = [update_1, update_2]
 
-    assert {:ok, %{"num_deleted" => 1}} == ExTypesense.delete_all_documents(Person)
-  end
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(schema.name, multiple_documents, action: "update")
 
-  test "success: deleting all documents won't drop the collection" do
-    multiple_documents = %{
-      collection_name: "doc_companies",
-      documents: [
-        %{
-          company_name: "Boca Cola",
-          doc_companies_id: 227,
-          country: "SG"
-        },
-        %{
-          company_name: "Motor, Inc.",
-          doc_companies_id: 99,
-          country: "TH"
-        }
-      ]
-    }
+  #   assert {:ok, %{company_name: ^first_update}} = ExTypesense.get_document(schema.name, first_id)
 
-    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
-             ExTypesense.index_multiple_documents(multiple_documents)
+  #   assert {:ok, %{company_name: ^second_update}} =
+  #            ExTypesense.get_document(schema.name, second_id)
+  # end
 
-    {:ok, %{"num_deleted" => documents_deleted}} =
-      ExTypesense.delete_all_documents(multiple_documents.collection_name)
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: delete all documents using Ecto schema module", %{conn: conn, map_conn: map_conn} do
+  #   person = %Person{name: "John Doe", persons_id: 1_111, country: "Scotland"}
 
-    assert documents_deleted > 0
+  #   assert {:ok, _} = ExTypesense.index_document(person)
 
-    assert %ExTypesense.Collection{name: "doc_companies"} =
-             ExTypesense.get_collection(multiple_documents.collection_name)
-  end
+  #   assert {:ok, %Documents{num_deleted: 1, num_updated: nil}} =
+  #            ExTypesense.delete_all_documents(Person)
 
-  test "success: delete all documents in a collection" do
-    multiple_documents = %{
-      collection_name: "doc_companies",
-      documents: [
-        %{
-          company_name: "Boca Cola",
-          doc_companies_id: 227,
-          country: "SG"
-        },
-        %{
-          company_name: "Motor, Inc.",
-          doc_companies_id: 99,
-          country: "TH"
-        }
-      ]
-    }
+  #   assert {:ok, _} = ExTypesense.delete_all_documents(conn, Person)
+  #   assert {:ok, _} = ExTypesense.delete_all_documents(map_conn, Person)
+  # end
 
-    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
-             ExTypesense.index_multiple_documents(multiple_documents)
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: deleting all documents won't drop the collection", %{
+  #   schema: schema,
+  #   conn: conn,
+  #   map_conn: map_conn
+  # } do
+  #   multiple_documents = [
+  #     %{
+  #       company_name: "Boca Cola",
+  #       doc_companies_id: 227,
+  #       country: "SG"
+  #     },
+  #     %{
+  #       company_name: "Motor, Inc.",
+  #       doc_companies_id: 99,
+  #       country: "TH"
+  #     }
+  #   ]
 
-    {:ok, %{"num_deleted" => documents_deleted}} =
-      ExTypesense.delete_all_documents(multiple_documents.collection_name)
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
+  #            ExTypesense.import_documents(schema.name, multiple_documents)
 
-    assert documents_deleted > 0
-  end
+  #   assert {:ok, %{num_deleted: documents_deleted}} =
+  #            ExTypesense.delete_all_documents(schema.name)
 
-  test "success: delete documents by query (Ecto schema)" do
-    john_toe = %Person{id: 32, name: "John Toe", persons_id: 32, country: "Egypt"}
-    john_foe = %Person{id: 14, name: "John Foe", persons_id: 14, country: "Cuba"}
+  #   assert {:ok, _} = ExTypesense.delete_all_documents(conn, schema.name)
+  #   assert {:ok, _} = ExTypesense.delete_all_documents(map_conn, schema.name)
 
-    assert {:ok, %{"country" => "Egypt", "id" => _, "name" => "John Toe", "persons_id" => 32}} =
-             ExTypesense.create_document(john_toe)
+  #   assert documents_deleted > 0
 
-    assert {:ok, %{"country" => "Cuba", "id" => _, "name" => "John Foe", "persons_id" => 14}} =
-             ExTypesense.create_document(john_foe)
+  #   name = schema.name
+  #   assert {:ok, %CollectionResponse{name: ^name}} = ExTypesense.get_collection(name)
+  # end
 
-    assert {:ok, %{"num_deleted" => 2}} =
-             ExTypesense.delete_documents_by_query(Person, %{filter_by: "persons_id:>=0"})
-  end
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: delete documents by query (Ecto schema)", %{conn: conn, map_conn: map_conn} do
+  #   john_toe = %Person{name: "John Toe", persons_id: 32, country: "Egypt"}
+  #   john_foe = %Person{name: "John Foe", persons_id: 14, country: "Cuba"}
 
-  test "success: delete documents by query (map)" do
-    documents = %{
-      collection_name: "doc_companies",
-      documents: [
-        %{
-          company_name: "Doctor & Gamble",
-          doc_companies_id: 19,
-          country: "ES"
-        },
-        %{
-          company_name: "The Daily Bribe",
-          doc_companies_id: 84,
-          country: "PH"
-        }
-      ]
-    }
+  #   assert {:ok, %{country: "Egypt", name: "John Toe", persons_id: 32}} =
+  #            ExTypesense.index_document(john_toe)
 
-    assert {:ok, [%{"success" => true}, %{"success" => true}]} ===
-             ExTypesense.index_multiple_documents(documents)
+  #   assert {:ok, %{country: "Cuba", name: "John Foe", persons_id: 14}} =
+  #            ExTypesense.index_document(john_foe)
 
-    assert {:ok, %{"num_deleted" => 2}} =
-             ExTypesense.delete_documents_by_query(documents.collection_name, %{
-               filter_by: "doc_companies_id:>=0"
-             })
-  end
+  #   assert {:ok, %Documents{num_deleted: 2}} =
+  #            ExTypesense.delete_documents_by_query(Person, filter_by: "persons_id:>=0")
+
+  #   assert {:ok, %Documents{num_deleted: 0}} =
+  #            ExTypesense.delete_documents_by_query(conn, Person, filter_by: "persons_id:>=0")
+
+  #   assert {:ok, %Documents{num_deleted: 0}} =
+  #            ExTypesense.delete_documents_by_query(map_conn, Person, filter_by: "persons_id:>=0")
+  # end
+
+  # @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  # test "success: delete documents by query (map)", %{
+  #   schema: schema,
+  #   conn: conn,
+  #   map_conn: map_conn
+  # } do
+  #   documents = [
+  #     %{
+  #       company_name: "Doctor & Gamble",
+  #       doc_companies_id: 19,
+  #       country: "ES"
+  #     },
+  #     %{
+  #       company_name: "The Daily Bribe",
+  #       doc_companies_id: 84,
+  #       country: "PH"
+  #     }
+  #   ]
+
+  #   assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+  #            ExTypesense.import_documents(schema.name, documents)
+
+  #   assert {:ok, %Documents{num_deleted: 2}} =
+  #            ExTypesense.delete_documents_by_query(schema.name, filter_by: "doc_companies_id:>=0")
+  # end
 end

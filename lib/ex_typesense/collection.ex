@@ -1,5 +1,6 @@
 defmodule ExTypesense.Collection do
   @moduledoc since: "0.1.0"
+
   @moduledoc """
   Module for creating, listing and deleting collections and aliases.
 
@@ -8,6 +9,8 @@ defmodule ExTypesense.Collection do
   a relational database. When we create a collection, we give it a name and describe the fields that will be
   indexed when a document is added to the collection.
   """
+
+  alias OpenApiTypesense.Connection
 
   @doc """
   Returns a summary of all your collections. The collections are returned
@@ -19,31 +22,31 @@ defmodule ExTypesense.Collection do
   * `offset`: Skip a certain number of results and start after that.
   * `exclude_fields`: Exclude the field definitions from being returned in the response.
   """
-  @doc since: "0.8.0"
+  @doc since: "1.0.0"
   @spec list_collections :: {:ok, [OpenApiTypesense.CollectionResponse.t()]} | :error
   def list_collections do
-    ExTypesense.Connection.new() |> list_collections()
+    Connection.new() |> list_collections()
   end
 
   @doc """
   Same as [list_collections/0](`list_collections/0`) but passes another connection or option.
 
   ```elixir
-  ExTypesense.list_collections(ExTypesense.Connection.new())
+  ExTypesense.list_collections(OpenApiTypesense.Connection.new())
 
   ExTypesense.list_collections(%{api_key: xyz, host: ...})
 
   ExTypesense.list_collections(exclude_fields: "fields", limit: 10)
   ```
   """
-  @doc since: "0.8.0"
-  @spec list_collections(map() | OpenApiTypesense.Connection.t() | keyword()) ::
+  @doc since: "1.0.0"
+  @spec list_collections(map() | Connection.t() | keyword()) ::
           {:ok, [OpenApiTypesense.CollectionResponse.t()]} | :error
   def list_collections(opts) when is_list(opts) do
-    ExTypesense.Connection.new() |> list_collections(opts)
+    Connection.new() |> list_collections(opts)
   end
 
-  def list_collections(conn) when is_map(conn) or is_struct(conn) do
+  def list_collections(conn) do
     list_collections(conn, [])
   end
 
@@ -53,13 +56,13 @@ defmodule ExTypesense.Collection do
   ```elixir
   ExTypesense.list_collections(%{api_key: xyz, host: ...}, limit: 10)
 
-  ExTypesense.list_collections(ExTypesense.Connection.new(), exclude_fields: "fields", limit: 10)
+  ExTypesense.list_collections(OpenApiTypesense.Connection.new(), exclude_fields: "fields", limit: 10)
   ```
   """
-  @doc since: "0.8.0"
-  @spec list_collections(map() | OpenApiTypesense.Connection.t(), keyword()) ::
+  @doc since: "1.0.0"
+  @spec list_collections(map() | Connection.t(), keyword()) ::
           {:ok, [OpenApiTypesense.CollectionResponse.t()]} | :error
-  def list_collections(conn, opts) when is_map(conn) or is_struct(conn) do
+  def list_collections(conn, opts) do
     OpenApiTypesense.Collections.get_collections(conn, opts)
   end
 
@@ -67,6 +70,11 @@ defmodule ExTypesense.Collection do
   Create collection from a map, or module name. Collection name is matched on table name if using Ecto schema by default.
 
   Please refer to these [list of schema params](https://typesense.org/docs/latest/api/collections.html#schema-parameters).
+
+  ## Options
+
+    * `src_name` (optional): Clone an existing collection's schema (documents are not copied), overrides and synonyms. This option is used primarily by [`clone_collection/2`](`clone_collection/2`).
+
 
   ## Examples
       iex> schema = %{
@@ -79,7 +87,7 @@ defmodule ExTypesense.Collection do
       ...>   default_sorting_field: "companies_id"
       ...> }
       iex> ExTypesense.create_collection(schema)
-      %OpenApiTypesense.CollectionResponse{
+      {:ok, %OpenApiTypesense.CollectionResponse{
         created_at: 1234567890,
         default_sorting_field: "companies_id",
         fields: [...],
@@ -87,10 +95,10 @@ defmodule ExTypesense.Collection do
         num_documents: 0,
         symbols_to_index: [],
         token_separators: []
-      }
+      }}
 
       iex> ExTypesense.create_collection(Person)
-      %OpenApiTypesense.CollectionResponse{
+      {:ok, %OpenApiTypesense.CollectionResponse{
         created_at: 1234567890,
         default_sorting_field: "persons_id",
         fields: [...],
@@ -98,13 +106,13 @@ defmodule ExTypesense.Collection do
         num_documents: 0,
         symbols_to_index: [],
         token_separators: []
-      }
+      }}
   """
-  @doc since: "0.8.0"
+  @doc since: "1.0.0"
   @spec create_collection(map() | module()) ::
           {:ok, [OpenApiTypesense.CollectionResponse.t()]} | :error
   def create_collection(schema) do
-    ExTypesense.Connection.new() |> create_collection(schema)
+    Connection.new() |> create_collection(schema)
   end
 
   @doc """
@@ -113,14 +121,21 @@ defmodule ExTypesense.Collection do
   ```elixir
   ExTypesense.create_collection(%{api_key: xyz, host: ...}, schema)
 
-  ExTypesense.create_collection(ExTypesense.Connection.new(), MyModule.Context)
+  ExTypesense.create_collection(OpenApiTypesense.Connection.new(), MyModule.Context)
+
+  ExTypesense.create_collection(OpenApiTypesense.Connection.new(), schema, src_name: "companies")
   ```
   """
-  @doc since: "0.8.0"
-  @spec create_collection(map() | OpenApiTypesense.Connection.t(), map() | module() | keyword()) ::
+  @doc since: "1.0.0"
+  @spec create_collection(map() | Connection.t(), map() | module() | keyword()) ::
           {:ok, [OpenApiTypesense.CollectionResponse.t()]} | :error
-  def create_collection(schema, opts) when is_map(schema) and is_list(opts) do
-    ExTypesense.Connection.new() |> create_collection(schema, opts)
+  def create_collection(schema, opts) when is_list(opts) do
+    Connection.new() |> create_collection(schema, opts)
+  end
+
+  def create_collection(conn, module) when is_atom(module) do
+    schema = module.get_field_types()
+    create_collection(conn, schema, [])
   end
 
   def create_collection(conn, schema) do
@@ -128,23 +143,23 @@ defmodule ExTypesense.Collection do
   end
 
   @doc """
-  Same as [create_collection/1](`create_collection/1`) but passes another connection or opts.
+  Same as [create_collection/2](`create_collection/2`) but explicitly passes all arguments.
 
   ```elixir
   ExTypesense.create_collection(%{api_key: xyz, host: ...}, schema, opts)
-
-  ExTypesense.create_collection(ExTypesense.Connection.new(), MyModule.Context, opts)
+  ExTypesense.create_collection(%{api_key: xyz, host: ...}, My, opts)
+  ExTypesense.create_collection(OpenApiTypesense.Connection.new(), MyModule.Context, opts)
   ```
   """
-  @doc since: "0.8.0"
-  @spec create_collection(map() | OpenApiTypesense.Connection.t(), map() | module(), keyword()) ::
+  @doc since: "1.0.0"
+  @spec create_collection(map() | Connection.t(), map() | module(), keyword()) ::
           {:ok, [OpenApiTypesense.CollectionResponse.t()]} | :error
-  def create_collection(conn, schema, opts) when is_map(schema) do
-    OpenApiTypesense.Collections.create_collection(conn, schema, opts)
+  def create_collection(conn, module, opts) when is_atom(module) do
+    schema = module.get_field_types()
+    create_collection(conn, schema, opts)
   end
 
-  def create_collection(conn, module_name, opts) when is_atom(module_name) do
-    schema = module_name.get_field_types()
+  def create_collection(conn, schema, opts) do
     OpenApiTypesense.Collections.create_collection(conn, schema, opts)
   end
 
@@ -160,11 +175,11 @@ defmodule ExTypesense.Collection do
   ExTypesense.clone_collection(MyModule.Vehicle.Sedan, MyModule.Vehicle.Convertible)
   ```
   """
-  @doc since: "0.8.0"
-  @spec clone_collection(String.t() | module(), String.t() | module()) ::
+  @doc since: "1.0.0"
+  @spec clone_collection(String.t() | module(), String.t()) ::
           {:ok, [OpenApiTypesense.CollectionResponse.t()]} | :error
   def clone_collection(src_coll, new_coll) do
-    ExTypesense.Connection.new() |> create_collection(src_coll, new_coll)
+    Connection.new() |> clone_collection(src_coll, new_coll)
   end
 
   @doc """
@@ -172,47 +187,35 @@ defmodule ExTypesense.Collection do
 
   ```elixir
   ExTypesense.clone_collection(%{api_key: xyz, host: ...}, "persons", "accounts")
-  ExTypesense.clone_collection(ExTypesense.Connection.new(), "persons", MyModule.Accounts.User)
+  ExTypesense.clone_collection(OpenApiTypesense.Connection.new(), "persons", MyModule.Accounts.User)
   ```
   """
-  @doc since: "0.8.0"
-  @spec clone_collection(
-          map() | OpenApiTypesense.Connection.t(),
-          String.t() | module(),
-          String.t() | module()
-        ) ::
+  @doc since: "1.0.0"
+  @spec clone_collection(map() | Connection.t(), String.t() | module(), String.t()) ::
           {:ok, [OpenApiTypesense.CollectionResponse.t()]} | :error
-  def clone_collection(conn, src_coll, new_coll) when is_struct(conn) or is_map(conn) do
-    [src_coll, new_coll] = stringify_collection_name(src_coll, new_coll)
-    body = %{"name" => new_coll}
-    create_collection(conn, body, src_name: src_coll)
+  def clone_collection(conn, module, new_coll) when is_atom(module) and is_binary(new_coll) do
+    src_coll = module.__schema__(:source)
+    clone_collection(conn, src_coll, new_coll)
   end
 
-  defp stringify_collection_name(src_coll, new_coll) do
-    cond do
-      is_binary(src_coll) and is_atom(new_coll) ->
-        [src_coll, new_coll.__schema__(:source)]
-
-      is_atom(src_coll) and is_binary(new_coll) ->
-        [src_coll.__schema__(:source), new_coll]
-
-      is_atom(src_coll) and is_atom(new_coll) ->
-        [src_coll.__schema__(:source), new_coll.__schema__(:source)]
-
-      true ->
-        [src_coll, new_coll]
-    end
+  def clone_collection(conn, src_coll, new_coll) when is_binary(new_coll) do
+    create_collection(conn, %{"name" => new_coll}, src_name: src_coll)
   end
 
   @doc """
   Get a specific collection by string or module name.
   """
-  @doc since: "0.8.0"
+  @doc since: "1.0.0"
   @spec get_collection(String.t() | module()) ::
           {:ok, OpenApiTypesense.CollectionResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
-  def get_collection(collection_name) do
-    ExTypesense.Connection.new() |> get_collection(collection_name)
+  def get_collection(coll_name) when is_binary(coll_name) do
+    Connection.new() |> get_collection(coll_name)
+  end
+
+  def get_collection(module) when is_atom(module) do
+    coll_name = module.__schema__(:source)
+    Connection.new() |> get_collection(coll_name)
   end
 
   @doc """
@@ -220,29 +223,29 @@ defmodule ExTypesense.Collection do
 
   ```elixir
   ExTypesense.get_collection(%{api_key: xyz, host: ...}, "persons")
-  ExTypesense.get_collection(ExTypesense.Connection.new(), MyModule.Accounts.User)
+  ExTypesense.get_collection(OpenApiTypesense.Connection.new(), MyModule.Accounts.User)
   ```
   """
-  @doc since: "0.8.0"
-  @spec get_collection(map() | OpenApiTypesense.Connection.t(), String.t() | module()) ::
+  @doc since: "1.0.0"
+  @spec get_collection(map() | Connection.t(), String.t() | module()) ::
           {:ok, OpenApiTypesense.CollectionResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
-  def get_collection(conn, collection_name) when is_binary(collection_name) do
-    OpenApiTypesense.Collections.get_collection(conn, collection_name)
-  end
-
   def get_collection(conn, module) when is_atom(module) do
     collection_name = module.__schema__(:source)
-    OpenApiTypesense.Collections.get_collection(conn, collection_name)
+    get_collection(conn, collection_name)
+  end
+
+  def get_collection(conn, coll_name) when is_binary(coll_name) do
+    OpenApiTypesense.Collections.get_collection(conn, coll_name)
   end
 
   @doc """
   Get the collection name by alias.
   """
-  @doc since: "0.8.0"
+  @doc since: "1.0.0"
   @spec get_collection_name(String.t()) :: String.t() | nil
   def get_collection_name(alias_name) do
-    ExTypesense.Connection.new() |> get_collection_name(alias_name)
+    Connection.new() |> get_collection_name(alias_name)
   end
 
   @doc """
@@ -250,16 +253,15 @@ defmodule ExTypesense.Collection do
 
   ```elixir
   ExTypesense.get_collection_name(%{api_key: xyz, host: ...}, "persons_sept_8_2019")
-  ExTypesense.get_collection_name(ExTypesense.Connection.new(), "persons_sept_8_2019")
+  ExTypesense.get_collection_name(OpenApiTypesense.Connection.new(), "persons_sept_8_2019")
   ```
   """
-  @doc since: "0.8.0"
-  @spec get_collection_name(map() | OpenApiTypesense.Connection.t(), String.t()) ::
-          String.t() | nil
-  def get_collection_name(conn, alias_name) do
+  @doc since: "1.0.0"
+  @spec get_collection_name(map() | Connection.t(), String.t()) :: String.t() | nil
+  def get_collection_name(conn, alias_name) when is_binary(alias_name) do
     case OpenApiTypesense.Collections.get_alias(conn, alias_name) do
-      {:ok, alias} ->
-        Map.get(alias, "collection_name")
+      {:ok, result} ->
+        Map.fetch!(result, :collection_name)
 
       {:error, _} ->
         nil
@@ -272,9 +274,19 @@ defmodule ExTypesense.Collection do
   indicate which field is removed (example described below).
   Only `fields` can only be updated at the moment.
 
-  > **Note**: Typesense supports updating all fields
+  > #### Typesense special field `id` {: .info}
+  >
+  > Typesense supports updating all fields
   > except the `id` field (since it's a special field
-  > within Typesense).
+  > within Typesense). Do not confuse `id` of Typesense
+  > with Ecto Schema or DB record(s).
+
+
+  > #### Which version supports this function {: .info}
+  >
+  > We can update the collection's fields, starting on version
+  > [27.0.rc22](https://github.com/typesense/typesense/issues/1700#issuecomment-2200125617)
+  > and above.
 
   ## Examples
       iex> fields = %{
@@ -290,12 +302,12 @@ defmodule ExTypesense.Collection do
         ]
       }
   """
-  @doc since: "0.8.0"
+  @doc since: "1.0.0"
   @spec update_collection_fields(String.t() | module(), map()) ::
           {:ok, OpenApiTypesense.CollectionUpdateSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def update_collection_fields(name, fields) do
-    ExTypesense.Connection.new() |> update_collection_fields(name, fields)
+    Connection.new() |> update_collection_fields(name, fields)
   end
 
   @doc """
@@ -303,23 +315,19 @@ defmodule ExTypesense.Collection do
 
   ```elixir
   ExTypesense.update_collection_fields(%{api_key: xyz, host: ...}, "persons", fields)
-  ExTypesense.update_collection_fields(ExTypesense.Connection.new(), MyModule.Accounts.User, fields)
+  ExTypesense.update_collection_fields(OpenApiTypesense.Connection.new(), MyModule.Accounts.User, fields)
   ```
   """
-  @doc since: "0.8.0"
-  @spec update_collection_fields(
-          map() | OpenApiTypesense.Connection.t(),
-          String.t() | module(),
-          map()
-        ) ::
+  @doc since: "1.0.0"
+  @spec update_collection_fields(map() | Connection.t(), String.t() | module(), map()) ::
           {:ok, OpenApiTypesense.CollectionUpdateSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
-  def update_collection_fields(conn, name, fields) when is_binary(name) do
+  def update_collection_fields(conn, module, fields) when is_atom(module) do
+    name = module.__schema__(:source)
     OpenApiTypesense.Collections.update_collection(conn, name, fields)
   end
 
-  def update_collection_fields(conn, module, fields) when is_atom(module) do
-    name = module.__schema__(:source)
+  def update_collection_fields(conn, name, fields) do
     OpenApiTypesense.Collections.update_collection(conn, name, fields)
   end
 
@@ -331,12 +339,12 @@ defmodule ExTypesense.Collection do
   **Note**: dropping a collection does not remove the referenced
   alias, only the indexed documents.
   """
-  @doc since: "0.8.0"
+  @doc since: "1.0.0"
   @spec drop_collection(String.t() | module()) ::
           {:ok, OpenApiTypesense.CollectionResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def drop_collection(collection_name) do
-    ExTypesense.Connection.new() |> drop_collection(collection_name)
+    Connection.new() |> drop_collection(collection_name)
   end
 
   @doc """
@@ -344,29 +352,29 @@ defmodule ExTypesense.Collection do
 
   ```elixir
   ExTypesense.drop_collection(%{api_key: xyz, host: ...}, "persons")
-  ExTypesense.drop_collection(ExTypesense.Connection.new(), MyModule.Accounts.User)
+  ExTypesense.drop_collection(OpenApiTypesense.Connection.new(), MyModule.Accounts.User)
   ```
   """
-  @doc since: "0.8.0"
-  @spec drop_collection(map() | OpenApiTypesense.Connection.t(), String.t() | module()) ::
+  @doc since: "1.0.0"
+  @spec drop_collection(map() | Connection.t(), String.t() | module()) ::
           {:ok, OpenApiTypesense.CollectionResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
-  def drop_collection(conn, name) when is_binary(name) do
-    OpenApiTypesense.Collections.delete_collection(conn, name)
-  end
-
   def drop_collection(conn, module) when is_atom(module) do
     name = module.__schema__(:source)
+    drop_collection(conn, name)
+  end
+
+  def drop_collection(conn, name) do
     OpenApiTypesense.Collections.delete_collection(conn, name)
   end
 
   @doc """
   List all aliases and the corresponding collections that they map to.
   """
-  @doc since: "0.8.0"
+  @doc since: "1.0.0"
   @spec list_collection_aliases :: {:ok, OpenApiTypesense.CollectionAliasesResponse.t()} | :error
   def list_collection_aliases do
-    ExTypesense.Connection.new() |> list_collection_aliases()
+    Connection.new() |> list_collection_aliases()
   end
 
   @doc """
@@ -374,24 +382,24 @@ defmodule ExTypesense.Collection do
 
   ```elixir
   ExTypesense.list_collection_aliases(%{api_key: xyz, host: ...})
-  ExTypesense.list_collection_aliases(ExTypesense.Connection.new())
+  ExTypesense.list_collection_aliases(OpenApiTypesense.Connection.new())
   ```
   """
-  @doc since: "0.8.0"
-  @spec list_collection_aliases(map() | OpenApiTypesense.Connection.t()) ::
+  @doc since: "1.0.0"
+  @spec list_collection_aliases(map() | Connection.t()) ::
           {:ok, OpenApiTypesense.CollectionAliasesResponse.t()} | :error
   def list_collection_aliases(conn) do
     OpenApiTypesense.Collections.get_aliases(conn)
   end
 
   @doc """
-  Get a specific collection alias by string or module name.
+  Get a specific collection alias.
   """
-  @doc since: "0.8.0"
-  @spec get_collection_alias(String.t() | module()) ::
+  @doc since: "1.0.0"
+  @spec get_collection_alias(String.t()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_collection_alias(alias_name) do
-    ExTypesense.Connection.new() |> get_collection_alias(alias_name)
+    Connection.new() |> get_collection_alias(alias_name)
   end
 
   @doc """
@@ -399,18 +407,13 @@ defmodule ExTypesense.Collection do
 
   ```elixir
   ExTypesense.get_collection_alias(%{api_key: xyz, host: ...}, "persons_sept_8_2019")
-  ExTypesense.get_collection_alias(ExTypesense.Connection.new(), "persons_sept_8_2019")
+  ExTypesense.get_collection_alias(OpenApiTypesense.Connection.new(), "persons_sept_8_2019")
   ```
   """
-  @doc since: "0.8.0"
-  @spec get_collection_alias(map() | OpenApiTypesense.Connection.t(), String.t() | module()) ::
+  @doc since: "1.0.0"
+  @spec get_collection_alias(map() | Connection.t(), String.t()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_collection_alias(conn, alias_name) when is_binary(alias_name) do
-    OpenApiTypesense.Collections.get_alias(conn, alias_name)
-  end
-
-  def get_collection_alias(conn, module) when is_atom(module) do
-    alias_name = module.__schema__(:source)
     OpenApiTypesense.Collections.get_alias(conn, alias_name)
   end
 
@@ -424,11 +427,11 @@ defmodule ExTypesense.Collection do
 
   `collection_name` can either be a string or module name
   """
-  @doc since: "0.8.0"
+  @doc since: "1.0.0"
   @spec upsert_collection_alias(String.t(), String.t() | module()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_collection_alias(alias_name, collection_name) do
-    ExTypesense.Connection.new() |> upsert_collection_alias(alias_name, collection_name)
+    Connection.new() |> upsert_collection_alias(alias_name, collection_name)
   end
 
   @doc """
@@ -436,24 +439,18 @@ defmodule ExTypesense.Collection do
 
   ```elixir
   ExTypesense.upsert_collection_alias(%{api_key: xyz, host: ...}, "persons_sept_8_2019", "persons")
-  ExTypesense.upsert_collection_alias(ExTypesense.Connection.new(), "persons_sept_8_2019", MyModule.Accounts.Person)
+  ExTypesense.upsert_collection_alias(OpenApiTypesense.Connection.new(), "persons_sept_8_2019", MyModule.Accounts.Person)
   ```
   """
-  @doc since: "0.8.0"
-  @spec upsert_collection_alias(
-          map() | OpenApiTypesense.Connection.t(),
-          String.t(),
-          String.t() | module()
-        ) ::
+  @doc since: "1.0.0"
+  @spec upsert_collection_alias(map() | Connection.t(), String.t(), String.t() | module()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def upsert_collection_alias(conn, alias_name, collection_name)
-      when is_binary(collection_name) do
-    body = %{"collection_name" => collection_name}
-    OpenApiTypesense.Collections.upsert_alias(conn, alias_name, body)
-  end
-
   def upsert_collection_alias(conn, alias_name, module) when is_atom(module) do
     collection_name = module.__schema__(:source)
+    upsert_collection_alias(conn, alias_name, collection_name)
+  end
+
+  def upsert_collection_alias(conn, alias_name, collection_name) do
     body = %{"collection_name" => collection_name}
     OpenApiTypesense.Collections.upsert_alias(conn, alias_name, body)
   end
@@ -462,11 +459,11 @@ defmodule ExTypesense.Collection do
   Deletes a collection alias. The collection itself
   is not affected by this action.
   """
-  @doc since: "0.8.0"
+  @doc since: "1.0.0"
   @spec delete_collection_alias(String.t()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_collection_alias(alias_name) when is_binary(alias_name) do
-    ExTypesense.Connection.new() |> delete_collection_alias(alias_name)
+    Connection.new() |> delete_collection_alias(alias_name)
   end
 
   @doc """
@@ -474,11 +471,11 @@ defmodule ExTypesense.Collection do
 
   ```elixir
   ExTypesense.delete_collection_alias(%{api_key: xyz, host: ...}, "persons_sept_8_2019")
-  ExTypesense.delete_collection_alias(ExTypesense.Connection.new(), "persons_sept_8_2019")
+  ExTypesense.delete_collection_alias(OpenApiTypesense.Connection.new(), "persons_sept_8_2019")
   ```
   """
-  @doc since: "0.8.0"
-  @spec delete_collection_alias(map() | OpenApiTypesense.Connection.t(), String.t()) ::
+  @doc since: "1.0.0"
+  @spec delete_collection_alias(map() | Connection.t(), String.t()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_collection_alias(conn, alias_name) when is_binary(alias_name) do
     OpenApiTypesense.Collections.delete_alias(conn, alias_name)

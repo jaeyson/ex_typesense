@@ -7,31 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
-## 0.8.0 (2024.12.xx)
+## 1.0.0 (2025.01.xx)
 
 ### Added
 
-* Use [`open_api_typesense` library](https://github.com/jaeyson/open_api_typesense)
-* Moar teztsss for coverage.
+* External docs link for example of using another HTTP client.
+* Test coverage
 
 ### Changed
 
-* Internal implementation and used `OpenApiTypesense`
-
-### Removed
-
-* This version has lots of backwards-incompatible
-changes that the following Modules are removed,
-in favor of using [`OpenApiTypesense`](https://github.com/jaeyson/open_api_typesense):
-  - `Cluster`
-  - `Collection`
-  - `Document`
-  - `HttpClient`
-  - `Search`
-
-### Added
-
-* `{:error, String.t()}` type for `Search.search/3`
+* Backwards-incompatible changes, in favor of using [`OpenApiTypesense`](https://github.com/jaeyson/open_api_typesense).
+* Bump dependencies
 
 ## 0.7.3 (2024.11.11)
 

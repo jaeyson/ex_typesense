@@ -67,7 +67,7 @@ jobs:
 
       - name: Start Typesense
         run: |
-          docker run -d \
+          docker run -id \
           -p 8108:8108 \
           --name typesense \
           -v /tmp/typesense-data:/data \
@@ -81,8 +81,24 @@ jobs:
           --analytics-minute-rate-limit=100 \
           --enable-cors
 
-      - name: Curl Typesense
-        run: sleep 1 && curl http://localhost:8108/health
+      - name: Wait for Typesense to be healthy
+        shell: bash
+        run: |
+          start_time=$(date +%s)
+          timeout=30
+          counter=0
+          until curl -s http://localhost:8108/health | grep -q '"ok":true'; do
+            if [ $counter -eq $timeout ]; then
+              echo "Timed out waiting for Typesense to be healthy"
+              exit 1
+            fi
+            echo "Waiting for Typesense to be healthy..."
+            sleep 1
+            counter=$((counter + 1))
+          done
+          end_time=$(date +%s)
+          elapsed=$((end_time - start_time))
+          echo "Typesense healthcheck elapsed: ${elapsed}s"
 
       - name: Setup Elixir/OTP
         uses: erlef/setup-beam@v1

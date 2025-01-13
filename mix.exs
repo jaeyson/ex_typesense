@@ -2,7 +2,7 @@ defmodule ExTypesense.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/jaeyson/ex_typesense"
-  @version "0.8.0"
+  @version "1.0.0"
 
   def project do
     [
@@ -10,6 +10,7 @@ defmodule ExTypesense.MixProject do
       version: @version,
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
+      consolidate_protocols: Mix.env() != :test,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
@@ -40,8 +41,8 @@ defmodule ExTypesense.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ecto, "~> 3.12", optional: true},
       {:excoveralls, "~> 0.18", only: :test},
-      {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
-      {:open_api_typesense, "~> 0.4"}
+      {:mix_audit, "~> 2.1", only: :test, runtime: false},
+      {:open_api_typesense, "~> 0.5"}
     ]
   end
 
