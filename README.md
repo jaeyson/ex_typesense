@@ -131,8 +131,8 @@ if config_env() == :prod do # if you'll use this in prod environment
 
 > #### during tests {: .tip}
 >
-> If you use this for adding tests in your app, you might want
-> to add this in `config/test.exs`.
+> If you have a different config for your app, consider 
+> adding it in `config/test.exs`.
 
 For Cloud hosted, you can generate and obtain the credentials from cluster instance admin interface:
 
@@ -321,17 +321,21 @@ ExTypesense.create_collection(schema)
 
 ### 3. Indexing documents
 
-For multiple documents:
+<!-- tabs-open -->
+
+### single document
 
 ```elixir
-Post |> Repo.all() |> ExTypesense.index_multiple_documents()
+Post |> Repo.get!(123) |> ExTypesense.index_document()
 ```
 
-For single document:
+### multiple document
 
 ```elixir
-Post |> Repo.get!(123) |> ExTypesense.create_document()
+Post |> Repo.all() |> ExTypesense.import_documents()
 ```
+
+<!-- tabs-close -->
 
 ### 4. Search
 
@@ -389,6 +393,10 @@ called `request` that contains 2 args:
 
 Here's a custom client example ([HTTPoison](https://hexdocs.pm/httpoison/readme.html)) in order to match the usage:
 
+<!-- tabs-open -->
+
+### Client module
+
 ```elixir
 defmodule MyApp.CustomClient do
   @behaviour OpenApiTypesense.Client
@@ -432,18 +440,20 @@ defmodule MyApp.CustomClient do
 end
 ```
 
-Then add your client in your config file:
+### Client config
 
 ```elixir
 config :open_api_typesense,
-  api_key: "credential", # Admin API key
-  host: "111222333aaabbbcc-9.x9.typesense.net", # Nodes
-  port: 443,
-  scheme: "https",
+  api_key: "xyz", # Admin API key
+  host: "localhost", # Nodes
+  port: 8108,
+  scheme: "http",
   client: MyApp.CustomClient # <- add this
 ```
 
-Visit this docs for further [examples](https://hexdocs.pm/open_api_typesense/custom_http_client.html)
+<!-- tabs-close -->
+
+Visit `open_api_typesense` docs for further [examples](https://hexdocs.pm/open_api_typesense/custom_http_client.html)
 
 ## License
 
