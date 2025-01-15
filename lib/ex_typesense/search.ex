@@ -2,6 +2,8 @@ defmodule ExTypesense.Search do
   @moduledoc since: "0.3.0"
   @moduledoc """
   Module for searching documents.
+
+  More here: https://typesense.org/docs/latest/api/search.html
   """
 
   alias ExTypesense.Connection

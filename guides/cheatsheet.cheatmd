@@ -48,14 +48,14 @@ end
 # then try this on iex -S mix
 iex> ExTypesense.create_collection(Company)
 {:ok,
-  %ExTypesense.Collection{
-    "created_at" => 1234567890,
-    "default_sorting_field" => "companies_id",
-    "fields" => [...],
-    "name" => "companies",
-    "num_documents" => 0,
-    "symbols_to_index" => [],
-    "token_separators" => []
+  %OpenApiTypesense.CollectionResponse{
+    created_at: 1234567890,
+    default_sorting_field: "companies_id",
+    fields: [...],
+    name: "companies",
+    num_documents: 0,
+    symbols_to_index: [],
+    token_separators: []
   }
 }
 ```
@@ -77,14 +77,14 @@ iex> schema =
 
 iex> ExTypesense.create_collection(schema)
 {:ok,
-  %ExTypesense.Collection{
-    "created_at" => 1234567890,
-    "default_sorting_field" => "companies_id",
-    "fields" => [...],
-    "name" => "companies",
-    "num_documents" => 0,
-    "symbols_to_index" => [],
-    "token_separators" => []
+  %OpenApiTypesense.CollectionResponse{
+    created_at: 1234567890,
+    default_sorting_field: "companies_id",
+    fields: [...],
+    name: "companies",
+    num_documents: 0,
+    symbols_to_index: [],
+    token_separators: []
   }
 }
 ```
@@ -103,21 +103,18 @@ iex> ExTypesense.list_collections()
 iex> schema =
 ...> %{
 ...>   fields: [
-...>     %{name: "num_employees", drop: true},
+...>     %{name: "country", drop: true},
 ...>     %{name: "company_category", type: "string"},
 ...>   ],
 ...> }
 
-iex> ExTypesense.update_collection("companies", schema)
+iex> ExTypesense.update_collection_fields("companies", schema)
 {:ok,
-  %ExTypesense.Collection{
-    "created_at" => nil,
-    "name" => nil,
-    "default_sorting_field" => "companies_id",
-    "fields" => [...],
-    "num_documents" => 0,
-    "symbols_to_index" => [],
-    "token_separators" => []
+  %OpenApiTypesense.CollectionUpdateSchema{
+    "fields" => [
+      %{name: "country", drop: true},
+      %{name: "company_category", type: "string"}
+    ]
   }
 }
 ```
@@ -127,18 +124,40 @@ iex> ExTypesense.update_collection("companies", schema)
 
 {: .col-2}
 
+### Index a document using map
+
+```elixir
+iex> document = %{
+...>   collection_name: "companies",
+...>   company_name: "Malwart",
+...>   companies_id: 1001,
+...>   country: "US"
+...> }
+
+iex> ExTypesense.index_document(document)
+{:ok,
+  %{
+    id: "0",
+    collection_name: "companies",
+    company_name: "Malwart",
+    companies_id: 1001,
+    country: "US"
+  }
+}
+```
+
 ### Index a document from an Ecto schema
 
 ```elixir
 iex> post = Post |> limit(1) |> Repo.one()
 
-iex> ExTypesense.create_document(post, :create)
+iex> ExTypesense.index_document(post, :create)
 {:ok,
   %{
-    "id" => "12",
-    "posts_id" => 12,
-    "title" => "the quick brown fox",
-    "collection_name" => "posts"
+    id: "12",
+    posts_id: 12,
+    title: "the quick brown fox",
+    collection_name: "posts"
   }
 }
 ```
@@ -151,11 +170,11 @@ iex> post = Post |> limit(1) |> Repo.one()
 iex> ExTypesense.update_document(post, 0)
 {:ok,
   %{
-    "id" => "0",
-    "collection_name" => "posts",
-    "posts_id" => 34,
-    "title" => "test",
-    "description" => "lorem ipsum"
+    id: "0",
+    collection_name: "posts",
+    posts_id: 34,
+    title: "test",
+    description: "lorem ipsum"
   }
 }
 ```
@@ -167,11 +186,11 @@ iex> ExTypesense.update_document(post, 0)
 iex> ExTypesense.delete_document(Post, 0)
 {:ok,
   %{
-    "id" => "0",
-    "collection_name" => "posts",
-    "posts_id" => 34,
-    "title" => "test",
-    "description" => "lorem ipsum"
+    id: "0",
+    collection_name: "posts",
+    posts_id: 34,
+    title: "test",
+    description: "lorem ipsum"
   }
 }
 ```
@@ -181,19 +200,41 @@ iex> ExTypesense.delete_document(Post, 0)
 ### Delete a document by query
 
 ```elixir
-iex> query = %{
+iex> opts = [
 ...>   filter_by: "num_employees:>100",
 ...>   batch_size: 100
-...> }
-iex> ExTypesense.delete_documents_by_query(Employee, query)
-{:ok, %{}}
+...> ]
+
+iex> ExTypesense.delete_documents_by_query(Employee, opts)
+{:ok, %OpenApiTypesense.Documents{num_deleted: 1}}
 ```
 
-### Indexes multiple documents
+### Indexes multiple documents with maps
+
+```elixir
+iex> documents = [
+...>   %{
+...>     company_name: "Industrial Mills, Co.",
+...>     doc_companies_id: 990,
+...>     country: "US"
+...>   },
+...>   %{
+...>     company_name: "Washing Machine, Inc.",
+...>     doc_companies_id: 10,
+...>     country: "US"
+...>   }
+...> ]
+
+iex> ExTypesense.import_documents("companies", documents)
+{:ok, [%{"success" => true}, %{"success" => true}]}
+```
+
+### Indexes multiple documents with Ecto structs
 
 ```elixir
 iex> posts = Post |> Repo.all()
-iex> ExTypesense.index_multiple_documents(posts, :post_id, :upsert)
+
+iex> ExTypesense.import_documents(Post, posts)
 {:ok, [%{"success" => true}, %{"success" => true}]}
 ```
 

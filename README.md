@@ -59,12 +59,12 @@
 
 [Typesense](https://typesense.org) client for [Elixir](https://elixir-lang.org) with support for your Ecto schemas.
 
+> #### OpenAPI adherence {: .tip}
+>
 > Under the hood, this library utilizes [open_api_typesense](https://github.com/jaeyson/open_api_typesense)
 > to make sure it adheres to [Typesense's OpenAPI spec](https://github.com/typesense/typesense-api-spec).
 
-> **Note**: `1.0.0` contains **LOTS** of breaking changes.
-
-> **Note**: Breaking changes if you're upgrading from `0.3.x` to `0.5.x` versions and above.
+> #### upgrading to `1.0.0` contains **LOTS** of breaking changes. {: .warning}
 
 ## Installation
 
@@ -105,9 +105,11 @@ Otherwise, go to step #1 if you're using [Cloud hosted](https://cloud.typesense.
 After you have setup a [local](./guides/running_local_typesense.md) Typesense or
 [Cloud hosted](https://cloud.typesense.org) instance, there are 2 ways to set the credentials:
 
-#### Option 1: Set credentials via config (e.g. `config/runtime.exs`)
+<!-- tabs-open -->
 
-You can set the following config details to the config file:
+### using config
+
+Option 1: Set credentials via config (e.g. `config/runtime.exs`)
 
 ```elixir
 # e.g. config/runtime.exs
@@ -120,11 +122,17 @@ if config_env() == :prod do # if you'll use this in prod environment
   ...
 ```
 
-> **Note**: The `options` key can be used to pass additional configuration options such as custom
-Finch instance or receive timeout settings. You can add any options supported by Req here. For
-more details check [Req documentation](https://hexdocs.pm/req/Req.Steps.html#run_finch/1-request-options).
+> #### `options` key {: .tip}
+>
+> The `options` key can be used to pass additional configuration
+> options such as custom Finch instance or receive timeout
+> settings. You can add any options supported by Req here. For
+> more details check [Req documentation](https://hexdocs.pm/req/Req.Steps.html#run_finch/1-request-options).
 
-> **Note**: If you use this for adding tests in your app, you might want to add this in `config/test.exs`:
+> #### during tests {: .tip}
+>
+> If you use this for adding tests in your app, you might want
+> to add this in `config/test.exs`.
 
 For Cloud hosted, you can generate and obtain the credentials from cluster instance admin interface:
 
@@ -136,8 +144,12 @@ config :open_api_typesense,
   scheme: "https"
 ```
 
-#### Option 2: Set credentials from a map
+### using map
 
+Option 2: Set credentials from a map
+
+> #### optional `conn` {: .tip}
+>
 > By default you don't need to pass connections every
 > time you use a function, if you use "Option 1" above.
 
@@ -153,7 +165,7 @@ defmodule MyApp.Credential do
 end
 ```
 
-As long as the keys matches in `ExTypesense.Connection.t()`:
+As long as the keys matches in [`OpenApiTypesense.Connection.t()`](https://hexdocs.pm/open_api_typesense/OpenApiTypesense.Connection.html#t:t/0):
 
 ```elixir
 credential = MyApp.Credential |> where(id: ^8888) |> Repo.one()
@@ -170,7 +182,7 @@ conn = %{
 ExTypesense.search(conn, collection_name, query)
 ```
 
-Or convert your struct to map, as long as the keys matches in `ExTypesense.Connection.t()`:
+Or convert your struct to map, as long as the keys matches in [`OpenApiTypesense.Connection.t()`](https://hexdocs.pm/open_api_typesense/OpenApiTypesense.Connection.html#t:t/0):
 
 ```elixir
 conn = Map.from_struct(MyApp.Credential)
@@ -215,23 +227,33 @@ conn = %{
 ExTypesense.health(conn)
 ```
 
+<!-- tabs-close -->
+
 ### 2. Create a collection
 
 There are 2 ways to create a collection, either via
 [Ecto schema](https://hexdocs.pm/ecto/Ecto.Schema.html) or using map
 ([an Elixir data type](https://hexdocs.pm/elixir/keywords-and-maps.html#maps-as-key-value-pairs)):
 
-#### Option 1: using Ecto
+<!-- tabs-open -->
 
-In this example, we're adding `persons_id` that points to the id of `persons` schema.
+### using Ecto schema
 
-> **Note**: we're using `<TABLE_NAME>_id`. If you have table
-> e.g. named `persons`, it'll be `persons_id`.
+> #### added fk in schema {: .info}
+>
+> The format we're using is `<TABLE_NAME>_id`. If you have table e.g. named `persons`,
+> it'll be `persons_id`.
+>
+> `persons_id` is of type `integer`: read the discussion on why
+> we need to add [default_sorting_field](https://github.com/typesense/typesense/issues/72#issuecomment-645725013).
 
 ```elixir
 defmodule Person do
   use Ecto.Schema
   @behaviour ExTypesense
+
+  # In this example, we're adding `persons_id`
+  # that points to the id of `persons` schema.
 
   defimpl Jason.Encoder, for: __MODULE__ do
     def encode(value, opts) do
@@ -279,7 +301,7 @@ Next, create the collection from a module name.
 ExTypesense.create_collection(Person)
 ```
 
-#### Option 2: using map
+### using map
 
 ```elixir
 schema = %{
@@ -294,6 +316,8 @@ schema = %{
 
 ExTypesense.create_collection(schema)
 ```
+
+<!-- tabs-close -->
 
 ### 3. Indexing documents
 
@@ -322,11 +346,15 @@ Check [Cheatsheet](https://hexdocs.pm/ex_typesense/cheatsheet.html) for more usa
 
 ## Miscellaneous
 
-### OpenAPI generator
+## Adding [cache, retry, compress_body](https://hexdocs.pm/req/Req.html#new/1) in the built in client
 
-```bash
-mix api.gen default priv/open_api.yml
+E.g. when a user wants to change `retry` and `cache` options
+
+```elixir
+ExTypesense.get_collection("companies", req: [retry: false, cache: true])
 ```
+
+See implementation: https://github.com/jaeyson/open_api_typesense/blob/main/lib/open_api_typesense/client.ex#L82
 
 ### Use non-default Finch adapter
 
@@ -359,31 +387,47 @@ called `request` that contains 2 args:
 > you can change the name `conn` and/or `params` however you want,
 > since it's just a variable.
 
-Here's a custom client example (`:httpc`) in order to match the usage:
+Here's a custom client example ([HTTPoison](https://hexdocs.pm/httpoison/readme.html)) in order to match the usage:
 
 ```elixir
 defmodule MyApp.CustomClient do
+  @behaviour OpenApiTypesense.Client
+  
+  @impl OpenApiTypesense.Client
   def request(conn, params) do
-    uri = %URI{
+    url = %URI{
       scheme: conn.scheme,
       host: conn.host,
       port: conn.port,
       path: params.url,
       query: URI.encode_query(params[:query] || %{})
     }
+    |> URI.to_string()
 
-    [{content_type, _schema}] = params.request
+    request = %HTTPoison.Request{method: params.method, url: url}
 
-    request = {
-      URI.to_string(uri),
-      [{~c"x-typesense-api-key", String.to_charlist(conn.api_key)}],
-      String.to_charlist(content_type),
-      Jason.encode!(params.body)
-    }
+    request =
+      if params[:request] do
+        [{content_type, _schema}] = params.request
 
-    {:ok, {_status, _header, body}} = :httpc.request(params.method, request, [], [])
+        headers = [
+          {"X-TYPESENSE-API-KEY", conn.api_key}
+          {"Content-Type", content_type}
+        ]
 
-    Jason.decode!(body)
+        %{request | headers: headers}
+      else
+        request
+      end
+
+    request =
+      if params[:body] do
+        %{request | body: Jason.encode!(params.body)}
+      else
+        request
+      end
+
+    HTTPoison.request!(request)
   end
 end
 ```
@@ -399,7 +443,7 @@ config :open_api_typesense,
   client: MyApp.CustomClient # <- add this
 ```
 
-Visit this docs for further [examples]()
+Visit this docs for further [examples](https://hexdocs.pm/open_api_typesense/custom_http_client.html)
 
 ## License
 

@@ -110,18 +110,23 @@ defmodule ExTypesense do
 
   defdelegate clone_collection(src_coll, new_coll), to: ExTypesense.Collection
   defdelegate clone_collection(conn, src_coll, new_coll), to: ExTypesense.Collection
+  defdelegate clone_collection(conn, src_coll, new_coll, opts), to: ExTypesense.Collection
 
   defdelegate get_collection(name), to: ExTypesense.Collection
   defdelegate get_collection(conn, coll_name), to: ExTypesense.Collection
+  defdelegate get_collection(conn, coll_name, opts), to: ExTypesense.Collection
 
   defdelegate get_collection_name(alias_name), to: ExTypesense.Collection
   defdelegate get_collection_name(conn, alias_name), to: ExTypesense.Collection
+  defdelegate get_collection_name(conn, alias_name, opts), to: ExTypesense.Collection
 
   defdelegate drop_collection(name), to: ExTypesense.Collection
   defdelegate drop_collection(conn, name), to: ExTypesense.Collection
+  defdelegate drop_collection(conn, name, opts), to: ExTypesense.Collection
 
   defdelegate update_collection_fields(name, fields), to: ExTypesense.Collection
   defdelegate update_collection_fields(conn, name, fields), to: ExTypesense.Collection
+  defdelegate update_collection_fields(conn, name, fields, opts), to: ExTypesense.Collection
   ##########################################################
   # end collection-specific tasks
   ##########################################################
@@ -129,16 +134,24 @@ defmodule ExTypesense do
   ##########################################################
   # start collection alias
   ##########################################################
-  defdelegate list_collection_aliases(), to: ExTypesense.Collection
+  defdelegate list_collection_aliases, to: ExTypesense.Collection
+  defdelegate list_collection_aliases(conn_or_opts), to: ExTypesense.Collection
+  defdelegate list_collection_aliases(conn, opts), to: ExTypesense.Collection
 
   defdelegate get_collection_alias(alias_name), to: ExTypesense.Collection
   defdelegate get_collection_alias(conn, alias_name), to: ExTypesense.Collection
+  defdelegate get_collection_alias(conn, alias_name, opts), to: ExTypesense.Collection
 
   defdelegate delete_collection_alias(alias_name), to: ExTypesense.Collection
   defdelegate delete_collection_alias(conn, alias_name), to: ExTypesense.Collection
+  defdelegate delete_collection_alias(conn, alias_name, opts), to: ExTypesense.Collection
 
   defdelegate upsert_collection_alias(alias_name, coll_name), to: ExTypesense.Collection
   defdelegate upsert_collection_alias(conn, alias_name, coll_name), to: ExTypesense.Collection
+
+  defdelegate upsert_collection_alias(conn, alias_name, coll_name, opts),
+    to: ExTypesense.Collection
+
   ##########################################################
   # end collection alias
   ##########################################################
@@ -158,13 +171,12 @@ defmodule ExTypesense do
   defdelegate delete_document(document), to: ExTypesense.Document
   defdelegate delete_document(coll_name, doc_id), to: ExTypesense.Document
   defdelegate delete_document(conn, coll_name, doc_id), to: ExTypesense.Document
-  defdelegate delete_document(conn, coll_name, doc_id, ignore_not_found), to: ExTypesense.Document
+  defdelegate delete_document(conn, coll_name, doc_id, opts), to: ExTypesense.Document
 
   defdelegate delete_documents_by_query(collection_name, opts), to: ExTypesense.Document
   defdelegate delete_documents_by_query(conn, collection_name, opts), to: ExTypesense.Document
 
-  defdelegate import_documents(documents), to: ExTypesense.Document
-  defdelegate import_documents(conn, documents), to: ExTypesense.Document
+  defdelegate import_documents(coll_name, documents), to: ExTypesense.Document
   defdelegate import_documents(conn, coll_name, documents), to: ExTypesense.Document
   defdelegate import_documents(conn, coll_name, documents, opts), to: ExTypesense.Document
 
@@ -174,6 +186,7 @@ defmodule ExTypesense do
 
   defdelegate delete_all_documents(collection_name), to: ExTypesense.Document
   defdelegate delete_all_documents(conn, collection_name), to: ExTypesense.Document
+  defdelegate delete_all_documents(conn, collection_name, opts), to: ExTypesense.Document
 
   defdelegate update_document(document), to: ExTypesense.Document
   defdelegate update_document(conn, document), to: ExTypesense.Document
@@ -183,6 +196,121 @@ defmodule ExTypesense do
   defdelegate update_documents_by_query(conn, coll_name, body, opts), to: ExTypesense.Document
   ##########################################################
   # end document-specific tasks
+  ##########################################################
+
+  ##########################################################
+  # start API keys
+  ##########################################################
+  defdelegate get_key(key_id), to: ExTypesense.Key
+  defdelegate get_key(conn, key_id), to: ExTypesense.Key
+  defdelegate get_key(conn, key_id, opts), to: ExTypesense.Key
+
+  defdelegate delete_key(key_id), to: ExTypesense.Key
+  defdelegate delete_key(conn, key_id), to: ExTypesense.Key
+  defdelegate delete_key(conn, key_id, opts), to: ExTypesense.Key
+
+  defdelegate create_key(body), to: ExTypesense.Key
+  defdelegate create_key(conn, body), to: ExTypesense.Key
+  defdelegate create_key(conn, body, opts), to: ExTypesense.Key
+
+  defdelegate list_keys, to: ExTypesense.Key
+  defdelegate list_keys(conn_or_opts), to: ExTypesense.Key
+  defdelegate list_keys(conn, opts), to: ExTypesense.Key
+  ##########################################################
+  # end API keys
+  ##########################################################
+
+  ##########################################################
+  # start presets
+  ##########################################################
+  defdelegate get_preset(preset_id), to: ExTypesense.Preset
+  defdelegate get_preset(conn, preset_id), to: ExTypesense.Preset
+  defdelegate get_preset(conn, preset_id, opts), to: ExTypesense.Preset
+
+  defdelegate upsert_preset(preset_id, body), to: ExTypesense.Preset
+  defdelegate upsert_preset(conn, preset_id, body), to: ExTypesense.Preset
+  defdelegate upsert_preset(conn, preset_id, body, opts), to: ExTypesense.Preset
+
+  defdelegate delete_preset(preset_id), to: ExTypesense.Preset
+  defdelegate delete_preset(conn, preset_id), to: ExTypesense.Preset
+  defdelegate delete_preset(conn, preset_id, opts), to: ExTypesense.Preset
+
+  defdelegate list_presets, to: ExTypesense.Preset
+  defdelegate list_presets(conn_or_opts), to: ExTypesense.Preset
+  defdelegate list_presets(conn, opts), to: ExTypesense.Preset
+  ##########################################################
+  # end presets
+  ##########################################################
+
+  ##########################################################
+  # start stopwords
+  ##########################################################
+  defdelegate list_stopwords, to: ExTypesense.Stopwords
+  defdelegate list_stopwords(conn_or_opts), to: ExTypesense.Stopwords
+  defdelegate list_stopwords(conn, opts), to: ExTypesense.Stopwords
+
+  defdelegate get_stopword(stop_id), to: ExTypesense.Stopwords
+  defdelegate get_stopword(conn, stop_id), to: ExTypesense.Stopwords
+  defdelegate get_stopword(conn, stop_id, opts), to: ExTypesense.Stopwords
+
+  defdelegate upsert_stopword(stop_id, body), to: ExTypesense.Stopwords
+  defdelegate upsert_stopword(conn, stop_id, body), to: ExTypesense.Stopwords
+  defdelegate upsert_stopword(conn, stop_id, body, opts), to: ExTypesense.Stopwords
+
+  defdelegate delete_stopword(stop_id), to: ExTypesense.Stopwords
+  defdelegate delete_stopword(conn, stop_id), to: ExTypesense.Stopwords
+  defdelegate delete_stopword(conn, stop_id, opts), to: ExTypesense.Stopwords
+  ##########################################################
+  # end stopwords 
+  ##########################################################
+
+  ##########################################################
+  # start conversation
+  ##########################################################
+  defdelegate create_conversation_model, to: ExTypesense.Conversation
+  defdelegate create_conversation_model(conn), to: ExTypesense.Conversation
+  ##########################################################
+  # end conversation
+  ##########################################################
+
+  ##########################################################
+  # start analytics
+  ##########################################################
+  defdelegate list_analytics_rules, to: ExTypesense.Analytics
+  defdelegate list_analytics_rules(conn_or_opts), to: ExTypesense.Analytics
+  defdelegate list_analytics_rules(conn, opts), to: ExTypesense.Analytics
+
+  defdelegate create_analytics_event(body), to: ExTypesense.Analytics
+  defdelegate create_analytics_event(conn, body), to: ExTypesense.Analytics
+  defdelegate create_analytics_event(conn, body, opts), to: ExTypesense.Analytics
+
+  defdelegate create_analytics_rule(body), to: ExTypesense.Analytics
+  defdelegate create_analytics_rule(conn, body), to: ExTypesense.Analytics
+  defdelegate create_analytics_rule(conn, body, opts), to: ExTypesense.Analytics
+
+  defdelegate get_analytics_rule(rule_name), to: ExTypesense.Analytics
+  defdelegate get_analytics_rule(conn, rule_name), to: ExTypesense.Analytics
+  defdelegate get_analytics_rule(conn, rule_name, opts), to: ExTypesense.Analytics
+
+  defdelegate upsert_analytics_rule(rule_name, body), to: ExTypesense.Analytics
+  defdelegate upsert_analytics_rule(conn, rule_name, body), to: ExTypesense.Analytics
+  defdelegate upsert_analytics_rule(conn, rule_name, body, opts), to: ExTypesense.Analytics
+
+  defdelegate delete_analytics_rule(rule_name), to: ExTypesense.Analytics
+  defdelegate delete_analytics_rule(conn, rule_name), to: ExTypesense.Analytics
+  defdelegate delete_analytics_rule(conn, rule_name, opts), to: ExTypesense.Analytics
+  ##########################################################
+  # end analytics
+  ##########################################################
+
+  ##########################################################
+  # start debug
+  ##########################################################
+  defdelegate debug, to: ExTypesense.Debug
+  defdelegate debug(conn_or_opts), to: ExTypesense.Debug
+  defdelegate debug(conn, opts), to: ExTypesense.Debug
+  ##########################################################
+  # end debug
   ##########################################################
 
   ##########################################################
@@ -203,6 +331,21 @@ defmodule ExTypesense do
   ##########################################################
   # start curation
   ##########################################################
+  defdelegate list_overrides(coll_name), to: ExTypesense.Curation
+  defdelegate list_overrides(conn, coll_name), to: ExTypesense.Curation
+  defdelegate list_overrides(conn, coll_name, opts), to: ExTypesense.Curation
+
+  defdelegate get_override(coll_name, ovr_id), to: ExTypesense.Curation
+  defdelegate get_override(conn, coll_name, ovr_id), to: ExTypesense.Curation
+  defdelegate get_override(conn, coll_name, ovr_id, opts), to: ExTypesense.Curation
+
+  defdelegate upsert_override(coll_name, ovr_id, body), to: ExTypesense.Curation
+  defdelegate upsert_override(conn, coll_name, ovr_id, body), to: ExTypesense.Curation
+  defdelegate upsert_override(conn, coll_name, ovr_id, body, opts), to: ExTypesense.Curation
+
+  defdelegate delete_override(coll_name, ovr_id), to: ExTypesense.Curation
+  defdelegate delete_override(conn, coll_name, ovr_id), to: ExTypesense.Curation
+  defdelegate delete_override(conn, coll_name, ovr_id, opts), to: ExTypesense.Curation
   ##########################################################
   # end curation
   ##########################################################
@@ -210,6 +353,21 @@ defmodule ExTypesense do
   ##########################################################
   # start synonyms
   ##########################################################
+  defdelegate list_synonyms(coll_name), to: ExTypesense.Synonym
+  defdelegate list_synonyms(conn, coll_name), to: ExTypesense.Synonym
+  defdelegate list_synonyms(conn, coll_name, opts), to: ExTypesense.Synonym
+
+  defdelegate get_synonym(coll_name, syn_id), to: ExTypesense.Synonym
+  defdelegate get_synonym(conn, coll_name, syn_id), to: ExTypesense.Synonym
+  defdelegate get_synonym(conn, coll_name, syn_id, opts), to: ExTypesense.Synonym
+
+  defdelegate delete_synonym(coll_name, syn_id), to: ExTypesense.Synonym
+  defdelegate delete_synonym(conn, coll_name, syn_id), to: ExTypesense.Synonym
+  defdelegate delete_synonym(conn, coll_name, syn_id, opts), to: ExTypesense.Synonym
+
+  defdelegate upsert_synonym(coll_name, syn_id, body), to: ExTypesense.Synonym
+  defdelegate upsert_synonym(conn, coll_name, syn_id, body), to: ExTypesense.Synonym
+  defdelegate upsert_synonym(conn, coll_name, syn_id, body, opts), to: ExTypesense.Synonym
   ##########################################################
   # end synonyms
   ##########################################################
@@ -218,28 +376,35 @@ defmodule ExTypesense do
   # start cluster operations
   ##########################################################
   defdelegate api_stats, to: ExTypesense.Cluster
-  defdelegate api_stats(conn), to: ExTypesense.Cluster
+  defdelegate api_stats(conn_or_opts), to: ExTypesense.Cluster
+  defdelegate api_stats(conn, opts), to: ExTypesense.Cluster
 
   defdelegate cluster_metrics, to: ExTypesense.Cluster
-  defdelegate cluster_metrics(conn), to: ExTypesense.Cluster
+  defdelegate cluster_metrics(conn_or_opts), to: ExTypesense.Cluster
+  defdelegate cluster_metrics(conn, opts), to: ExTypesense.Cluster
 
   defdelegate health, to: ExTypesense.Cluster
-  defdelegate health(conn), to: ExTypesense.Cluster
+  defdelegate health(conn_or_opts), to: ExTypesense.Cluster
+  defdelegate health(conn, opts), to: ExTypesense.Cluster
 
-  defdelegate create_snapshot(snapshot_path), to: ExTypesense.Cluster
-  defdelegate create_snapshot(conn, snapshot_path), to: ExTypesense.Cluster
+  defdelegate create_snapshot(opts), to: ExTypesense.Cluster
+  defdelegate create_snapshot(conn, opts), to: ExTypesense.Cluster
 
   defdelegate compact_db, to: ExTypesense.Cluster
-  defdelegate compact_db(conn), to: ExTypesense.Cluster
+  defdelegate compact_db(conn_or_opts), to: ExTypesense.Cluster
+  defdelegate compact_db(conn, opts), to: ExTypesense.Cluster
 
   defdelegate clear_cache, to: ExTypesense.Cluster
-  defdelegate clear_cache(conn), to: ExTypesense.Cluster
+  defdelegate clear_cache(conn_or_opts), to: ExTypesense.Cluster
+  defdelegate clear_cache(conn, opts), to: ExTypesense.Cluster
 
   defdelegate toggle_slow_request_log(config), to: ExTypesense.Cluster
   defdelegate toggle_slow_request_log(conn, config), to: ExTypesense.Cluster
+  defdelegate toggle_slow_request_log(conn, config, opts), to: ExTypesense.Cluster
 
   defdelegate vote, to: ExTypesense.Cluster
-  defdelegate vote(conn), to: ExTypesense.Cluster
+  defdelegate vote(conn_or_opts), to: ExTypesense.Cluster
+  defdelegate vote(conn, opts), to: ExTypesense.Cluster
   ##########################################################
   # end cluster operations
   ##########################################################
