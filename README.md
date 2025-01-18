@@ -347,7 +347,7 @@ document = %{
 
 ExTypesense.index_document(document)
 
-# or explicitely pass the collection name
+# or explicitly pass the collection name
 document = %{
   company_name: "Test",
   doc_companies_id: 103,
