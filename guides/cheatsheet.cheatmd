@@ -242,18 +242,46 @@ iex> ExTypesense.import_documents(Post, posts)
 
 {: .col-2}
 
-### Search using Ecto schema (struct)
+### Search using module name (atom)
 
 ```elixir
 iex> params = %{q: "test", query_by: "title"}
 iex> ExTypesense.search(Post, params)
 {:ok,
-  %{
-    "id" => "0",
-    "collection_name" => "posts",
-    "posts_id" => 34,
-    "title" => "test",
-    "description" => "lorem ipsum"
+  %OpenApiTypesense.SearchResult{
+    found: 0,
+    conversation: nil,
+    facet_counts: [],
+    found_docs: nil,
+    grouped_hits: nil,
+    hits: [...]
+    out_of: 0,
+    page: 1,
+    request_params: %{q: "test", collection_name: "posts", first_q: "test", per_page: 10},
+    search_cutoff: false,
+    search_time_ms: 5
+  }
+}
+```
+
+### Search returns Ecto query
+
+```elixir
+iex> params = %{q: "test", query_by: "title"}
+iex> ExTypesense.search_ecto(Post, params)
+{:ok,
+  %OpenApiTypesense.SearchResult{
+    found: 0,
+    conversation: nil,
+    facet_counts: [],
+    found_docs: nil,
+    grouped_hits: nil,
+    hits: [...]
+    out_of: 0,
+    page: 1,
+    request_params: %{q: "test", collection_name: "posts", first_q: "test", per_page: 10},
+    search_cutoff: false,
+    search_time_ms: 5
   }
 }
 ```
@@ -284,12 +312,18 @@ iex> ExTypesense.multi_search(searches)
 iex> params = %{q: "test", query_by: "title"}
 iex> ExTypesense.search("posts", params)
 {:ok,
-  %{
-    "id" => "0",
-    "collection_name" => "posts",
-    "post_id" => 34,
-    "title" => "test",
-    "description" => "lorem ipsum"
+  %OpenApiTypesense.SearchResult{
+    found: 2,
+    conversation: nil,
+    facet_counts: [],
+    found_docs: nil,
+    grouped_hits: nil,
+    hits: [...]
+    out_of: 4,
+    page: 1,
+    request_params: %{q: "test", collection_name: "posts", first_q: "test", per_page: 10},
+    search_cutoff: false,
+    search_time_ms: 5
   }
 }
 ```

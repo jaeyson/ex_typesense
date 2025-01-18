@@ -3,9 +3,9 @@ defmodule DocumentTest do
 
   alias ExTypesense.TestSchema.Person
   alias OpenApiTypesense.ApiResponse
+  alias OpenApiTypesense.CollectionResponse
   alias OpenApiTypesense.Connection
   alias OpenApiTypesense.Documents
-  alias OpenApiTypesense.CollectionResponse
 
   setup_all do
     conn = Connection.new()
@@ -58,7 +58,7 @@ defmodule DocumentTest do
     }
   end
 
-  setup %{schema: schema, multiple_documents: multiple_documents} do
+  setup %{schema: schema} do
     on_exit(fn ->
       ExTypesense.delete_all_documents(schema.name)
       ExTypesense.delete_all_documents(Person)
@@ -198,7 +198,7 @@ defmodule DocumentTest do
 
     person = %Person{name: "Glark Cable", country: "SZ", persons_id: 233}
 
-    assert {:ok, %{id: id}} = ExTypesense.index_document(person)
+    assert {:ok, _} = ExTypesense.index_document(person)
 
     updated_struct = %{person | name: "Dobert Rowney Jr."}
 
@@ -341,9 +341,7 @@ defmodule DocumentTest do
   @tag ["27.1": true, "26.0": true, "0.25.2": true]
   test "success: update multiple documents", %{
     multiple_documents: multiple_documents,
-    schema: schema,
-    conn: conn,
-    map_conn: map_conn
+    schema: schema
   } do
     assert {:ok, %{id: first_id} = first} =
              ExTypesense.index_document(schema.name, Enum.at(multiple_documents, 0))
@@ -474,11 +472,7 @@ defmodule DocumentTest do
   end
 
   @tag ["27.1": true, "26.0": true, "0.25.2": true]
-  test "success: delete documents by query (map)", %{
-    schema: schema,
-    conn: conn,
-    map_conn: map_conn
-  } do
+  test "success: delete documents by query (map)", %{schema: schema} do
     documents = [
       %{
         company_name: "Doctor & Gamble",

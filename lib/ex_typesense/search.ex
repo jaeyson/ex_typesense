@@ -6,19 +6,11 @@ defmodule ExTypesense.Search do
   More here: https://typesense.org/docs/latest/api/search.html
   """
 
-  alias ExTypesense.Connection
-  alias ExTypesense.HttpClient
-  alias ExTypesense.ResultParser
+  alias OpenApiTypesense.Connection
+  alias OpenApiTypesense.MultiSearchResult
+  alias OpenApiTypesense.SearchResult
+
   import Ecto.Query, warn: false
-
-  @root_path "/"
-  @collections_path @root_path <> "collections"
-  @documents_path "documents"
-  @search_path "search"
-  @multi_search_path "/multi_search"
-
-  @typedoc since: "0.1.0"
-  @type response :: {:ok, map()} | {:error, map()} | {:error, String.t()}
 
   @doc """
   Search from a document or Ecto Schema.
@@ -28,72 +20,116 @@ defmodule ExTypesense.Search do
       iex> params = %{q: "umbrella", query_by: "title,description"}
       iex> ExTypesense.search(Catalog, params)
       {:ok,
-       %{
-        "facet_counts" => [],
-        "found" => 0,
-        "hits" => [],
-        "out_of" => 0,
-        "page" => 1,
-        "request_params" => %{
-          "collection_name" => "catalogs",
-          "per_page" => 10,
-          "q" => "umbrella"
+       %OpenApiTypesense.SearchResult{
+        found: 0,
+        hits: [],
+        conversation: nil,
+        facet_counts: [],
+        found_docs: nil,
+        grouped_hits: nil,
+        out_of: 0,
+        page: 1,
+        request_params: %{
+          q: "umbrella",
+          collection_name: "catalogs",
+          first_q: "umbrella",
+          per_page: 10
         },
-        "search_cutoff" => false,
-        "search_time_ms" => 5
+        search_cutoff: false,
+        search_time_ms: 1
        }
       }
 
       iex> params = %{q: "umbrella", query_by: "title,description"}
       iex> ExTypesense.search("catalogs", params)
       {:ok,
-       %{
-        "facet_counts" => [],
-        "found" => 0,
-        "hits" => [],
-        "out_of" => 0,
-        "page" => 1,
-        "request_params" => %{
-          "collection_name" => "catalogs",
-          "per_page" => 10,
-          "q" => "umbrella"
+       %OpenApiTypesense.SearchResult{
+        found: 0,
+        hits: [],
+        conversation: nil,
+        facet_counts: [],
+        found_docs: nil,
+        grouped_hits: nil,
+        out_of: 0,
+        page: 1,
+        request_params: %{
+          q: "umbrella",
+          collection_name: "catalogs",
+          first_q: "umbrella",
+          per_page: 10
         },
-        "search_cutoff" => false,
-        "search_time_ms" => 5
+        search_cutoff: false,
+        search_time_ms: 1
        }
       }
 
   """
-  @doc since: "0.1.0"
-  @spec search(Connection.t(), module() | String.t(), map()) :: Ecto.Query.t() | response()
-  def search(conn \\ Connection.new(), module_or_collection_name, params)
-
-  def search(conn, collection_name, params) when is_atom(collection_name) and is_map(params) do
-    collection = collection_name.__schema__(:source)
-
-    path =
-      Path.join([
-        @collections_path,
-        collection,
-        @documents_path,
-        @search_path
-      ])
-
-    {:ok, result} = HttpClient.request(conn, %{method: :get, path: path, query: params})
-
-    ResultParser.hits_to_query(result["hits"], collection_name)
+  @doc since: "1.0.0"
+  @spec search(String.t() | module(), keyword()) ::
+          {:ok, OpenApiTypesense.SearchResult.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
+  def search(coll_name, opts) do
+    Connection.new() |> search(coll_name, opts)
   end
 
-  def search(conn, collection_name, params) when is_binary(collection_name) and is_map(params) do
-    path =
-      Path.join([
-        @collections_path,
-        collection_name,
-        @documents_path,
-        @search_path
-      ])
+  @doc """
+  Same as [search/2](`search/2`) but passes another connection.
 
-    HttpClient.request(conn, %{method: :get, path: path, query: params})
+  ```elixir
+  ExTypesense.search(%{api_key: xyz, host: ...}, "companies", opts)
+
+  ExTypesense.search(OpenApiTypesense.Connection.new(), "companies", opts)
+  ```
+  """
+  @doc since: "1.0.0"
+  @spec search(map() | Connection.t(), String.t() | module(), keyword()) ::
+          {:ok, OpenApiTypesense.SearchResult.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
+  def search(conn, module, opts) when is_atom(module) do
+    coll_name = module.__schema__(:source)
+    search(conn, coll_name, opts)
+  end
+
+  def search(conn, coll_name, opts) do
+    OpenApiTypesense.Documents.search(conn, coll_name, opts)
+  end
+
+  @doc """
+  Same as [search/2](`search/2`) but matches Ecto record(s) and returns struct(s).
+
+  ```elixir
+  ExTypesense.search_ecto("companies", opts)
+  ```
+  """
+  @doc since: "1.0.0"
+  @spec search_ecto(String.t() | module(), keyword()) ::
+          Ecto.Query.t() | {:error, OpenApiTypesense.ApiResponse.t()}
+  def search_ecto(coll_name, opts) do
+    Connection.new() |> search_ecto(coll_name, opts)
+  end
+
+  @doc """
+  Same as [search_ecto/2](`search_ecto/2`) but passes another connection.
+
+  ```elixir
+  ExTypesense.search_ecto(%{api_key: xyz, host: ...}, "companies", opts)
+
+  ExTypesense.search_ecto(OpenApiTypesense.Connection.new(), "companies", opts)
+  ```
+  """
+  @doc since: "1.0.0"
+  @spec search_ecto(map() | Connection.t(), String.t() | module(), keyword()) ::
+          Ecto.Query.t() | {:error, OpenApiTypesense.ApiResponse.t()}
+  def search_ecto(conn, module, opts) when is_atom(module) do
+    coll_name = module.__schema__(:source)
+    search_ecto(conn, coll_name, opts)
+  end
+
+  def search_ecto(conn, coll_name, opts) do
+    with {:ok, %SearchResult{} = result} <- search(conn, coll_name, opts) do
+      hits_to_query(result.hits, coll_name)
+    else
+      {:error, response} ->
+        {:error, response}
+    end
   end
 
   @doc """
@@ -113,6 +149,12 @@ defmodule ExTypesense.Search do
   > "products" collection, and a "brands" collection to the user, by
   > searching them in parallel with a multi_search request.
 
+  > #### ordered results {: .tip}
+  >
+  > The results array in a multi_search response is guaranteed
+  > to be in the same order as the queries you send in the searches
+  > array in your request.
+
   ## Options
 
     * `limit_multi_searches`: Max number of search requests that can be sent in a
@@ -128,87 +170,209 @@ defmodule ExTypesense.Search do
       ...>   %{collection: Catalog, q: "umbrella"}
       ...> ]
       iex> ExTypesense.multi_search(searches)
-      {:ok,
-       [
-         %{
-           "facet_counts" => [],
-           "found" => 0,
-           "hits" => [],
-           "out_of" => 0,
-           "page" => 1,
-           "request_params" => %{
-             "collection_name" => "companies",
-             "per_page" => 10,
-             "q" => "Loca Cola"
-           },
-           "search_cutoff" => false,
-           "search_time_ms" => 5
-         },
-         %{
-           "facet_counts" => [],
-           "found" => 0,
-           "hits" => [],
-           "out_of" => 0,
-           "page" => 1,
-           "request_params" => %{
-             "collection_name" => "companies",
-             "per_page" => 10,
-             "q" => "Burgler King"
-           },
-           "search_cutoff" => false,
-           "search_time_ms" => 5
-         },
-         %{
-           "facet_counts" => [],
-           "found" => 0,
-           "hits" => [],
-           "out_of" => 0,
-           "page" => 1,
-           "request_params" => %{
-             "collection_name" => "companies",
-             "per_page" => 10,
-             "q" => "umbrella"
-           },
-           "search_cutoff" => false,
-           "search_time_ms" => 5
-         }
-       ]
+      {
+        :ok,
+        %OpenApiTypesense.MultiSearchResult{
+          results: [
+            %{
+            facet_counts: [],
+            found: 0,
+            hits: [],
+            out_of: 0,
+            page: 1,
+            request_params: %{
+              collection_name: "companies",
+              per_page: 10,
+              q: "Loca Cola",
+              first_q: "Loca Cola"
+            },
+            search_cutoff: false,
+            search_time_ms: 5
+            },
+            %{
+              facet_counts: [],
+              found: 0,
+              hits: [],
+              out_of: 0,
+              page: 1,
+              request_params: %{
+                collection_name: "companies",
+                per_page: 10,
+                q: "Burgler King",
+                first_q: "Burgler King"
+              },
+              search_cutoff: false,
+              search_time_ms: 5
+            },
+            %{
+              facet_counts: [],
+              found: 0,
+              hits: [],
+              out_of: 0,
+              page: 1,
+              request_params: %{
+                collection_name: "catalogs",
+                per_page: 10,
+                q: "umbrella",
+                first_q: "umbrella"
+              },
+              search_cutoff: false,
+              search_time_ms: 5
+            }
+          ],
+          conversation: nil
+        }
       }
   """
   @doc since: "1.0.0"
-  @spec multi_search(Connection.t(), [map()]) :: response()
-  def multi_search(conn \\ Connection.new(), searches) do
-    path = @multi_search_path
-
-    searches =
-      Enum.map(searches, fn %{collection: name} = search ->
-        collection_name =
-          case is_binary(name) do
-            true -> name
-            false -> name.__schema__(:source)
-          end
-
-        Map.put(search, :collection, collection_name)
-      end)
-
-    HttpClient.request(
-      conn,
-      %{
-        method: :post,
-        path: path,
-        body: Jason.encode!(%{searches: searches})
-      }
-    )
+  @spec multi_search(list(map())) ::
+          {:ok, OpenApiTypesense.MultiSearchResult.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def multi_search(searches) do
+    multi_search(searches, [])
   end
 
-  @doc since: "1.0.0"
-  @spec multi_search_ecto(Connection.t(), [map()]) :: Ecto.Query.t()
-  def multi_search_ecto(conn \\ Connection.new(), searches) do
-    {:ok, %{"results" => results}} = multi_search(conn, searches)
+  @doc """
+  Same as [multi_search/1](`multi_search/1`)
 
-    Enum.map(results, fn result ->
-      collection_name = get_in(result, ["request_params", "collection_name"])
-      ResultParser.hits_to_query(result["hits"], collection_name)
-    end)
+  ```elixir
+  ExTypesense.multi_search(searches, opts)
+
+  ExTypesense.multi_search(%{api_key: xyz, host: ...}, searches)
+
+  ExTypesense.multi_search(OpenApiTypesense.Connection.new(), searches)
+  ```
+  """
+  @doc since: "1.0.0"
+  @spec multi_search(
+          map() | Connection.t() | list(map()),
+          list(map()) | keyword()
+        ) ::
+          {:ok, OpenApiTypesense.MultiSearchResult.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def multi_search(searches, opts) when is_list(opts) and is_list(searches) do
+    Connection.new() |> multi_search(searches, opts)
+  end
+
+  def multi_search(conn, searches) do
+    multi_search(conn, searches, [])
+  end
+
+  @doc """
+  Same as [multi_search/2](`multi_search/2`) but passes another connection.
+
+  ```elixir
+  ExTypesense.multi_search(%{api_key: xyz, host: ...}, searches, opts)
+
+  ExTypesense.multi_search(OpenApiTypesense.Connection.new(), searches, opts)
+  ```
+  """
+  @doc since: "1.0.0"
+  @spec multi_search(map() | Connection.t(), list(map()), keyword()) ::
+          {:ok, OpenApiTypesense.MultiSearchResult.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def multi_search(conn, searches, opts) do
+    searches =
+      Enum.map(searches, fn search ->
+        if Map.has_key?(search, :collection) do
+          coll_name =
+            if is_atom(Map.get(search, :collection)) do
+              search.collection.__schema__(:source)
+            else
+              search.collection
+            end
+
+          Map.put(search, :collection, coll_name)
+        else
+          coll_name =
+            if is_atom(Map.get(search, "collection")) do
+              search["collection"].__schema__(:source)
+            else
+              search["collection"]
+            end
+
+          Map.put(search, "collection", coll_name)
+        end
+      end)
+
+    OpenApiTypesense.Documents.multi_search(conn, %{searches: searches}, opts)
+  end
+
+  @doc """
+  Same as [multi_search_ecto/1](`multi_search_ecto/1`) but returns a list of Ecto queries.
+  """
+  @doc since: "1.0.0"
+  @spec multi_search_ecto(list(map())) ::
+          Ecto.Query.t() | {:error, OpenApiTypesense.ApiResponse.t()}
+  def multi_search_ecto(searches) do
+    multi_search_ecto(searches, [])
+  end
+
+  @doc """
+  Same as [multi_search_ecto/1](`multi_search_ecto/1`)
+
+  ```elixir
+  ExTypesense.multi_search_ecto(searches, opts)
+
+  ExTypesense.multi_search_ecto(%{api_key: xyz, host: ...}, searches)
+
+  ExTypesense.multi_search_ecto(OpenApiTypesense.Connection.new(), searches)
+  ```
+  """
+  @doc since: "1.0.0"
+  @spec multi_search_ecto(
+          map() | Connection.t() | list(map()),
+          list(map()) | keyword()
+        ) ::
+          Ecto.Query.t() | {:error, OpenApiTypesense.ApiResponse.t()}
+  def multi_search_ecto(searches, opts) when is_list(opts) and is_list(searches) do
+    Connection.new() |> multi_search_ecto(searches, opts)
+  end
+
+  def multi_search_ecto(conn, searches) do
+    multi_search_ecto(conn, searches, [])
+  end
+
+  @doc """
+  Same as [multi_search_ecto/2](`multi_search_ecto/2`) but passes another connection.
+
+  ```elixir
+  ExTypesense.multi_search_ecto(%{api_key: xyz, host: ...}, searches, opts)
+
+  ExTypesense.multi_search_ecto(OpenApiTypesense.Connection.new(), searches, opts)
+  ```
+  """
+  @doc since: "1.0.0"
+  @spec multi_search_ecto(map() | Connection.t(), list(map()), keyword()) ::
+          Ecto.Query.t() | {:error, OpenApiTypesense.ApiResponse.t()}
+  def multi_search_ecto(conn, searches, opts) do
+    {:ok, %MultiSearchResult{results: results}} = multi_search(conn, searches, opts)
+
+    if Enum.all?(results, &(Map.has_key?(&1, :hits) === true)) do
+      Enum.map(results, fn result ->
+        collection_name = get_in(result, [:request_params, :collection_name])
+        hits_to_query(result.hits, collection_name)
+      end)
+    else
+      {:ok, %OpenApiTypesense.MultiSearchResult{results: results}}
+    end
+  end
+
+  @doc false
+  @doc since: "1.0.0"
+  @spec hits_to_query(Enum.t(), String.t()) :: Ecto.Query.t()
+  defp hits_to_query([], schema_name) do
+    schema_name
+    |> where([i], i.id in [])
+  end
+
+  defp hits_to_query(hits, schema_name) do
+    values =
+      Enum.map(hits, fn %{document: document} ->
+        document[schema_name <> "_id"]
+      end)
+
+    schema_name
+    |> where([i], i.id in ^values)
   end
 end

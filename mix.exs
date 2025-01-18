@@ -10,7 +10,7 @@ defmodule ExTypesense.MixProject do
       version: @version,
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
-      consolidate_protocols: Mix.env() != :test,
+      consolidate_protocols: Mix.env() not in [:dev, :test],
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
@@ -42,7 +42,7 @@ defmodule ExTypesense.MixProject do
       {:ecto, "~> 3.12", optional: true},
       {:excoveralls, "~> 0.18", only: :test},
       {:mix_audit, "~> 2.1", only: :test, runtime: false},
-      {:open_api_typesense, path: "/Users/jaeyson/Documents/Github/open_api_typesense"}
+      {:open_api_typesense, "~> 0.5"}
     ]
   end
 

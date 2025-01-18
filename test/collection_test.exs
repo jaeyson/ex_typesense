@@ -37,6 +37,8 @@ defmodule CollectionTest do
       ExTypesense.drop_collection(schema.name)
       ExTypesense.drop_collection(Product)
     end)
+
+    :ok
   end
 
   @tag ["27.1": true, "26.0": true, "0.25.2": true]

@@ -6,6 +6,8 @@ defmodule ClusterTest do
   alias OpenApiTypesense.HealthStatus
   alias OpenApiTypesense.SuccessStatus
 
+  @rate_limit :timer.seconds(5)
+
   setup_all do
     conn = Connection.new()
     map_conn = %{api_key: "xyz", host: "localhost", port: 8108, scheme: "http"}
@@ -49,16 +51,10 @@ defmodule ClusterTest do
 
     assert {:ok, %SuccessStatus{success: true}} = ExTypesense.create_snapshot(opts)
 
-    Process.sleep(50)
+    Process.sleep(@rate_limit)
     assert {:ok, %SuccessStatus{success: true}} = ExTypesense.create_snapshot(conn, opts)
 
-    Process.sleep(50)
-    assert {:ok, %SuccessStatus{success: true}} = ExTypesense.create_snapshot(map_conn, opts)
-
-    Process.sleep(50)
-    assert {:ok, %SuccessStatus{success: true}} = ExTypesense.create_snapshot(conn, opts)
-
-    Process.sleep(50)
+    Process.sleep(@rate_limit)
     assert {:ok, %SuccessStatus{success: true}} = ExTypesense.create_snapshot(map_conn, opts)
   end
 

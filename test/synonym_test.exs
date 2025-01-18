@@ -1,14 +1,13 @@
 defmodule SynonymTest do
   use ExUnit.Case, async: true
 
+  alias ExTypesense.TestSchema.Car
   alias OpenApiTypesense.ApiResponse
-  alias OpenApiTypesense.APIStatsResponse
   alias OpenApiTypesense.CollectionResponse
   alias OpenApiTypesense.Connection
   alias OpenApiTypesense.SearchSynonym
   alias OpenApiTypesense.SearchSynonymDeleteResponse
   alias OpenApiTypesense.SearchSynonymsResponse
-  alias ExTypesense.TestSchema.Car
 
   setup_all do
     conn = Connection.new()

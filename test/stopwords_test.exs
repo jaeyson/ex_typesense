@@ -4,8 +4,8 @@ defmodule StopwordsTest do
   alias OpenApiTypesense.ApiResponse
   alias OpenApiTypesense.Connection
   alias OpenApiTypesense.Stopwords
-  alias OpenApiTypesense.StopwordsSetSchema
   alias OpenApiTypesense.StopwordsSetRetrieveSchema
+  alias OpenApiTypesense.StopwordsSetSchema
   alias OpenApiTypesense.StopwordsSetsRetrieveAllSchema
 
   setup_all do

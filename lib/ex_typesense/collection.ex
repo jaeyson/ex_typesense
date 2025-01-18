@@ -233,7 +233,8 @@ defmodule ExTypesense.Collection do
   end
 
   def clone_collection(conn, src_coll, new_coll, opts) do
-    create_collection(conn, %{"name" => new_coll}, src_name: src_coll)
+    opts = Keyword.put_new(opts, :src_name, src_coll)
+    create_collection(conn, %{"name" => new_coll}, opts)
   end
 
   @doc """
@@ -495,7 +496,7 @@ defmodule ExTypesense.Collection do
   end
 
   def drop_collection(conn, name, opts) do
-    OpenApiTypesense.Collections.delete_collection(conn, name)
+    OpenApiTypesense.Collections.delete_collection(conn, name, opts)
   end
 
   @doc """

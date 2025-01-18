@@ -59,8 +59,6 @@ defmodule ExTypesense do
   ```
   """
 
-  alias ExTypesense.Connection
-
   @doc since: "1.0.0"
   @doc """
   A callback function for creating the schema fields in Typesense.
@@ -261,14 +259,31 @@ defmodule ExTypesense do
   defdelegate delete_stopword(conn, stop_id), to: ExTypesense.Stopwords
   defdelegate delete_stopword(conn, stop_id, opts), to: ExTypesense.Stopwords
   ##########################################################
-  # end stopwords 
+  # end stopwords
   ##########################################################
 
   ##########################################################
   # start conversation
   ##########################################################
-  defdelegate create_conversation_model, to: ExTypesense.Conversation
-  defdelegate create_conversation_model(conn), to: ExTypesense.Conversation
+  defdelegate create_model(body), to: ExTypesense.Conversation
+  defdelegate create_model(conn, body), to: ExTypesense.Conversation
+  defdelegate create_model(conn, body, opts), to: ExTypesense.Conversation
+
+  defdelegate list_models, to: ExTypesense.Conversation
+  defdelegate list_models(conn_or_opts), to: ExTypesense.Conversation
+  defdelegate list_models(conn, opts), to: ExTypesense.Conversation
+
+  defdelegate get_model(model_id), to: ExTypesense.Conversation
+  defdelegate get_model(conn, model_id), to: ExTypesense.Conversation
+  defdelegate get_model(conn, model_id, opts), to: ExTypesense.Conversation
+
+  defdelegate delete_model(model_id), to: ExTypesense.Conversation
+  defdelegate delete_model(conn, model_id), to: ExTypesense.Conversation
+  defdelegate delete_model(conn, model_id, opts), to: ExTypesense.Conversation
+
+  defdelegate update_model(model_id, body), to: ExTypesense.Conversation
+  defdelegate update_model(conn, model_id, body), to: ExTypesense.Conversation
+  defdelegate update_model(conn, model_id, body, opts), to: ExTypesense.Conversation
   ##########################################################
   # end conversation
   ##########################################################
@@ -319,7 +334,12 @@ defmodule ExTypesense do
   defdelegate search(coll_name, opts), to: ExTypesense.Search
   defdelegate search(conn, coll_name, opts), to: ExTypesense.Search
 
+  defdelegate search_ecto(coll_name, opts), to: ExTypesense.Search
+  defdelegate search_ecto(conn, coll_name, opts), to: ExTypesense.Search
+
   defdelegate multi_search(searches), to: ExTypesense.Search
+  defdelegate multi_search(conn, searches), to: ExTypesense.Search
+  defdelegate multi_search(conn, searches, opts), to: ExTypesense.Search
 
   defdelegate multi_search_ecto(searches), to: ExTypesense.Search
   defdelegate multi_search_ecto(conn, searches), to: ExTypesense.Search

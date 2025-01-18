@@ -250,6 +250,41 @@ defmodule ExTypesense.Analytics do
   end
 
   @doc """
+  Upserts an analytics rule with the given name.
+  """
+  @doc since: "1.0.0"
+  @spec upsert_analytics_rule(String.t(), map()) ::
+          {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def upsert_analytics_rule(rule_name, body) do
+    upsert_analytics_rule(rule_name, body, [])
+  end
+
+  @doc since: "1.0.0"
+  @spec upsert_analytics_rule(
+          map() | Connection.t() | String.t(),
+          String.t() | map(),
+          map() | keyword()
+        ) ::
+          {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def upsert_analytics_rule(rule_name, body, opts) when is_list(opts) do
+    Connection.new() |> upsert_analytics_rule(rule_name, body, opts)
+  end
+
+  def upsert_analytics_rule(conn, rule_name, body) do
+    upsert_analytics_rule(conn, rule_name, body, [])
+  end
+
+  @doc since: "1.0.0"
+  @spec upsert_analytics_rule(map() | Connection.t(), String.t(), map(), keyword()) ::
+          {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def upsert_analytics_rule(conn, rule_name, body, opts) do
+    OpenApiTypesense.Analytics.upsert_analytics_rule(conn, rule_name, body, opts)
+  end
+
+  @doc """
   Delete an analytics rule
 
   Permanently deletes an analytics rule, given it's name

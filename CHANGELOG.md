@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Backwards-incompatible changes, in favor of using [`OpenApiTypesense`](https://github.com/jaeyson/open_api_typesense).
 * Bump dependencies
 
+### Removed
+
+* `ExTypesense.ResultParser` module (moved to `ExTypesense.Search`)
+
 ## 0.7.3 (2024.11.11)
 
 ### Added

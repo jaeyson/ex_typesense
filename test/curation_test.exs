@@ -1,13 +1,12 @@
 defmodule CurationTest do
   use ExUnit.Case, async: true
 
-  alias Erl2exVendored.Pipeline.ExType
   alias ExTypesense.TestSchema.House
   alias OpenApiTypesense.ApiResponse
   alias OpenApiTypesense.Connection
   alias OpenApiTypesense.SearchOverride
-  alias OpenApiTypesense.SearchOverridesResponse
   alias OpenApiTypesense.SearchOverrideDeleteResponse
+  alias OpenApiTypesense.SearchOverridesResponse
 
   setup_all do
     conn = Connection.new()

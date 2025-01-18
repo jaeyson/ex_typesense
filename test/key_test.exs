@@ -4,7 +4,6 @@ defmodule KeyTest do
   alias OpenApiTypesense.ApiKey
   alias OpenApiTypesense.ApiKeyDeleteResponse
   alias OpenApiTypesense.ApiKeysResponse
-  alias OpenApiTypesense.APIStatsResponse
   alias OpenApiTypesense.Connection
 
   setup_all do

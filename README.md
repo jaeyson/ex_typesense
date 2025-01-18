@@ -323,16 +323,57 @@ ExTypesense.create_collection(schema)
 
 <!-- tabs-open -->
 
-### single document
+### single (Ecto)
 
 ```elixir
 Post |> Repo.get!(123) |> ExTypesense.index_document()
 ```
 
-### multiple document
+### multiple (Ecto)
 
 ```elixir
 Post |> Repo.all() |> ExTypesense.import_documents()
+```
+
+### single (map)
+
+```elixir
+document = %{
+  collection_name: "companies",
+  company_name: "Test",
+  doc_companies_id: 103,
+  country: "AL"
+}
+
+ExTypesense.index_document(document)
+
+# or explicitely pass the collection name
+document = %{
+  company_name: "Test",
+  doc_companies_id: 103,
+  country: "AL"
+}
+
+ExTypesense.index_document("companies", document)
+```
+
+### multiple (list of maps)
+
+```elixir
+multiple_documents = [
+  %{
+    company_name: "Boca Cola",
+    doc_companies_id: 827,
+    country: "SG"
+  },
+  %{
+    company_name: "Motor, Inc.",
+    doc_companies_id: 549,
+    country: "TW"
+  }
+]
+
+ExTypesense.import_documents("companies", multiple_documents)
 ```
 
 <!-- tabs-close -->
@@ -342,7 +383,10 @@ Post |> Repo.all() |> ExTypesense.import_documents()
 ```elixir
 params = %{q: "John Doe", query_by: "name"}
 
+# using string collection name
 ExTypesense.search(schema.name, params)
+
+# or module name
 ExTypesense.search(Person, params)
 ```
 

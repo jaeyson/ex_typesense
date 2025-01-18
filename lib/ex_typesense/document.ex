@@ -274,7 +274,7 @@ defmodule ExTypesense.Document do
   end
 
   @doc """
-  Same as [index_document/1](`get_document/1`).
+  Same as [index_document/1](`index_document/1`).
 
   ```elixir
   ExTypesense.index_document("persons", document)
