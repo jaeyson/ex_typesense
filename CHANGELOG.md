@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
-## 1.0.0 (2025.01.xx)
+## 1.0.0 (2025.01.19)
 
 ### Added
 
 * External docs link for example of using another HTTP client.
-* Test coverage
+* More test coverage
 
 ### Changed
 
@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-* Support for Typesense version v0.25.2
+* Dropped support for Typesense version v0.25.2
 * `ExTypesense.ResultParser` module (moved to `ExTypesense.Search`)
 
 ### Deprecated
