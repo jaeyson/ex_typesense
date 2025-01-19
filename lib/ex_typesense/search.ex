@@ -124,9 +124,10 @@ defmodule ExTypesense.Search do
   end
 
   def search_ecto(conn, coll_name, opts) do
-    with {:ok, %SearchResult{} = result} <- search(conn, coll_name, opts) do
-      hits_to_query(result.hits, coll_name)
-    else
+    case search(conn, coll_name, opts) do
+      {:ok, %SearchResult{} = result} ->
+        hits_to_query(result.hits, coll_name)
+
       {:error, response} ->
         {:error, response}
     end
