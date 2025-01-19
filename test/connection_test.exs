@@ -28,6 +28,7 @@ defmodule ConnectionTest do
     :ok
   end
 
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "error: health check with empty credentials" do
     conn = %{api_key: nil, host: nil, port: nil, scheme: nil}
 
@@ -36,6 +37,7 @@ defmodule ConnectionTest do
     end
   end
 
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "error: health check, with incorrect port number" do
     conn = %{api_key: "abc", host: "localhost", port: 8100, scheme: "http"}
 
@@ -44,6 +46,7 @@ defmodule ConnectionTest do
     end
   end
 
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "error: wrong api key was configured" do
     conn = %{
       host: "localhost",
@@ -55,6 +58,7 @@ defmodule ConnectionTest do
     assert {:error, @forbidden} == ExTypesense.list_collections(conn)
   end
 
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "error: overriding config with a wrong API key" do
     conn = %{
       host: "localhost",
@@ -66,10 +70,12 @@ defmodule ConnectionTest do
     assert {:error, @forbidden} = ExTypesense.list_collections(conn)
   end
 
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "success: health check" do
     assert {:ok, true} = ExTypesense.health()
   end
 
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "success: Using a struct converted to map and update its keys" do
     conn = %Credential{
       node: "localhost",
