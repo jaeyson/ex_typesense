@@ -42,7 +42,7 @@ defmodule ExTypesense.MixProject do
       {:ecto, "~> 3.12", optional: true},
       {:excoveralls, "~> 0.18", only: :test},
       {:mix_audit, "~> 2.1", only: :test, runtime: false},
-      {:open_api_typesense, "~> 0.5"}
+      {:open_api_typesense, "~> 0.6"}
     ]
   end
 
