@@ -29,11 +29,11 @@ jobs:
     strategy:
       matrix:
         include:
-        - typesense: '0.25.2'
+        - typesense: '26.0'
           otp: '25'
           elixir: '1.14'
           lint: false
-        - typesense: '26.0'
+        - typesense: '27.0'
           otp: '25'
           elixir: '1.14'
           lint: false
@@ -41,17 +41,17 @@ jobs:
           otp: '25'
           elixir: '1.14'
           lint: false
-        - typesense: '0.25.2'
-          otp: '27'
-          elixir: '1.17'
-          lint: false
         - typesense: '26.0'
           otp: '27'
-          elixir: '1.17'
+          elixir: '1.18'
+          lint: false
+        - typesense: '27.0'
+          otp: '27'
+          elixir: '1.18'
           lint: false
         - typesense: '27.1'
           otp: '27'
-          elixir: '1.17'
+          elixir: '1.18'
           lint: true
 
     services:

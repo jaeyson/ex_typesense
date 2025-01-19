@@ -18,10 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Backwards-incompatible changes, in favor of using [`OpenApiTypesense`](https://github.com/jaeyson/open_api_typesense).
 * Bump dependencies
+* CI to support Typesense versions v26.0, v27.0, v27.1
 
 ### Removed
 
+* Support for Typesense version v0.25.2
 * `ExTypesense.ResultParser` module (moved to `ExTypesense.Search`)
+
+### Deprecated
+
+* Dropped support for Typesense v0.25.2
 
 ## 0.7.3 (2024.11.11)
 

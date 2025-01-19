@@ -15,7 +15,7 @@ defmodule ClusterTest do
     %{conn: conn, map_conn: map_conn}
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "health", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %HealthStatus{ok: true}} = ExTypesense.health()
     assert {:ok, _} = ExTypesense.health([])
@@ -25,7 +25,7 @@ defmodule ClusterTest do
     assert {:ok, _} = ExTypesense.health(map_conn, [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "api status", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %APIStatsResponse{}} = ExTypesense.api_stats()
     assert {:ok, _} = ExTypesense.api_stats([])
@@ -35,7 +35,7 @@ defmodule ClusterTest do
     assert {:ok, _} = ExTypesense.api_stats(map_conn, [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "cluster metrics", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %{}} = ExTypesense.cluster_metrics()
     assert {:ok, _} = ExTypesense.cluster_metrics([])
@@ -45,7 +45,7 @@ defmodule ClusterTest do
     assert {:ok, _} = ExTypesense.cluster_metrics(map_conn, [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "create snapshot", %{conn: conn, map_conn: map_conn} do
     opts = [snapshot_path: "/tmp/typesense-data-snapshot"]
 
@@ -58,7 +58,7 @@ defmodule ClusterTest do
     assert {:ok, %SuccessStatus{success: true}} = ExTypesense.create_snapshot(map_conn, opts)
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "compact DB", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %SuccessStatus{success: true}} = ExTypesense.compact_db()
     assert {:ok, _} = ExTypesense.compact_db([])
@@ -68,7 +68,7 @@ defmodule ClusterTest do
     assert {:ok, _} = ExTypesense.compact_db(map_conn, [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "clear cache", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %SuccessStatus{success: true}} = ExTypesense.clear_cache()
     assert {:ok, _} = ExTypesense.clear_cache([])
@@ -78,7 +78,7 @@ defmodule ClusterTest do
     assert {:ok, _} = ExTypesense.clear_cache(map_conn, [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "toggle slow request log", %{conn: conn, map_conn: map_conn} do
     config = %{"log_slow_requests_time_ms" => 2_000}
     assert {:ok, %SuccessStatus{success: true}} = ExTypesense.toggle_slow_request_log(config)
@@ -89,7 +89,7 @@ defmodule ClusterTest do
     assert {:ok, _} = ExTypesense.toggle_slow_request_log(map_conn, config, [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "re-elect leader (vote)", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %SuccessStatus{success: false}} = ExTypesense.vote()
     assert {:ok, _} = ExTypesense.vote([])

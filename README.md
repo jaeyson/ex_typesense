@@ -46,7 +46,7 @@
   <a href="https://typesense.org/docs/27.1/api">
     <img
       alt="Latest Typesense version compatible badge"
-      src="https://img.shields.io/badge/Typesense-v27.1-darkblue"
+      src="https://img.shields.io/badge/Typesense-v26.0_%7C_v27.0_%7C_v27.1-darkblue"
     >
   </a>
   <a href="https://coveralls.io/github/jaeyson/ex_typesense?branch=main">

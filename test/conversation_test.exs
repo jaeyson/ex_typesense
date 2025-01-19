@@ -32,7 +32,7 @@ defmodule ConversationTest do
     %{conn: conn, map_conn: map_conn}
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": false]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "success: list conversation models", %{conn: conn, map_conn: map_conn} do
     assert {:ok, models} = ExTypesense.list_models()
     assert length(models) >= 0
@@ -43,7 +43,7 @@ defmodule ConversationTest do
     assert {:ok, _} = ExTypesense.list_models(map_conn, [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": false]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "error: get a non-existent conversation model", %{conn: conn, map_conn: map_conn} do
     assert {:error, %ApiResponse{message: "Model not found"}} =
              ExTypesense.get_model("non-existent")
@@ -55,7 +55,7 @@ defmodule ConversationTest do
     assert {:error, _} = ExTypesense.get_model(map_conn, "xyz", [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": false]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "success: delete a conversation model", %{conn: conn, map_conn: map_conn} do
     assert {:error, %ApiResponse{message: "Model not found"}} =
              ExTypesense.delete_model("non-existent")
@@ -67,7 +67,7 @@ defmodule ConversationTest do
     assert {:error, _} = ExTypesense.delete_model(map_conn, "xyz", [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": false]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "error: create a conversation model with incorrect API key", %{
     conn: conn,
     map_conn: map_conn
@@ -99,7 +99,7 @@ defmodule ConversationTest do
     assert {:error, _} = ExTypesense.create_model(map_conn, body, [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": false]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "error: update a conversation model with incorrect API key", %{
     conn: conn,
     map_conn: map_conn

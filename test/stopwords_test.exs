@@ -15,7 +15,7 @@ defmodule StopwordsTest do
     %{conn: conn, map_conn: map_conn}
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "success: get stopword", %{conn: conn, map_conn: map_conn} do
     stop_id = "stopword_set_countries"
 
@@ -43,7 +43,7 @@ defmodule StopwordsTest do
     assert {:ok, _} = ExTypesense.get_stopword(map_conn, stop_id, [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "success: list all stopwords", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %StopwordsSetsRetrieveAllSchema{}} = ExTypesense.list_stopwords()
     assert {:ok, _} = ExTypesense.list_stopwords([])
@@ -53,7 +53,7 @@ defmodule StopwordsTest do
     assert {:ok, _} = ExTypesense.list_stopwords(map_conn, [])
   end
 
-  @tag ["27.1": true, "26.0": true, "0.25.2": true]
+  @tag ["27.1": true, "27.0": true, "26.0": true]
   test "success: delete stopword", %{conn: conn, map_conn: map_conn} do
     stop_id = "stopword_set_countries"
 
