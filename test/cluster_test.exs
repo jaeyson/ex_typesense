@@ -72,7 +72,7 @@ defmodule ClusterTest do
       scheme: "http"
     }
 
-    assert {:error, @forbidden} == ExTypesense.list_collections(conn)
+    assert {:error, @forbidden} = ExTypesense.list_collections(conn)
   end
 
   @tag ["27.1": true, "27.0": true, "26.0": true]
