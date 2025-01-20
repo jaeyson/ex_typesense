@@ -30,6 +30,7 @@ ex_typesense-*.tar
 
 # Typesense local dev data folder.
 /typesense-data
+/typesense-analytics-data
 
 # Misc.
 .elixir_ls

@@ -7,17 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
+## 1.0.0 (2025.01.19)
+
+### Added
+
+* External docs link for example of using another HTTP client.
+* More test coverage
+
+### Changed
+
+* Backwards-incompatible changes, in favor of using [`OpenApiTypesense`](https://github.com/jaeyson/open_api_typesense).
+* Bump dependencies
+* CI to support Typesense versions v26.0, v27.0, v27.1
+
+### Removed
+
+* Dropped support for Typesense version v0.25.2
+* `ExTypesense.ResultParser` module (moved to `ExTypesense.Search`)
+
+### Deprecated
+
+* Dropped support for Typesense v0.25.2
+
+## 0.7.3 (2024.11.11)
+
+### Added
+
+* `{:error, String.t()}` type for `Search.search/3`
+
 ## 0.7.2 (2024.11.07)
 
 ### Changed
 
-- Use `v27.1` of [Typesense](https://typesense.org/docs/27.1/api) in CI and local development.
+* Use `v27.1` of [Typesense](https://typesense.org/docs/27.1/api) in CI and local development.
 
 ## 0.7.1 (2024.09.10)
 
 ### Removed
 
-- `:castore` dependency not passing on CI test
+* `:castore` dependency not passing on CI test
 
 ## 0.7.0 (2024.09.10)
 
@@ -28,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* `options` in config `config/configx.exs`.
+* `options` in config `config/config.exs`.
 * `get_options/0` function in `HttpClient` to fetch the `options` configuration.
 * tests for `get_options/0` in `ExTypesense.HttpClientTest`.
 
@@ -137,11 +165,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed url request path for aliases.
 
 ### Changed
+
 * Refactor functions inside collection and document.
 * Changed return values from `{:ok, t()}` to `t()` only.
 * Parse schema field types for `float`, `boolean`, `string`, `integer` and a list with these corresponding types.
 
 ### Added
+
 * Added cheatsheet section on docs.
 
 ## 0.2.2 (2023.01.26)
