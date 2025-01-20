@@ -21,32 +21,38 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        include:
-        - typesense: '0.25.2'
-          otp: '25'
-          elixir: '1.14'
-        - typesense: '26.0'
-          otp: '25'
-          elixir: '1.14'
-        - typesense: '27.1'
-          otp: '25'
-          elixir: '1.14'
-        - typesense: '0.25.2'
-          otp: '27'
-          elixir: '1.17'
-        - typesense: '26.0'
-          otp: '27'
-          elixir: '1.17'
-        - typesense: '27.1'
-          otp: '27'
-          elixir: '1.17'
-          lint: true
-
     env:
       MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      LATEST_TYPESENSE: '27.1'
+
+    strategy:
+      matrix:
+        include:
+        - typesense: '26.0'
+          otp: '25'
+          elixir: '1.14'
+          lint: false
+        - typesense: '27.0'
+          otp: '25'
+          elixir: '1.14'
+          lint: false
+        - typesense: '27.1'
+          otp: '25'
+          elixir: '1.14'
+          lint: false
+        - typesense: '26.0'
+          otp: '27'
+          elixir: '1.18'
+          lint: false
+        - typesense: '27.0'
+          otp: '27'
+          elixir: '1.18'
+          lint: false
+        - typesense: '27.1'
+          otp: '27'
+          elixir: '1.18'
+          lint: true
 
     services:
       typesense:
@@ -56,19 +62,43 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Check for misspellings
+        uses: codespell-project/actions-codespell@v2
+
       - name: Start Typesense
         run: |
-          docker run -d \
+          docker run -id \
           -p 8108:8108 \
           --name typesense \
           -v /tmp/typesense-data:/data \
+          -v /tmp/typesense-analytics-data:/analytics-data \
           typesense/typesense:${{ matrix.typesense}} \
           --api-key=xyz \
-          --data-dir /data \
+          --data-dir=/data \
+          --enable-search-analytics=true \
+          --analytics-dir=/analytics-data  \
+          --analytics-flush-interval=60 \
+          --analytics-minute-rate-limit=100 \
           --enable-cors
 
-      - name: Curl Typesense
-        run: sleep 1 && curl http://localhost:8108/health
+      - name: Wait for Typesense to be healthy
+        shell: bash
+        run: |
+          start_time=$(date +%s)
+          timeout=30
+          counter=0
+          until curl -s http://localhost:8108/health | grep -q '"ok":true'; do
+            if [ $counter -eq $timeout ]; then
+              echo "Timed out waiting for Typesense to be healthy"
+              exit 1
+            fi
+            echo "Waiting for Typesense to be healthy..."
+            sleep 1
+            counter=$((counter + 1))
+          done
+          end_time=$(date +%s)
+          elapsed=$((end_time - start_time))
+          echo "Typesense healthcheck elapsed: ${elapsed}s"
 
       - name: Setup Elixir/OTP
         uses: erlef/setup-beam@v1
@@ -82,9 +112,9 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mix-typesense-${{ matrix.typesense}}-${{ matrix.otp}}-${{ matrix.elixir}}-${{ hashFiles('**/mix.lock') }}
+          key: ${{ runner.os }}-typesense-${{ matrix.typesense}}-${{ matrix.otp}}-${{ matrix.elixir}}-mix-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-typesense-${{ matrix.typesense}}
+            ${{ runner.os }}-typesense-${{ matrix.typesense}}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-
 
       - name: Install Dependencies
         run: |
@@ -116,7 +146,8 @@ jobs:
         if: ${{ matrix.lint }}
 
       - name: Run tests
-        run: mix test
+        run: mix test --only ${{ matrix.typesense }}:true --trace
 
       - name: Post test coverage to Coveralls
-        run: mix coveralls.github
+        run: mix coveralls.github --only ${{ matrix.typesense }}:true --trace
+        if: ${{ matrix.lint }}
