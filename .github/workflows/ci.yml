@@ -150,4 +150,4 @@ jobs:
 
       - name: Post test coverage to Coveralls
         run: mix coveralls.github --only ${{ matrix.typesense }}:true --trace
-        if: ${{ matrix.lint }}
+        if: ${{ matrix.lint && github.ref == 'refs/heads/main' }}

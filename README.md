@@ -1,22 +1,23 @@
+# ExTypesense
+
 <p align="center">
   <img
     alt="Typesense logo"
     src="https://github.com/typesense/typesense/raw/main/assets/typesense_logo.svg"
-    width="298">
+    width="180">
   <img
     alt="lightning bolt svg"
+    height="40"
     src="https://github.com/jaeyson/ex_typesense/raw/main/assets/lightning-bolt.svg"
-    width="200">
+    width="40">
   <source
     media="(prefers-color-scheme: dark)"
     srcset="https://github.com/elixir-lang/elixir-lang.github.com/raw/main/images/logo/logo-dark.png">
   <img
     alt="Elixir logo"
     src="https://github.com/elixir-lang/elixir-lang.github.com/raw/main/images/logo/logo.png"
-    width="200">
+    width="130">
 </p>
-
-<h1 align="center">ExTypesense</h1>
 
 <p align="center">
   <a href="https://hex.pm/packages/ex_typesense">
@@ -37,12 +38,6 @@
       src="https://github.com/jaeyson/ex_typesense/actions/workflows/ci.yml/badge.svg"
     >
   </a>
-  <a href="https://hexdocs.pm/ex_typesense/license.html">
-    <img
-      alt="ex_typesense license badge"
-      src="https://img.shields.io/hexpm/l/ex_typesense"
-    >
-  </a>
   <a href="https://typesense.org/docs/27.1/api">
     <img
       alt="Latest Typesense version compatible badge"
@@ -53,6 +48,18 @@
     <img
       alt="Test coverage badge"
       src="https://coveralls.io/repos/github/jaeyson/ex_typesense/badge.svg?branch=main"
+    >
+  </a>
+  <a href="https://app.codacy.com/gh/jaeyson/ex_typesense/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade">
+    <img
+      alt="Codacy Badge"
+      src="https://app.codacy.com/project/badge/Grade/24302e4486f74e498ff0a2b67e3a1f59"
+    >
+  </a>
+  <a href="https://codescene.io/projects/63244">
+    <img
+      alt="CodeScene Average Code Health"
+      src="https://codescene.io/projects/63244/status-badges/average-code-health"
     >
   </a>
 </p>

@@ -2,7 +2,7 @@ defmodule ExTypesense.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/jaeyson/ex_typesense"
-  @version "1.0.0"
+  @version "1.0.1"
 
   def project do
     [
@@ -40,7 +40,7 @@ defmodule ExTypesense.MixProject do
       {:ex_doc, "~> 0.34", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ecto, "~> 3.12", optional: true},
-      {:excoveralls, "~> 0.18", only: :test},
+      {:excoveralls, "~> 0.18", only: :test, runtime: false},
       {:mix_audit, "~> 2.1", only: :test, runtime: false},
       {:open_api_typesense, "~> 0.6"}
     ]
@@ -61,7 +61,7 @@ defmodule ExTypesense.MixProject do
       ],
       extras: [
         "CHANGELOG.md",
-        "README.md": [title: "Overview"],
+        "README.md",
         "guides/running_local_typesense.md": [title: "Running local Typesense"],
         "guides/cheatsheet.cheatmd": [title: "Cheatsheet"],
         "LICENSE.md": [title: "License"],
