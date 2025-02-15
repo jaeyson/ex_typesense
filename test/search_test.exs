@@ -351,10 +351,7 @@ defmodule SearchTest do
             }} =
              ExTypesense.multi_search(searches)
 
-    assert {:ok,
-            %MultiSearchResult{
-              results: [%{error: "Not found.", code: 404}, %{error: "Not found.", code: 404}]
-            }} =
+    assert [%ApiResponse{message: "Not found."}, %ApiResponse{message: "Not found."}] =
              ExTypesense.multi_search_ecto(searches)
   end
 end

@@ -6,6 +6,7 @@ defmodule ExTypesense.Search do
   More here: https://typesense.org/docs/latest/api/search.html
   """
 
+  alias OpenApiTypesense.ApiResponse
   alias OpenApiTypesense.Connection
   alias OpenApiTypesense.MultiSearchResult
   alias OpenApiTypesense.SearchResult
@@ -300,11 +301,27 @@ defmodule ExTypesense.Search do
   end
 
   @doc """
-  Same as [multi_search_ecto/1](`multi_search_ecto/1`) but returns a list of Ecto queries.
+  Same as [multi_search/1](`multi_search/1`) but returns a list of Ecto queries.
+
+  ## Options (same as [multi_search/1](`multi_search/1`))
+
+    * `limit_multi_searches`: Max number of search requests that can be sent in a
+    multi-search request. Default 50
+    * `x-typesense-api-key`: You can embed a separate search API key for each search
+    within a multi_search request. This is useful when you want to apply different
+    embedded filters for each collection in individual scoped API keys.
+
+  ## Examples
+      iex> # Do note the collection name isn't string!!!
+      iex> searches = [
+      ...>   %{collection: Company, q: "Burgler King"},
+      ...>   %{collection: Catalog, q: "spoon"}
+      ...> ]
+      iex> ExTypesense.multi_search_ecto(searches)
   """
   @doc since: "1.0.0"
   @spec multi_search_ecto(list(map())) ::
-          Ecto.Query.t() | {:error, OpenApiTypesense.ApiResponse.t()}
+          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.MultiSearchResult.t()})
   def multi_search_ecto(searches) do
     multi_search_ecto(searches, [])
   end
@@ -325,7 +342,7 @@ defmodule ExTypesense.Search do
           map() | Connection.t() | list(map()),
           list(map()) | keyword()
         ) ::
-          Ecto.Query.t() | {:error, OpenApiTypesense.ApiResponse.t()}
+          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.MultiSearchResult.t()})
   def multi_search_ecto(searches, opts) when is_list(opts) and is_list(searches) do
     Connection.new() |> multi_search_ecto(searches, opts)
   end
@@ -345,18 +362,20 @@ defmodule ExTypesense.Search do
   """
   @doc since: "1.0.0"
   @spec multi_search_ecto(map() | Connection.t(), list(map()), keyword()) ::
-          Ecto.Query.t() | {:error, OpenApiTypesense.ApiResponse.t()}
+          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.MultiSearchResult.t()})
   def multi_search_ecto(conn, searches, opts) do
     {:ok, %MultiSearchResult{results: results}} = multi_search(conn, searches, opts)
 
-    if Enum.all?(results, &(Map.has_key?(&1, :hits) === true)) do
-      Enum.map(results, fn result ->
-        collection_name = get_in(result, [:request_params, :collection_name])
-        hits_to_query(result.hits, collection_name)
-      end)
-    else
-      {:ok, %OpenApiTypesense.MultiSearchResult{results: results}}
-    end
+    Enum.map(results, fn result ->
+      case result do
+        %{error: message, code: _http_status_code} ->
+          %ApiResponse{message: message}
+
+        _ ->
+          collection_name = get_in(result, [:request_params, :collection_name])
+          hits_to_query(result.hits, collection_name)
+      end
+    end)
   end
 
   @doc false

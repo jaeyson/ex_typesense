@@ -70,6 +70,80 @@ defmodule ExTypesense.Collection do
   end
 
   @doc """
+  Creates collection with timestamped name and points to an alias.
+
+  > #### Use case {: .warning}
+  >
+  > When using this function, it will append
+  > a timestamp in name and adds an alias based on schema name.
+  > E.g. if table name is "bricks", then collection name is "bricks-1738558695"
+  > and alias name is "bricks". The reason for this addition can be useful
+  > when encountering like [full re-indexing](https://typesense.org/docs/guide/syncing-data-into-typesense.html#full-re-indexing)
+
+  > One common use-case for aliases is to reindex your data in the
+  > background on a new collection and then switch your application
+  > to it without any changes to your code. [Source](https://typesense.org/docs/latest/api/collection-alias.html#use-case)
+  """
+  @doc since: "1.1.0"
+  @spec create_collection_with_alias(map() | module()) ::
+          {:ok, OpenApiTypesense.CollectionResponse.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def create_collection_with_alias(schema) do
+    create_collection_with_alias(schema, [])
+  end
+
+  @doc """
+  Same as [create_collection_with_alias/1](`create_collection_with_alias/1`) but passes another connection or opts.
+
+  ```elixir
+  ExTypesense.create_collection_with_alias(%{api_key: xyz, host: ...}, schema)
+
+  ExTypesense.create_collection_with_alias(OpenApiTypesense.Connection.new(), MyModule.Context)
+
+  ExTypesense.create_collection_with_alias(schema, src_name: "companies")
+  ```
+  """
+  @doc since: "1.1.0"
+  @spec create_collection_with_alias(map() | Connection.t(), map() | module() | keyword()) ::
+          {:ok, OpenApiTypesense.CollectionResponse.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def create_collection_with_alias(schema, opts) when is_list(opts) do
+    Connection.new() |> create_collection_with_alias(schema, opts)
+  end
+
+  def create_collection_with_alias(conn, schema) do
+    create_collection_with_alias(conn, schema, [])
+  end
+
+  @doc """
+  Same as [create_collection_with_alias/2](`create_collection_with_alias/2`) but explicitly passes all arguments.
+
+  ```elixir
+  ExTypesense.create_collection_with_alias(%{api_key: xyz, host: ...}, schema, opts)
+
+  ExTypesense.create_collection_with_alias(OpenApiTypesense.Connection.new(), MyModule.Context.Schema, opts)
+  ```
+  """
+  @doc since: "1.1.0"
+  @spec create_collection_with_alias(map() | Connection.t(), map() | module(), keyword()) ::
+          {:ok, OpenApiTypesense.CollectionResponse.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def create_collection_with_alias(conn, module, opts) when is_atom(module) do
+    schema = module.get_field_types()
+    create_collection_with_alias(conn, schema, opts)
+  end
+
+  def create_collection_with_alias(conn, schema, opts) do
+    coll_name = Map.get(schema, "name") || Map.get(schema, :name)
+    coll_name_ts = "#{coll_name}-#{DateTime.utc_now() |> DateTime.to_unix()}"
+    updated_schema = Map.put(schema, :name, coll_name_ts)
+    coll = create_collection(conn, updated_schema, opts)
+    upsert_collection_alias(conn, coll_name, coll_name_ts)
+
+    coll
+  end
+
+  @doc """
   Create collection from a map, or module name. Collection name
   is matched on table name if using Ecto schema by default.
 
@@ -306,6 +380,7 @@ defmodule ExTypesense.Collection do
   Get the collection name by alias.
   """
   @doc since: "1.0.0"
+  @deprecated "Use Collection.get_collection_alias/1 instead"
   @spec get_collection_name(String.t()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_collection_name(alias_name) do
@@ -322,6 +397,7 @@ defmodule ExTypesense.Collection do
   ```
   """
   @doc since: "1.0.0"
+  @deprecated "Use Collection.get_collection_alias/1 instead"
   @spec get_collection_name(map() | Connection.t() | String.t(), String.t() | keyword()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_collection_name(alias_name, opts) when is_list(opts) do
@@ -342,6 +418,7 @@ defmodule ExTypesense.Collection do
   ```
   """
   @doc since: "1.0.0"
+  @deprecated "Use Collection.get_collection_alias/1 instead"
   @spec get_collection_name(map() | Connection.t(), String.t(), keyword()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_collection_name(conn, alias_name, opts) when is_binary(alias_name) do
@@ -402,7 +479,11 @@ defmodule ExTypesense.Collection do
   ```
   """
   @doc since: "1.0.0"
-  @spec update_collection_fields(map() | Connection.t(), String.t() | module(), map() | keyword()) ::
+  @spec update_collection_fields(
+          map() | Connection.t() | String.t() | module(),
+          String.t() | module() | map(),
+          map() | keyword()
+        ) ::
           {:ok, OpenApiTypesense.CollectionUpdateSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def update_collection_fields(name, fields, opts) when is_list(opts) do
@@ -547,10 +628,10 @@ defmodule ExTypesense.Collection do
   end
 
   @doc """
-  Get a specific collection alias.
+  Get a specific collection by alias.
   """
   @doc since: "1.0.0"
-  @spec get_collection_alias(String.t()) ::
+  @spec get_collection_alias(String.t() | module()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_collection_alias(alias_name) do
     get_collection_alias(alias_name, [])
@@ -568,7 +649,10 @@ defmodule ExTypesense.Collection do
   ```
   """
   @doc since: "1.0.0"
-  @spec get_collection_alias(map() | Connection.t() | String.t(), String.t() | keyword()) ::
+  @spec get_collection_alias(
+          map() | Connection.t() | String.t() | module(),
+          String.t() | module() | keyword()
+        ) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_collection_alias(alias_name, opts) when is_list(opts) do
     Connection.new() |> get_collection_alias(alias_name, opts)
@@ -588,8 +672,13 @@ defmodule ExTypesense.Collection do
   ```
   """
   @doc since: "1.0.0"
-  @spec get_collection_alias(map() | Connection.t(), String.t(), keyword()) ::
+  @spec get_collection_alias(map() | Connection.t(), String.t() | module(), keyword()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
+  def get_collection_alias(conn, module, opts) when is_atom(module) do
+    alias_name = module.__schema__(:source)
+    get_collection_alias(conn, alias_name, opts)
+  end
+
   def get_collection_alias(conn, alias_name, opts) do
     OpenApiTypesense.Collections.get_alias(conn, alias_name, opts)
   end
@@ -623,14 +712,18 @@ defmodule ExTypesense.Collection do
   ```
   """
   @doc since: "1.0.0"
-  @spec upsert_collection_alias(map() | Connection.t(), String.t(), String.t() | module()) ::
+  @spec upsert_collection_alias(
+          map() | Connection.t() | String.t(),
+          String.t() | module(),
+          String.t() | module() | keyword()
+        ) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_collection_alias(alias_name, coll_name, opts) when is_list(opts) do
     Connection.new() |> upsert_collection_alias(alias_name, coll_name, opts)
   end
 
-  def upsert_collection_alias(conn, alias_name, collection_name) do
-    upsert_collection_alias(conn, alias_name, collection_name, [])
+  def upsert_collection_alias(conn, alias_name, coll_name) do
+    upsert_collection_alias(conn, alias_name, coll_name, [])
   end
 
   @doc """

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
+## 1.1.0 (2025.02.15)
+
+### Added
+
+* `Collection.create_collection_with_alias/1`.
+* Allow module name (atom) to be passed as alias name in `Collection.create_collection_with_alias/1`.
+* Typespec to pass also omodule name (atom) for `Collection.create_collection_with_alias/1`.
+* Separate dev and test environments.
+
+### Fixed
+
+* Typespec for `Search.multi_search_ecto`.
+* Return values of `Search.multi_search_ecto` for `search_test.exs`.
+
+### Deprecated
+
+* `Collection.get_collection_name/1`
+
 ## 1.0.2 (2025.01.30)
 
 ### Changed

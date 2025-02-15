@@ -355,7 +355,7 @@ defmodule ExTypesense.Cluster do
   The follower node that you run this operation against will become
   the new leader, once this command succeeds.
   """
-  @spec vote :: {:ok, SuccessStatus.t()} | :error
+  @spec vote :: {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
   def vote do
     vote([])
   end
