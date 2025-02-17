@@ -142,8 +142,8 @@ defmodule ExTypesense.Document do
       ...> ExTypesense.import_documents("posts", posts)
   """
   @doc since: "1.0.0"
-  @spec import_documents(String.t() | module(), list(struct()) | list(map())) ::
-          {:ok, String.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
+  @spec import_documents(String.t() | module(), [struct()] | [map()]) ::
+          {:ok, [map()]} | {:error, OpenApiTypesense.ApiResponse.t()}
   def import_documents(coll_name, docs) do
     import_documents(coll_name, docs, [])
   end
@@ -166,15 +166,15 @@ defmodule ExTypesense.Document do
   @doc since: "1.0.0"
   @spec import_documents(
           map() | Connection.t() | String.t() | module(),
-          String.t() | list(struct()) | list(map()),
-          list(struct()) | list(map()) | keyword()
+          String.t() | [struct()] | [map()],
+          [struct()] | [map()] | keyword()
         ) ::
-          {:ok, String.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
+          {:ok, [map()]} | {:error, OpenApiTypesense.ApiResponse.t()}
   def import_documents(conn, coll_name, documents) when is_map(conn) and is_list(documents) do
     import_documents(conn, coll_name, documents, [])
   end
 
-  def import_documents(coll_name, docs, opts) when is_list(opts) do
+  def import_documents(coll_name, docs, opts) when is_list(docs) and is_list(opts) do
     Connection.new() |> import_documents(coll_name, docs, opts)
   end
 
@@ -191,10 +191,10 @@ defmodule ExTypesense.Document do
   @spec import_documents(
           map() | Connection.t(),
           String.t() | module(),
-          list(struct()) | list(map()),
+          [struct()] | [map()],
           keyword()
         ) ::
-          {:ok, String.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
+          {:ok, [map()]} | {:error, OpenApiTypesense.ApiResponse.t()}
   def import_documents(conn, module, docs, opts) when is_atom(module) do
     coll_name = module.__schema__(:source)
     import_documents(conn, coll_name, docs, opts)

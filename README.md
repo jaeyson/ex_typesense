@@ -85,7 +85,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 1.0"}
+    {:ex_typesense, "~> 1.1"}
 
     # Or from GitHub repository, if you want the latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}

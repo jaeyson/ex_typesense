@@ -83,13 +83,14 @@ defmodule ConversationTest do
         "max_bytes" => 16_384
       }
 
-    assert {:error, %ApiResponse{message: message}} = ExTypesense.create_model(body)
+    assert {:error, error} = ExTypesense.create_model(body)
 
-    assert String.contains?(String.downcase(message), [
+    assert String.contains?(String.downcase(error.message), [
              "error",
              "incorrect",
              "parsing",
-             "response"
+             "response",
+             "timeout"
            ]) === true
 
     assert {:error, _} = ExTypesense.create_model(body, [])

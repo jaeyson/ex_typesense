@@ -25,6 +25,8 @@ ex_typesense-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
+*.env
+
 # Zed editor
 /.zed/
 
@@ -34,4 +36,4 @@ ex_typesense-*.tar
 
 # Misc.
 .elixir_ls
-**.DS_Store
+*.DS_Store
