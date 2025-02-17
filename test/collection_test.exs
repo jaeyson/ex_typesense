@@ -138,7 +138,7 @@ defmodule CollectionTest do
   end
 
   @tag ["27.1": true, "27.0": true, "26.0": true]
-  test "success: create collection with alias", %{schema: schema} do
+  test "success: create collection with alias", %{schema: schema, conn: conn, map_conn: map_conn} do
     assert {:ok, %CollectionResponse{name: collection_name}} =
              ExTypesense.create_collection_with_alias(schema)
 
@@ -151,10 +151,17 @@ defmodule CollectionTest do
     assert {:ok, %CollectionResponse{name: p_coll_name}} =
              ExTypesense.create_collection_with_alias(Product)
 
+    assert {:error, %ApiResponse{}} = ExTypesense.create_collection_with_alias(conn, Product)
+    assert {:error, %ApiResponse{}} = ExTypesense.create_collection_with_alias(map_conn, Product)
+    assert {:error, %ApiResponse{}} = ExTypesense.create_collection_with_alias(conn, Product, [])
+
+    assert {:error, %ApiResponse{}} =
+             ExTypesense.create_collection_with_alias(map_conn, Product, [])
+
     assert {:ok, %CollectionResponse{name: ^p_coll_name}} =
              ExTypesense.get_collection(Product)
 
-    assert {:ok, %CollectionAlias{collection_name: ^p_coll_name, name: p_alias_name}} =
+    assert {:ok, %CollectionAlias{collection_name: ^p_coll_name}} =
              ExTypesense.get_collection_alias(Product)
   end
 

@@ -6,7 +6,6 @@ defmodule ExTypesense.Search do
   More here: https://typesense.org/docs/latest/api/search.html
   """
 
-  alias OpenApiTypesense.ApiResponse
   alias OpenApiTypesense.Connection
   alias OpenApiTypesense.MultiSearchResult
   alias OpenApiTypesense.SearchResult
@@ -362,14 +361,14 @@ defmodule ExTypesense.Search do
   """
   @doc since: "1.0.0"
   @spec multi_search_ecto(map() | Connection.t(), list(map()), keyword()) ::
-          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.MultiSearchResult.t()})
+          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.ApiResponse.t()})
   def multi_search_ecto(conn, searches, opts) do
     {:ok, %MultiSearchResult{results: results}} = multi_search(conn, searches, opts)
 
     Enum.map(results, fn result ->
       case result do
         %{error: message, code: _http_status_code} ->
-          %ApiResponse{message: message}
+          %OpenApiTypesense.ApiResponse{message: message}
 
         _ ->
           collection_name = get_in(result, [:request_params, :collection_name])

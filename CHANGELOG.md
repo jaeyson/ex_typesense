@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* Typespec for `Search.multi_search_ecto`.
+* Typespecs for `Search.multi_search_ecto`.
 * Return values of `Search.multi_search_ecto` for `search_test.exs`.
 
 ### Deprecated

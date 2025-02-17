@@ -397,7 +397,7 @@ defmodule ExTypesense.Collection do
   ```
   """
   @doc since: "1.0.0"
-  @deprecated "Use Collection.get_collection_alias/1 instead"
+  @deprecated "Use Collection.get_collection_alias/2 instead"
   @spec get_collection_name(map() | Connection.t() | String.t(), String.t() | keyword()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_collection_name(alias_name, opts) when is_list(opts) do
@@ -418,7 +418,7 @@ defmodule ExTypesense.Collection do
   ```
   """
   @doc since: "1.0.0"
-  @deprecated "Use Collection.get_collection_alias/1 instead"
+  @deprecated "Use Collection.get_collection_alias/3 instead"
   @spec get_collection_name(map() | Connection.t(), String.t(), keyword()) ::
           {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_collection_name(conn, alias_name, opts) when is_binary(alias_name) do

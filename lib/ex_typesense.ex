@@ -121,10 +121,10 @@ defmodule ExTypesense do
   @deprecated "Use Collection.get_collection_alias/1 instead"
   defdelegate get_collection_name(alias_name), to: ExTypesense.Collection
 
-  @deprecated "Use Collection.get_collection_alias/1 instead"
+  @deprecated "Use Collection.get_collection_alias/2 instead"
   defdelegate get_collection_name(conn, alias_name), to: ExTypesense.Collection
 
-  @deprecated "Use Collection.get_collection_alias/1 instead"
+  @deprecated "Use Collection.get_collection_alias/3 instead"
   defdelegate get_collection_name(conn, alias_name, opts), to: ExTypesense.Collection
 
   defdelegate drop_collection(name), to: ExTypesense.Collection
