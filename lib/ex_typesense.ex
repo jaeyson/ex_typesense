@@ -1,5 +1,5 @@
 defmodule ExTypesense do
-  @moduledoc since: "0.1.0"
+  @moduledoc since: "1.0.0"
 
   @moduledoc """
   Public API functions to interact with Typesense.
@@ -103,8 +103,12 @@ defmodule ExTypesense do
   defdelegate list_collections(conn, opts), to: ExTypesense.Collection
 
   defdelegate create_collection(schema), to: ExTypesense.Collection
-  defdelegate create_collection(conn_or_schema, schema_or_opts), to: ExTypesense.Collection
+  defdelegate create_collection(conn, schema), to: ExTypesense.Collection
   defdelegate create_collection(conn, schema, opts), to: ExTypesense.Collection
+
+  defdelegate create_collection_with_alias(schema), to: ExTypesense.Collection
+  defdelegate create_collection_with_alias(conn, schema), to: ExTypesense.Collection
+  defdelegate create_collection_with_alias(conn, schema, opts), to: ExTypesense.Collection
 
   defdelegate clone_collection(src_coll, new_coll), to: ExTypesense.Collection
   defdelegate clone_collection(conn, src_coll, new_coll), to: ExTypesense.Collection
@@ -114,8 +118,13 @@ defmodule ExTypesense do
   defdelegate get_collection(conn, coll_name), to: ExTypesense.Collection
   defdelegate get_collection(conn, coll_name, opts), to: ExTypesense.Collection
 
+  @deprecated "Use Collection.get_collection_alias/1 instead"
   defdelegate get_collection_name(alias_name), to: ExTypesense.Collection
+
+  @deprecated "Use Collection.get_collection_alias/2 instead"
   defdelegate get_collection_name(conn, alias_name), to: ExTypesense.Collection
+
+  @deprecated "Use Collection.get_collection_alias/3 instead"
   defdelegate get_collection_name(conn, alias_name, opts), to: ExTypesense.Collection
 
   defdelegate drop_collection(name), to: ExTypesense.Collection

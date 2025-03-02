@@ -120,7 +120,7 @@ defmodule ExTypesense.Conversation do
   ```
   """
   @doc since: "1.0.0"
-  @spec get_model(map() | ConnString.t(), String.t(), keyword()) ::
+  @spec get_model(map() | Connection.t(), String.t(), keyword()) ::
           {:ok, OpenApiTypesense.ConversationModelSchema.t()} | :error
   def get_model(conn, model_id, opts) do
     OpenApiTypesense.Conversations.retrieve_conversation_model(conn, model_id, opts)
