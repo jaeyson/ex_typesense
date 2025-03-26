@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
+## 1.1.1 (2025.03.26)
+
+### Changed
+
+* Bump dependency version.
+
 ## 1.1.0 (2025.03.02)
 
 ### Added
