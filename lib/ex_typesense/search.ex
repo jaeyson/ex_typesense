@@ -163,6 +163,8 @@ defmodule ExTypesense.Search do
     * `x-typesense-api-key`: You can embed a separate search API key for each search
     within a multi_search request. This is useful when you want to apply different
     embedded filters for each collection in individual scoped API keys.
+    * `union`: When true, merges the search results from each search query into a
+    single ordered set of hits. Default `false`
 
   ## Examples
       iex> searches = [

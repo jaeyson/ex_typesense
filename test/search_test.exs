@@ -355,7 +355,7 @@ defmodule SearchTest do
       [
         %{
           "shoes_id" => 582,
-          "shoe_type" => "outdoor",
+          "shoe_type" => "hiking",
           "description" => """
           Merrell Men's Moab 3 Hiking Shoe
           - Pig suede leather and breathable mesh upper
@@ -385,14 +385,14 @@ defmodule SearchTest do
     searches = [
       %{
         collection: coll_name,
-        q: "outdoor",
-        query_by: "shoe_type",
+        q: "*",
+        filter_by: "shoe_type:outdoor",
         exclude_fields: "shoe_description_embedding"
       },
       %{
         collection: coll_name,
-        q: "merrell",
-        query_by: "shoe_type",
+        q: "*",
+        filter_by: "shoe_type:hiking",
         exclude_fields: "shoe_description_embedding"
       }
     ]
@@ -400,8 +400,6 @@ defmodule SearchTest do
     assert {:ok, %MultiSearchResult{results: results}} =
              ExTypesense.multi_search(conn, searches, union: true)
 
-    assert [%{found: _, hits: hits} | _rest] = results
-
-    assert [%{document: %{shoe_type: "outdoor"}} | _rest] = hits
+    assert [%{document: %{shoe_type: "hiking"}} | _rest] = results
   end
 end
