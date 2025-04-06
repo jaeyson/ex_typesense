@@ -89,7 +89,7 @@ defmodule ExTypesense.Search do
   end
 
   def search(conn, coll_name, opts) do
-    OpenApiTypesense.Documents.search(conn, coll_name, opts)
+    OpenApiTypesense.Documents.search_collection(conn, coll_name, opts)
   end
 
   @doc """
@@ -273,6 +273,8 @@ defmodule ExTypesense.Search do
           {:ok, OpenApiTypesense.MultiSearchResult.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def multi_search(conn, searches, opts) do
+    union = Keyword.get(opts, :union) === true
+
     searches =
       Enum.map(searches, fn search ->
         if Map.has_key?(search, :collection) do
@@ -296,7 +298,7 @@ defmodule ExTypesense.Search do
         end
       end)
 
-    OpenApiTypesense.Documents.multi_search(conn, %{searches: searches}, opts)
+    OpenApiTypesense.Documents.multi_search(conn, %{union: union, searches: searches}, opts)
   end
 
   @doc """

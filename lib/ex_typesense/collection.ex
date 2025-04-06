@@ -377,55 +377,6 @@ defmodule ExTypesense.Collection do
   end
 
   @doc """
-  Get the collection name by alias.
-  """
-  @doc since: "1.0.0"
-  @deprecated "Use Collection.get_collection_alias/1 instead"
-  @spec get_collection_name(String.t()) ::
-          {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def get_collection_name(alias_name) do
-    get_collection_name(alias_name, [])
-  end
-
-  @doc """
-  Same as [get_collection_name/1](`get_collection_name/1`)
-
-  ```elixir
-  ExTypesense.get_collection_name(%{api_key: xyz, host: ...}, "persons_sept_8_2019")
-
-  ExTypesense.get_collection_name(OpenApiTypesense.Connection.new(), "persons_sept_8_2019")
-  ```
-  """
-  @doc since: "1.0.0"
-  @deprecated "Use Collection.get_collection_alias/2 instead"
-  @spec get_collection_name(map() | Connection.t() | String.t(), String.t() | keyword()) ::
-          {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def get_collection_name(alias_name, opts) when is_list(opts) do
-    Connection.new() |> get_collection_name(alias_name, opts)
-  end
-
-  def get_collection_name(conn, alias_name) do
-    get_collection_name(conn, alias_name, [])
-  end
-
-  @doc """
-  Same as [get_collection_name/2](`get_collection_name/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.get_collection_name(%{api_key: xyz, host: ...}, "persons_sept_8_2019", [])
-
-  ExTypesense.get_collection_name(OpenApiTypesense.Connection.new(), "persons_sept_8_2019", [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @deprecated "Use Collection.get_collection_alias/3 instead"
-  @spec get_collection_name(map() | Connection.t(), String.t(), keyword()) ::
-          {:ok, OpenApiTypesense.CollectionAlias.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def get_collection_name(conn, alias_name, opts) when is_binary(alias_name) do
-    OpenApiTypesense.Collections.get_alias(conn, alias_name, opts)
-  end
-
-  @doc """
   Make changes in a collection's fields: adding, removing
   or updating an existing field(s). Key name is `drop` to
   indicate which field is removed (example described below).

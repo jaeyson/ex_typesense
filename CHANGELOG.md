@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
+## 1.2.0 (2025.04.06)
+
+### Added
+
+* `Stemming` module
+* Tests for new module
+* `ExTypesense.get_schema_changes`
+
+### Changed
+
+* Pass [`union`](https://typesense.org/docs/28.0/api/federated-multi-search.html#union-search) key on multi search
+* Bump dependency version.
+
+### Removed
+
+* `ExTypesense.get_collection_name`
+
 ## 1.1.1 (2025.03.26)
 
 ### Changed

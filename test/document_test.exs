@@ -5,7 +5,6 @@ defmodule DocumentTest do
   alias OpenApiTypesense.ApiResponse
   alias OpenApiTypesense.CollectionResponse
   alias OpenApiTypesense.Connection
-  alias OpenApiTypesense.Documents
 
   setup_all do
     conn = Connection.new()
@@ -67,7 +66,7 @@ defmodule DocumentTest do
     :ok
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: get unknown document", %{schema: schema, conn: conn, map_conn: map_conn} do
     unknown_id = "999"
     message = ~s(Could not find a document with id: #{unknown_id})
@@ -109,7 +108,7 @@ defmodule DocumentTest do
              ExTypesense.get_document(map_conn, schema.name, unknown_id, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: index a document using a map then fetch if indexed", %{
     document: document,
     conn: conn,
@@ -144,7 +143,7 @@ defmodule DocumentTest do
     assert {:ok, %{company_name: ^company_name}} = ExTypesense.get_document(coll_name, id)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: adding unknown field", %{document: document} do
     document = Map.put(document, :unknown_field, "unknown_value")
 
@@ -154,7 +153,7 @@ defmodule DocumentTest do
     assert {:ok, %{id: ^id}} = ExTypesense.get_document(collection_name, id)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: upsert to update a document", %{document: document} do
     assert {:ok, %{id: id}} = ExTypesense.index_document(document)
     company_name = "Stark Industries"
@@ -168,7 +167,7 @@ defmodule DocumentTest do
              ExTypesense.index_document(updated_document, action: "upsert")
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: creates a document with a specific id twice", %{document: document} do
     document = Map.put(document, :id, "99")
     assert {:ok, %{id: id}} = ExTypesense.index_document(document)
@@ -176,7 +175,7 @@ defmodule DocumentTest do
     assert {:error, %ApiResponse{message: ^message}} = ExTypesense.index_document(document)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: update a document", %{document: document, conn: conn, map_conn: map_conn} do
     assert {:ok, %{id: id}} = ExTypesense.index_document(document)
 
@@ -202,7 +201,7 @@ defmodule DocumentTest do
 
     updated_struct = %{person | name: "Dobert Rowney Jr."}
 
-    assert {:ok, %Documents{num_deleted: nil, num_updated: 1}} =
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: nil, num_updated: 1}} =
              ExTypesense.update_document(updated_struct)
 
     assert {:ok, _} =
@@ -214,7 +213,7 @@ defmodule DocumentTest do
     assert {:ok, _} = ExTypesense.update_document(map_conn, updated_struct)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: export documents", %{
     schema: schema,
     multiple_documents: multiple_documents,
@@ -244,7 +243,7 @@ defmodule DocumentTest do
     assert {:ok, _} = ExTypesense.export_documents(map_conn, Person, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: delete a document", %{
     schema: schema,
     document: document,
@@ -254,9 +253,16 @@ defmodule DocumentTest do
     assert {:ok, %{id: id}} = ExTypesense.index_document(document)
 
     assert {:ok, %{id: ^id}} = ExTypesense.delete_document(schema.name, id)
-    assert {:ok, %Documents{num_deleted: 0}} = ExTypesense.delete_document(document, [])
-    assert {:ok, %Documents{num_deleted: 0}} = ExTypesense.delete_document(conn, document, [])
-    assert {:ok, %Documents{num_deleted: 0}} = ExTypesense.delete_document(map_conn, document, [])
+
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 0}} =
+             ExTypesense.delete_document(document, [])
+
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 0}} =
+             ExTypesense.delete_document(conn, document, [])
+
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 0}} =
+             ExTypesense.delete_document(map_conn, document, [])
+
     assert {:error, _} = ExTypesense.delete_document(schema.name, id, ignore_not_found: false)
     assert {:error, _} = ExTypesense.delete_document(conn, schema.name, id)
     assert {:error, _} = ExTypesense.delete_document(map_conn, schema.name, id)
@@ -267,29 +273,37 @@ defmodule DocumentTest do
 
     assert {:ok, _} = ExTypesense.index_document(person)
 
-    assert {:ok, %Documents{num_deleted: 1}} = ExTypesense.delete_document(person)
-    assert {:ok, %Documents{num_deleted: 0}} = ExTypesense.delete_document(person, [])
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 1}} =
+             ExTypesense.delete_document(person)
+
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 0}} =
+             ExTypesense.delete_document(person, [])
+
     assert {:ok, _} = ExTypesense.delete_document(conn, person)
     assert {:ok, _} = ExTypesense.delete_document(map_conn, person)
     assert {:ok, _} = ExTypesense.delete_document(conn, person, ignore_not_found: true)
     assert {:ok, _} = ExTypesense.delete_document(map_conn, person, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: deletes a document by struct", %{conn: conn, map_conn: map_conn} do
     person = %Person{name: "John Smith", persons_id: 99, country: "Brazil"}
 
     assert {:ok, %{name: "John Smith", persons_id: 99, country: "Brazil"}} =
              ExTypesense.index_document(person)
 
-    assert {:ok, %Documents{num_deleted: 1}} = ExTypesense.delete_document(person)
-    assert {:ok, %Documents{num_deleted: 0}} = ExTypesense.delete_document(conn, person)
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 1}} =
+             ExTypesense.delete_document(person)
+
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 0}} =
+             ExTypesense.delete_document(conn, person)
+
     assert {:ok, _} = ExTypesense.delete_document(map_conn, person)
     assert {:ok, _} = ExTypesense.delete_document(conn, person, [])
     assert {:ok, _} = ExTypesense.delete_document(map_conn, person, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: index multiple documents", %{
     schema: schema,
     multiple_documents: multiple_documents,
@@ -338,7 +352,7 @@ defmodule DocumentTest do
              ExTypesense.import_documents(map_conn, Person, persons, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: update multiple documents", %{
     multiple_documents: multiple_documents,
     schema: schema
@@ -366,20 +380,20 @@ defmodule DocumentTest do
              ExTypesense.get_document(schema.name, second_id)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: delete all documents using Ecto schema module", %{conn: conn, map_conn: map_conn} do
     person = %Person{name: "John Doe", persons_id: 1_111, country: "Scotland"}
 
     assert {:ok, _} = ExTypesense.index_document(person)
 
-    assert {:ok, %Documents{num_deleted: 1, num_updated: nil}} =
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 1, num_updated: nil}} =
              ExTypesense.delete_all_documents(Person)
 
     assert {:ok, _} = ExTypesense.delete_all_documents(conn, Person)
     assert {:ok, _} = ExTypesense.delete_all_documents(map_conn, Person)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: deleting all documents won't drop the collection", %{
     schema: schema,
     conn: conn,
@@ -416,7 +430,7 @@ defmodule DocumentTest do
     assert {:ok, %CollectionResponse{name: ^name}} = ExTypesense.get_collection(name)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: update documents by query no change", %{
     schema: schema,
     multiple_documents: multiple_documents,
@@ -428,7 +442,7 @@ defmodule DocumentTest do
     body = %{company_name: "Kakasaki"}
     opts = [filter_by: "id:!=''"]
 
-    assert {:ok, %Documents{num_updated: 2}} =
+    assert {:ok, %OpenApiTypesense.Documents{num_updated: 2}} =
              ExTypesense.update_documents_by_query(schema.name, body, opts)
 
     assert {:ok, _} = ExTypesense.update_documents_by_query(conn, schema.name, body, opts)
@@ -443,14 +457,14 @@ defmodule DocumentTest do
 
     body = %{country: "LU"}
 
-    assert {:ok, %Documents{num_updated: 2}} =
+    assert {:ok, %OpenApiTypesense.Documents{num_updated: 2}} =
              ExTypesense.update_documents_by_query(Person, body, opts)
 
     assert {:ok, _} = ExTypesense.update_documents_by_query(conn, Person, body, opts)
     assert {:ok, _} = ExTypesense.update_documents_by_query(map_conn, Person, body, opts)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: delete documents by query (Ecto schema)", %{conn: conn, map_conn: map_conn} do
     john_toe = %Person{name: "John Toe", persons_id: 32, country: "Egypt"}
     john_foe = %Person{name: "John Foe", persons_id: 14, country: "Cuba"}
@@ -461,17 +475,17 @@ defmodule DocumentTest do
     assert {:ok, %{country: "Cuba", name: "John Foe", persons_id: 14}} =
              ExTypesense.index_document(john_foe)
 
-    assert {:ok, %Documents{num_deleted: 2}} =
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 2}} =
              ExTypesense.delete_documents_by_query(Person, filter_by: "persons_id:>=0")
 
-    assert {:ok, %Documents{num_deleted: 0}} =
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 0}} =
              ExTypesense.delete_documents_by_query(conn, Person, filter_by: "persons_id:>=0")
 
-    assert {:ok, %Documents{num_deleted: 0}} =
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 0}} =
              ExTypesense.delete_documents_by_query(map_conn, Person, filter_by: "persons_id:>=0")
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: delete documents by query (map)", %{schema: schema} do
     documents = [
       %{
@@ -489,7 +503,7 @@ defmodule DocumentTest do
     assert {:ok, [%{"success" => true}, %{"success" => true}]} =
              ExTypesense.import_documents(schema.name, documents)
 
-    assert {:ok, %Documents{num_deleted: 2}} =
+    assert {:ok, %OpenApiTypesense.Documents{num_deleted: 2}} =
              ExTypesense.delete_documents_by_query(schema.name, filter_by: "doc_companies_id:>=0")
   end
 end

@@ -41,7 +41,7 @@ defmodule CollectionTest do
     :ok
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: create collection", %{schema: schema, conn: conn, map_conn: map_conn} do
     name = schema.name
     prod_name = Product.__schema__(:source)
@@ -83,7 +83,7 @@ defmodule CollectionTest do
     assert {:ok, %CollectionResponse{name: ^prod_name}} = ExTypesense.get_collection(Product)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: list all collections", %{conn: conn, map_conn: map_conn} do
     assert {:ok, _} = ExTypesense.list_collections()
     assert {:ok, _} = ExTypesense.list_collections(exclude_fields: "fields")
@@ -93,7 +93,7 @@ defmodule CollectionTest do
     assert {:ok, _} = ExTypesense.list_collections(map_conn, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: clone collection", %{schema: schema, conn: conn, map_conn: map_conn} do
     name = schema.name
     prod_name = Product.__schema__(:source)
@@ -137,7 +137,7 @@ defmodule CollectionTest do
              ExTypesense.clone_collection(map_conn, Product, "prod_z", [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: create collection with alias", %{schema: schema, conn: conn, map_conn: map_conn} do
     assert {:ok, %CollectionResponse{name: collection_name}} =
              ExTypesense.create_collection_with_alias(schema)
@@ -165,7 +165,7 @@ defmodule CollectionTest do
              ExTypesense.get_collection_alias(Product)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: dropping collection won't affect alias", %{
     schema: schema,
     conn: conn,
@@ -229,7 +229,7 @@ defmodule CollectionTest do
     assert aliases >= 0
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: dropping unknown collection", %{conn: conn, map_conn: map_conn} do
     coll_name = "unknown"
     message = ~s(No collection with name `#{coll_name}` found.)
@@ -249,7 +249,7 @@ defmodule CollectionTest do
     assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(map_conn, Product, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: get unknown collection", %{conn: conn, map_conn: map_conn} do
     assert {:error, %ApiResponse{message: "Not Found"}} = ExTypesense.get_collection("xyz")
     assert {:error, %ApiResponse{message: "Not Found"}} = ExTypesense.get_collection(conn, "xyz")
@@ -266,7 +266,7 @@ defmodule CollectionTest do
              ExTypesense.get_collection(map_conn, Product)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: dropping collection deletes all documents", %{schema: schema} do
     ExTypesense.create_collection(schema)
 
@@ -282,7 +282,7 @@ defmodule CollectionTest do
              ExTypesense.get_document(schema.name, "1")
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: update schema fields", %{schema: schema, conn: conn, map_conn: map_conn} do
     assert {:ok, %CollectionResponse{}} = ExTypesense.create_collection(schema)
 
@@ -340,7 +340,7 @@ defmodule CollectionTest do
     assert test.name === "test"
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: get collection name by alias", %{schema: schema, conn: conn, map_conn: map_conn} do
     name = schema.name
 
@@ -349,16 +349,16 @@ defmodule CollectionTest do
     assert {:ok, %CollectionAlias{name: alias_name}} =
              ExTypesense.upsert_collection_alias(name <> "_alias", name)
 
-    assert {:error, %ApiResponse{message: "Not Found"}} = ExTypesense.get_collection_name("xyz")
-    assert {:ok, _} = ExTypesense.get_collection_name(alias_name)
-    assert {:ok, _} = ExTypesense.get_collection_name(alias_name, [])
-    assert {:ok, _} = ExTypesense.get_collection_name(conn, alias_name)
-    assert {:ok, _} = ExTypesense.get_collection_name(map_conn, alias_name)
-    assert {:ok, _} = ExTypesense.get_collection_name(conn, alias_name, [])
-    assert {:ok, _} = ExTypesense.get_collection_name(map_conn, alias_name, [])
+    assert {:error, %ApiResponse{message: "Not Found"}} = ExTypesense.get_collection_alias("xyz")
+    assert {:ok, _} = ExTypesense.get_collection_alias(alias_name)
+    assert {:ok, _} = ExTypesense.get_collection_alias(alias_name, [])
+    assert {:ok, _} = ExTypesense.get_collection_alias(conn, alias_name)
+    assert {:ok, _} = ExTypesense.get_collection_alias(map_conn, alias_name)
+    assert {:ok, _} = ExTypesense.get_collection_alias(conn, alias_name, [])
+    assert {:ok, _} = ExTypesense.get_collection_alias(map_conn, alias_name, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: create, get, delete alias", %{schema: schema, conn: conn, map_conn: map_conn} do
     name = schema.name
 
