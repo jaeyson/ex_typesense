@@ -7,7 +7,6 @@ defmodule AnalyticsTest do
   alias OpenApiTypesense.AnalyticsRulesRetrieveSchema
   alias OpenApiTypesense.ApiResponse
   alias OpenApiTypesense.CollectionResponse
-  alias OpenApiTypesense.Collections
   alias OpenApiTypesense.Connection
 
   setup_all do
@@ -57,18 +56,18 @@ defmodule AnalyticsTest do
       nohits_queries_schema
     ]
     |> Enum.map(fn schema ->
-      Collections.create_collection(schema)
+      ExTypesense.create_collection(schema)
     end)
 
     on_exit(fn ->
       {:ok, %CollectionResponse{name: ^product_name}} =
-        Collections.delete_collection(product_name)
+        ExTypesense.drop_collection(product_name)
 
       {:ok, %CollectionResponse{name: ^product_queries_name}} =
-        Collections.delete_collection(product_queries_name)
+        ExTypesense.drop_collection(product_queries_name)
 
       {:ok, %CollectionResponse{name: ^nohits_queries_name}} =
-        Collections.delete_collection(nohits_queries_name)
+        ExTypesense.drop_collection(nohits_queries_name)
 
       {:ok, %AnalyticsRulesRetrieveSchema{rules: rules}} = ExTypesense.list_analytics_rules()
       Enum.map(rules, &ExTypesense.delete_analytics_rule(&1.name))
@@ -77,7 +76,7 @@ defmodule AnalyticsTest do
     %{conn: conn, map_conn: map_conn}
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: create analytics rule with non-existent collection", %{
     conn: conn,
     map_conn: map_conn
@@ -91,14 +90,10 @@ defmodule AnalyticsTest do
         "type" => "counter",
         "params" => %{
           "source" => %{
-            "collections" => ["products"],
-            "events" => [
-              %{"type" => "click", "weight" => 1, "name" => "products_downloads_event"}
-            ]
+            "collections" => ["products"]
           },
           "destination" => %{
-            "collection" => collection_name,
-            "counter_field" => "downloads"
+            "collection" => collection_name
           }
         }
       }
@@ -111,7 +106,7 @@ defmodule AnalyticsTest do
     assert {:error, _} = ExTypesense.create_analytics_rule(map_conn, body, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: upsert analytics rule", %{conn: conn, map_conn: map_conn} do
     name = "product_no_hits"
 
@@ -148,7 +143,7 @@ defmodule AnalyticsTest do
              ExTypesense.upsert_analytics_rule(map_conn, name, body, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: create analytics rule with wrong field" do
     name = "products_test_query"
     field_name = "wrong_field"
@@ -174,7 +169,7 @@ defmodule AnalyticsTest do
     assert {:error, %ApiResponse{message: _}} = ExTypesense.create_analytics_rule(body)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: list analytics rules", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %AnalyticsRulesRetrieveSchema{rules: rules}} =
              ExTypesense.list_analytics_rules()
@@ -197,7 +192,7 @@ defmodule AnalyticsTest do
              ExTypesense.list_analytics_rules(map_conn, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": false]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": false]
   test "success (v27.1): create analytics rule and event", %{conn: conn, map_conn: map_conn} do
     name = "product_popularity"
 

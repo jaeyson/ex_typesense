@@ -54,7 +54,7 @@ defmodule SearchTest do
     %{catalog: catalog, coll_name: name, conn: conn, map_conn: map_conn}
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: search a document", %{coll_name: coll_name, conn: conn, map_conn: map_conn} do
     shoes =
       [
@@ -113,7 +113,7 @@ defmodule SearchTest do
     assert {:ok, %SearchResult{found: 2}} = ExTypesense.search(map_conn, Truck, trucks_opts)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: search with empty result", %{coll_name: coll_name} do
     params = %{
       q: "test",
@@ -123,7 +123,7 @@ defmodule SearchTest do
     assert {:ok, %SearchResult{found: 0}} = ExTypesense.search(coll_name, params)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: search with Ecto", %{catalog: catalog, conn: conn, map_conn: map_conn} do
     params = [q: "duck", query_by: "name"]
 
@@ -138,7 +138,7 @@ defmodule SearchTest do
     assert %Ecto.Query{} = ExTypesense.search_ecto(map_conn, Catalog, params)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: multi_search Ecto", %{conn: conn, map_conn: map_conn} do
     searches = [
       %{collection: Catalog, q: "duck", query_by: "name"},
@@ -153,7 +153,7 @@ defmodule SearchTest do
     assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(map_conn, searches, [])
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: search with 1 Ecto query result" do
     catalog = %Catalog{
       name: "Rubber Ducks in Bulk",
@@ -173,7 +173,7 @@ defmodule SearchTest do
              ExTypesense.search_ecto(Catalog, params)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: multi_search string or module collection name" do
     catalog = %Catalog{
       name: "60 Pcs Mini Resin Ducks",
@@ -192,7 +192,7 @@ defmodule SearchTest do
              ExTypesense.multi_search(searches)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: multi_search (vector) with result", %{coll_name: coll_name} do
     shoes =
       [
@@ -244,16 +244,10 @@ defmodule SearchTest do
 
     assert [%{found: _, hits: hits} | _rest] = results
 
-    assert [
-             %{
-               document: %{shoe_type: "athletic"},
-               vector_distance: _some_number
-             }
-             | _rest
-           ] = hits
+    assert [%{document: %{shoe_type: "athletic"}} | _rest] = hits
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: multi-search with no documents", %{conn: conn, map_conn: map_conn} do
     searches = [
       %{"collection" => "shoes", "q" => "Nike", "query_by" => "description"},
@@ -272,7 +266,7 @@ defmodule SearchTest do
     assert {:ok, _} = ExTypesense.multi_search(map_conn, searches, params)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: multi_search with vector_search by an id that doesn't exist", %{
     coll_name: coll_name
   } do
@@ -292,7 +286,7 @@ defmodule SearchTest do
              ExTypesense.multi_search(searches)
   end
 
-  @tag ["27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: search with non-existent collection" do
     params = [q: "duck", query_by: "name"]
 
@@ -353,5 +347,59 @@ defmodule SearchTest do
 
     assert [%ApiResponse{message: "Not found."}, %ApiResponse{message: "Not found."}] =
              ExTypesense.multi_search_ecto(searches)
+  end
+
+  @tag ["28.0": true, "27.1": false, "27.0": false, "26.0": false]
+  test "success: union multi_search", %{conn: conn, coll_name: coll_name} do
+    shoes =
+      [
+        %{
+          "shoes_id" => 582,
+          "shoe_type" => "hiking",
+          "description" => """
+          Merrell Men's Moab 3 Hiking Shoe
+          - Pig suede leather and breathable mesh upper
+          - Protective and abrasion resistant rubber heel and toe cap
+          - Merrell Air Cushion in the heel absorbs shock and adds stability
+          - Super Rebound Compound midsole provides durable shock absorption to help reduce torque and allow for a smooth transition into the midfoot
+          - Vibram TC5+ outsole provides exceptional traction for outdoor multi-sport activities, formulated exclusively for Merrell
+          """,
+          "price" => "usd 76.33",
+          "shoe_description_embedding" => @embedding
+        },
+        %{
+          "shoes_id" => 31,
+          "shoe_type" => "outdoor",
+          "description" => """
+          Oakley LT Assault 2 Boot
+          AR670-1 Compliant
+          """,
+          "price" => "usd 155.00",
+          "shoe_description_embedding" => @embedding
+        }
+      ]
+
+    assert {:ok, [%{"success" => true}, %{"success" => true}]} =
+             ExTypesense.import_documents(coll_name, shoes)
+
+    searches = [
+      %{
+        collection: coll_name,
+        q: "*",
+        filter_by: "shoe_type:outdoor",
+        exclude_fields: "shoe_description_embedding"
+      },
+      %{
+        collection: coll_name,
+        q: "*",
+        filter_by: "shoe_type:hiking",
+        exclude_fields: "shoe_description_embedding"
+      }
+    ]
+
+    assert {:ok, %MultiSearchResult{results: results}} =
+             ExTypesense.multi_search(conn, searches, union: true)
+
+    assert [%{document: %{shoe_type: "hiking"}} | _rest] = results
   end
 end

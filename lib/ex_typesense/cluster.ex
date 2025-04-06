@@ -63,7 +63,7 @@ defmodule ExTypesense.Cluster do
   latencies for all requests in the last 10 seconds.
   """
   @doc since: "0.3.0"
-  @spec api_stats :: {:ok, OpenApiTypesense.APIStatsResponse.t()} | :error
+  @spec api_stats :: {:ok, OpenApiTypesense.ApiStatsResponse.t()} | :error
   def api_stats do
     api_stats([])
   end
@@ -81,7 +81,7 @@ defmodule ExTypesense.Cluster do
   """
   @doc since: "1.0.0"
   @spec api_stats(map() | Connection.t() | keyword()) ::
-          {:ok, OpenApiTypesense.APIStatsResponse.t()} | :error
+          {:ok, OpenApiTypesense.ApiStatsResponse.t()} | :error
   def api_stats(opts) when is_list(opts) do
     Connection.new() |> api_stats(opts)
   end
@@ -101,7 +101,7 @@ defmodule ExTypesense.Cluster do
   """
   @doc since: "1.0.0"
   @spec api_stats(map() | Connection.t(), keyword()) ::
-          {:ok, OpenApiTypesense.APIStatsResponse.t()} | :error
+          {:ok, OpenApiTypesense.ApiStatsResponse.t()} | :error
   def api_stats(conn, opts) do
     OpenApiTypesense.Operations.retrieve_api_stats(conn, opts)
   end
@@ -255,7 +255,7 @@ defmodule ExTypesense.Cluster do
   end
 
   @doc """
-  Same as [clear_cache/0](`clear_cache/0`) but passes another connection.
+  Same as [clear_cache/0](`clear_cache/0`)
 
   ```elixir
   ExTypesense.clear_cache([])
@@ -290,6 +290,56 @@ defmodule ExTypesense.Cluster do
           {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
   def clear_cache(conn, opts) do
     OpenApiTypesense.Operations.clear_cache(conn, opts)
+  end
+
+  @doc """
+  Get the status of in-progress schema change operations
+
+  Returns the status of any ongoing schema change operations. If no schema
+  changes are in progress, returns an empty response.
+  """
+  @doc since: "1.2.0"
+  @spec get_schema_changes :: {:ok, [OpenApiTypesense.SchemaChangeStatus.t()]} | :error
+  def get_schema_changes do
+    get_schema_changes([])
+  end
+
+  @doc """
+  Same as [get_schema_changes/0](`get_schema_changes/0`) but passes another connection.
+
+  ```elixir
+  ExTypesense.get_schema_changes([])
+
+  ExTypesense.get_schema_changes(%{api_key: xyz, host: ...})
+
+  ExTypesense.get_schema_changes(OpenApiTypesense.Connection.new())
+  ```
+  """
+  @doc since: "1.2.0"
+  @spec get_schema_changes(map() | Connection.t() | keyword()) ::
+          {:ok, [OpenApiTypesense.SchemaChangeStatus.t()]} | :error
+  def get_schema_changes(opts) when is_list(opts) do
+    Connection.new() |> get_schema_changes(opts)
+  end
+
+  def get_schema_changes(conn) do
+    get_schema_changes(conn, [])
+  end
+
+  @doc """
+  Same as [get_schema_changes/1](`get_schema_changes/1`) but passes another connection.
+
+  ```elixir
+  ExTypesense.get_schema_changes(%{api_key: xyz, host: ...}, [])
+
+  ExTypesense.get_schema_changes(OpenApiTypesense.Connection.new(), [])
+  ```
+  """
+  @doc since: "1.2.0"
+  @spec get_schema_changes(map() | Connection.t(), keyword()) ::
+          {:ok, [OpenApiTypesense.SchemaChangeStatus.t()]} | :error
+  def get_schema_changes(conn, opts) do
+    OpenApiTypesense.Operations.get_schema_changes(conn, opts)
   end
 
   @doc """

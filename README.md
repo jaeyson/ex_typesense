@@ -32,18 +32,6 @@
       src="https://img.shields.io/badge/hex-docs-lightgreen.svg"
     >
   </a>
-  <a href="https://github.com/jaeyson/ex_typesense/actions/workflows/ci.yml">
-    <img
-      alt="Github actions workflow badge"
-      src="https://github.com/jaeyson/ex_typesense/actions/workflows/ci.yml/badge.svg"
-    >
-  </a>
-  <a href="https://typesense.org/docs/27.1/api">
-    <img
-      alt="Latest Typesense version compatible badge"
-      src="https://img.shields.io/badge/Typesense-v26.0_%7C_v27.0_%7C_v27.1-darkblue"
-    >
-  </a>
   <a href="https://coveralls.io/github/jaeyson/ex_typesense?branch=main">
     <img
       alt="Test coverage badge"
@@ -60,6 +48,33 @@
     <img
       alt="CodeScene Average Code Health"
       src="https://codescene.io/projects/63244/status-badges/average-code-health"
+    >
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v28.0.yml">
+    <img
+      alt="CI for v28.0"
+      src="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v28.0.yml/badge.svg"
+    >
+  </a>
+  <a href="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v27.1.yml">
+    <img
+      alt="CI for v27.1"
+      src="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v27.1.yml/badge.svg"
+    >
+  </a>
+  <a href="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v27.0.yml">
+    <img
+      alt="CI for v27.0"
+      src="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v27.0.yml/badge.svg"
+    >
+  </a>
+  <a href="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v26.0.yml">
+    <img
+      alt="CI for v26.0"
+      src="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v26.0.yml/badge.svg"
     >
   </a>
 </p>
@@ -85,7 +100,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 1.1"}
+    {:ex_typesense, "~> 1.2"}
 
     # Or from GitHub repository, if you want the latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}

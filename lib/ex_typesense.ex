@@ -118,15 +118,6 @@ defmodule ExTypesense do
   defdelegate get_collection(conn, coll_name), to: ExTypesense.Collection
   defdelegate get_collection(conn, coll_name, opts), to: ExTypesense.Collection
 
-  @deprecated "Use Collection.get_collection_alias/1 instead"
-  defdelegate get_collection_name(alias_name), to: ExTypesense.Collection
-
-  @deprecated "Use Collection.get_collection_alias/2 instead"
-  defdelegate get_collection_name(conn, alias_name), to: ExTypesense.Collection
-
-  @deprecated "Use Collection.get_collection_alias/3 instead"
-  defdelegate get_collection_name(conn, alias_name, opts), to: ExTypesense.Collection
-
   defdelegate drop_collection(name), to: ExTypesense.Collection
   defdelegate drop_collection(conn, name), to: ExTypesense.Collection
   defdelegate drop_collection(conn, name, opts), to: ExTypesense.Collection
@@ -402,6 +393,23 @@ defmodule ExTypesense do
   ##########################################################
 
   ##########################################################
+  # start stemming
+  ##########################################################
+  defdelegate get_stemming_dictionary(dictionary_id), to: ExTypesense.Stemming
+  defdelegate get_stemming_dictionary(conn, dictionary_id), to: ExTypesense.Stemming
+  defdelegate get_stemming_dictionary(conn, dictionary_id, opts), to: ExTypesense.Stemming
+
+  defdelegate import_stemming_dictionary(body, opts), to: ExTypesense.Stemming
+  defdelegate import_stemming_dictionary(conn, body, opts), to: ExTypesense.Stemming
+
+  defdelegate list_stemming_dictionaries(), to: ExTypesense.Stemming
+  defdelegate list_stemming_dictionaries(conn_or_opts), to: ExTypesense.Stemming
+  defdelegate list_stemming_dictionaries(conn, opts), to: ExTypesense.Stemming
+  ##########################################################
+  # end stemming
+  ##########################################################
+
+  ##########################################################
   # start cluster operations
   ##########################################################
   defdelegate api_stats, to: ExTypesense.Cluster
@@ -426,6 +434,10 @@ defmodule ExTypesense do
   defdelegate clear_cache, to: ExTypesense.Cluster
   defdelegate clear_cache(conn_or_opts), to: ExTypesense.Cluster
   defdelegate clear_cache(conn, opts), to: ExTypesense.Cluster
+
+  defdelegate get_schema_changes, to: ExTypesense.Cluster
+  defdelegate get_schema_changes(conn_or_opts), to: ExTypesense.Cluster
+  defdelegate get_schema_changes(conn, opts), to: ExTypesense.Cluster
 
   defdelegate toggle_slow_request_log(config), to: ExTypesense.Cluster
   defdelegate toggle_slow_request_log(conn, config), to: ExTypesense.Cluster

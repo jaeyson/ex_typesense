@@ -89,7 +89,7 @@ defmodule ExTypesense.Search do
   end
 
   def search(conn, coll_name, opts) do
-    OpenApiTypesense.Documents.search(conn, coll_name, opts)
+    OpenApiTypesense.Documents.search_collection(conn, coll_name, opts)
   end
 
   @doc """
@@ -163,6 +163,8 @@ defmodule ExTypesense.Search do
     * `x-typesense-api-key`: You can embed a separate search API key for each search
     within a multi_search request. This is useful when you want to apply different
     embedded filters for each collection in individual scoped API keys.
+    * `union`: When true, merges the search results from each search query into a
+    single ordered set of hits. Default `false`
 
   ## Examples
       iex> searches = [
@@ -273,6 +275,8 @@ defmodule ExTypesense.Search do
           {:ok, OpenApiTypesense.MultiSearchResult.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def multi_search(conn, searches, opts) do
+    union = Keyword.get(opts, :union) === true
+
     searches =
       Enum.map(searches, fn search ->
         if Map.has_key?(search, :collection) do
@@ -296,7 +300,7 @@ defmodule ExTypesense.Search do
         end
       end)
 
-    OpenApiTypesense.Documents.multi_search(conn, %{searches: searches}, opts)
+    OpenApiTypesense.Documents.multi_search(conn, %{union: union, searches: searches}, opts)
   end
 
   @doc """
