@@ -388,11 +388,17 @@ defmodule SearchTest do
         q: "outdoor",
         query_by: "shoe_type",
         exclude_fields: "shoe_description_embedding"
+      },
+      %{
+        collection: coll_name,
+        q: "merrell",
+        query_by: "shoe_type",
+        exclude_fields: "shoe_description_embedding"
       }
     ]
 
     assert {:ok, %MultiSearchResult{results: results}} =
-             ExTypesense.multi_search(conn, searches)
+             ExTypesense.multi_search(conn, searches, union: true)
 
     assert [%{found: _, hits: hits} | _rest] = results
 
