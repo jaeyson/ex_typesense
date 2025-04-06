@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-* `ExTypesense.get_collection_name`
+* `ExTypesense.get_collection_name`, use `ExTypesense.get_collection_alias`
 
 ## 1.1.1 (2025.03.26)
 
