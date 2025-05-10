@@ -147,10 +147,9 @@ defmodule DocumentTest do
   test "success: adding unknown field", %{document: document} do
     document = Map.put(document, :unknown_field, "unknown_value")
 
-    assert {:ok, %{id: id, collection_name: collection_name}} =
-             ExTypesense.index_document(document)
+    assert {:ok, %{id: id}} = ExTypesense.index_document(document)
 
-    assert {:ok, %{id: ^id}} = ExTypesense.get_document(collection_name, id)
+    assert {:ok, %{id: ^id}} = ExTypesense.get_document(document.collection_name, id)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]

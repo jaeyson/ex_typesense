@@ -267,12 +267,9 @@ iex> post = Post |> limit(1) |> Repo.one()
 
 iex> ExTypesense.update_document(post, 0)
 {:ok,
-  %{
-    id: "0",
-    collection_name: "posts",
-    posts_id: 34,
-    title: "test",
-    description: "lorem ipsum"
+  %OpenApiTypesense.Documents{
+    num_deleted: nil,
+    num_updated: 1
   }
 }
 ```
