@@ -153,6 +153,27 @@ defmodule DocumentTest do
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  test "error: collection_name field removed in return value when indexing or updating", %{
+    document: document
+  } do
+    document = Map.put(document, :company_name, "Index Industries")
+    assert {:ok, %{id: id} = map} = ExTypesense.index_document(document)
+    refute Map.has_key?(map, :collection_name)
+
+    company_name = "Update Industries"
+
+    updated_document =
+      document
+      |> Map.put(:company_name, company_name)
+      |> Map.put(:id, id)
+
+    assert {:ok, %{id: ^id, company_name: ^company_name} = updated_map} =
+             ExTypesense.update_document(updated_document)
+
+    refute Map.has_key?(updated_map, :collection_name)
+  end
+
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: upsert to update a document", %{document: document} do
     assert {:ok, %{id: id}} = ExTypesense.index_document(document)
     company_name = "Stark Industries"
