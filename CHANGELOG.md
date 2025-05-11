@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
+## 1.2.1 (2025.05.11)
+
+### Fixed
+
+* Remove `collection_name` field in return value when indexing or updating a document via map. [Issue #77](https://github.com/jaeyson/ex_typesense/issues/77) [PR #78](https://github.com/jaeyson/ex_typesense/pull/78) 
+
 ## 1.2.0 (2025.04.06)
 
 ### Added

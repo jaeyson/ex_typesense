@@ -362,11 +362,14 @@ defmodule ExTypesense.Document do
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
   def index_document(conn, collection_name, body, opts)
       when is_binary(collection_name) and is_map(body) and is_list(opts) do
+    body = Map.drop(body, ["collection_name", :collection_name])
     OpenApiTypesense.Documents.index_document(conn, collection_name, body, opts)
   end
 
   @doc """
   Update an single document using struct or map. The update can be partial.
+
+  **Note**: the return type for struct and map are different. See examples below.
 
   > #### indexing your document as a map {: .info}
   >
@@ -411,6 +414,12 @@ defmodule ExTypesense.Document do
 
       iex> person = Accounts.fetch_person!(12)
       ...> ExTypesense.update_document(person)
+      {:ok,
+        %OpenApiTypesense.Documents{
+          num_deleted: nil,
+          num_updated: 1
+        }
+      }
   """
   @doc since: "1.0.0"
   @spec update_document(struct() | map()) ::
@@ -463,6 +472,7 @@ defmodule ExTypesense.Document do
   def update_document(conn, document, opts) when is_map(document) do
     coll_name = Map.get(document, "collection_name") || Map.get(document, :collection_name)
     doc_id = Map.get(document, "id") || Map.get(document, :id)
+    document = Map.drop(document, ["collection_name", :collection_name])
     OpenApiTypesense.Documents.update_document(conn, coll_name, doc_id, document, opts)
   end
 
