@@ -90,7 +90,7 @@
 >
 > Purpose of v2 is to reduce code duplication (from v1) and to streamline
 > passing of options (including `conn`). The breaking change here
-> is `conn` is now part of `opts`. > when calling functions, see
+> is that `conn` is now part of `opts`. > when calling functions, see
 > example below:
 
 ```elixir
