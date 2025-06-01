@@ -88,24 +88,22 @@
 
 > #### Upgrading to v2 {: .warning}
 >
-> Purpose of v2 is to reduce code duplication and to streamline
+> Purpose of v2 is to reduce code duplication (from v1) and to streamline
 > passing of options (including `conn`). The breaking change here
 > is `conn` is now part of `opts`. > when calling functions, see
 > example below:
 
 ```elixir
-# pre-v1
+# pre-v2
 Collections.get_collections(conn, opts)
 
-# v1
+# v2
 Collections.get_collections(conn: conn)
 
-# another way (v1)
+# another way (v2)
 opts = [limit: 1, conn: conn]
 Collections.get_collections(opts)
 ```
-
-> #### upgrading to `1.0.0` contains **LOTS** of breaking changes. {: .warning}
 
 ## Installation
 
@@ -119,7 +117,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 1.2"}
+    {:ex_typesense, "~> 2.0"}
 
     # Or from GitHub repository, if you want the latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}
