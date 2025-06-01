@@ -5,8 +5,6 @@ defmodule ExTypesense.Debug do
   Provides API endpoint related to debug
   """
 
-  alias OpenApiTypesense.Connection
-
   @doc """
   Print debugging information
   """
@@ -19,34 +17,22 @@ defmodule ExTypesense.Debug do
   @doc """
   Same as [debug/0](`debug/0`)
 
-  ```elixir
-  ExTypesense.debug([])
+  ## Options
 
-  ExTypesense.debug(%{api_key: xyz, host: ...})
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.debug(OpenApiTypesense.Connection.new())
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.debug(conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.debug(conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.debug(opts)
   """
-  @spec debug(map() | Connection.t() | keyword()) :: {:ok, map()} | :error
-  def debug(opts) when is_list(opts) do
-    Connection.new() |> debug()
-  end
-
-  def debug(conn) do
-    debug(conn, [])
-  end
-
-  @doc """
-  Same as [debug/1](`debug/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.debug(%{api_key: xyz, host: ...}, [])
-
-  ExTypesense.debug(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @spec debug(map() | Connection.t(), keyword()) :: {:ok, map()} | :error
-  def debug(conn, opts) do
-    OpenApiTypesense.Debug.debug(conn, opts)
+  @spec debug(keyword()) :: {:ok, map()} | :error
+  def debug(opts) do
+    OpenApiTypesense.Debug.debug(opts)
   end
 end

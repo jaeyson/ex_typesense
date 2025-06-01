@@ -7,8 +7,6 @@ defmodule ExTypesense.Stemming do
   More here: https://typesense.org/docs/latest/api/stemming.html
   """
 
-  alias OpenApiTypesense.Connection
-
   @doc """
   Retrieve a stemming dictionary
 
@@ -25,41 +23,26 @@ defmodule ExTypesense.Stemming do
   @doc """
   Same as [get_stemming_dictionary/1](`get_stemming_dictionary/1`)
 
-  ```elixir
-  ExTypesense.get_stemming_dictionary(dictionary_id, [])
+  ## Options
 
-  ExTypesense.get_stemming_dictionary(%{api_key: xyz, host: ...}, dictionary_id)
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.get_stemming_dictionary(OpenApiTypesense.Connection.new(), dictionary_id)
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.get_stemming_dictionary(dictionary_id, conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.get_stemming_dictionary(dictionary_id, conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.get_stemming_dictionary(dictionary_id, opts)
   """
   @doc since: "1.2.0"
-  @spec get_stemming_dictionary(map() | Connection.t() | String.t(), String.t() | keyword()) ::
+  @spec get_stemming_dictionary(String.t(), keyword()) ::
           {:ok, OpenApiTypesense.StemmingDictionary.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
-  def get_stemming_dictionary(dictionary_id, opts) when is_list(opts) do
-    get_stemming_dictionary(Connection.new(), dictionary_id, opts)
-  end
-
-  def get_stemming_dictionary(conn, dictionary_id) do
-    get_stemming_dictionary(conn, dictionary_id, [])
-  end
-
-  @doc """
-  Same as [get_stemming_dictionary/2](`get_stemming_dictionary/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.get_stemming_dictionary(%{api_key: xyz, host: ...}, dictionary_id, [])
-
-  ExTypesense.get_stemming_dictionary(OpenApiTypesense.Connection.new(), dictionary_id, [])
-  ```
-  """
-  @doc since: "1.2.0"
-  @spec get_stemming_dictionary(map() | Connection.t(), String.t(), keyword()) ::
-          {:ok, OpenApiTypesense.StemmingDictionary.t()}
-          | {:error, OpenApiTypesense.ApiResponse.t()}
-  def get_stemming_dictionary(conn, dictionary_id, opts) do
-    OpenApiTypesense.Stemming.get_stemming_dictionary(conn, dictionary_id, opts)
+  def get_stemming_dictionary(dictionary_id, opts) do
+    OpenApiTypesense.Stemming.get_stemming_dictionary(dictionary_id, opts)
   end
 
   @doc """
@@ -67,6 +50,7 @@ defmodule ExTypesense.Stemming do
 
   ## Options
 
+    * `conn`: The custom connection map or struct you passed
     * `id`: The ID to assign to the dictionary
 
   ## Example
@@ -76,26 +60,21 @@ defmodule ExTypesense.Stemming do
       ...>   %{"word" => "geese", "root" => "goose"}
       ...> ]
       iex> ExTypesense.import_stemming_dictionary(body, id: "irregular-plurals")
+
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.import_stemming_dictionary(body, id: "irregular-plurals", conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.import_stemming_dictionary(body, id: "irregular-plurals", conn: conn)
+
+      iex> opts = [id: "irregular-plurals", conn: conn]
+      iex> ExTypesense.import_stemming_dictionary(body, opts)
   """
   @doc since: "1.2.0"
   @spec import_stemming_dictionary(list(map()), keyword()) ::
           {:ok, String.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def import_stemming_dictionary(body, opts) when is_list(opts) do
-    Connection.new() |> import_stemming_dictionary(body, opts)
-  end
-
-  @doc """
-  Same as [import_stemming_dictionary/2](`import_stemming_dictionary/2`) but passes another connection.
-
-  Either one of:
-  - `import_stemming_dictionary(%{api_key: xyz, host: ...}, body, id: "something")`
-  - `import_stemming_dictionary(dictionary_id, Connection.new(), body, id: "some-id")`
-  """
-  @doc since: "1.2.0"
-  @spec import_stemming_dictionary(map() | Connection.t(), list(map()), keyword()) ::
-          {:ok, String.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def import_stemming_dictionary(conn, body, opts) do
-    OpenApiTypesense.Stemming.import_stemming_dictionary(conn, body, opts)
+  def import_stemming_dictionary(body, opts) do
+    OpenApiTypesense.Stemming.import_stemming_dictionary(body, opts)
   end
 
   @doc """
@@ -111,38 +90,24 @@ defmodule ExTypesense.Stemming do
   @doc """
   Same as [list_stemming_dictionaries/0](`list_stemming_dictionaries/0`)
 
-  ```elixir
-  ExTypesense.list_stemming_dictionaries([])
+  ## Options
 
-  ExTypesense.list_stemming_dictionaries(%{api_key: xyz, host: ...})
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.list_stemming_dictionaries(OpenApiTypesense.Connection.new())
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.list_stemming_dictionaries(conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.list_stemming_dictionaries(conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.list_stemming_dictionaries(opts)
   """
   @doc since: "1.2.0"
-  @spec list_stemming_dictionaries(map() | Connection.t() | keyword()) ::
+  @spec list_stemming_dictionaries(keyword()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def list_stemming_dictionaries(opts) when is_list(opts) do
-    list_stemming_dictionaries(Connection.new(), opts)
-  end
-
-  def list_stemming_dictionaries(conn) do
-    list_stemming_dictionaries(conn, [])
-  end
-
-  @doc """
-  Same as [list_stemming_dictionaries/1](`list_stemming_dictionaries/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.list_stemming_dictionaries(%{api_key: xyz, host: ...}, [])
-
-  ExTypesense.list_stemming_dictionaries(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @doc since: "1.2.0"
-  @spec list_stemming_dictionaries(map() | Connection.t(), keyword()) ::
-          {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def list_stemming_dictionaries(conn, opts) do
-    OpenApiTypesense.Stemming.list_stemming_dictionaries(conn, opts)
+  def list_stemming_dictionaries(opts) do
+    OpenApiTypesense.Stemming.list_stemming_dictionaries(opts)
   end
 end

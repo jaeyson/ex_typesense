@@ -91,10 +91,19 @@ defmodule SearchTest do
              ExTypesense.import_documents(coll_name, shoes)
 
     shoes_opts = [q: "sheepskin", query_by: "description", enable_analytics: false]
-
     assert {:ok, %SearchResult{found: 2}} = ExTypesense.search(coll_name, shoes_opts)
-    assert {:ok, _} = ExTypesense.search(conn, coll_name, shoes_opts)
-    assert {:ok, _} = ExTypesense.search(map_conn, coll_name, shoes_opts)
+
+    shoes_opts = [q: "sheepskin", query_by: "description", enable_analytics: false, conn: conn]
+    assert {:ok, _} = ExTypesense.search(coll_name, shoes_opts)
+
+    shoes_opts = [
+      q: "sheepskin",
+      query_by: "description",
+      enable_analytics: false,
+      conn: map_conn
+    ]
+
+    assert {:ok, _} = ExTypesense.search(coll_name, shoes_opts)
 
     trucks = [
       %Truck{name: "pickup", trucks_id: 902},
@@ -107,35 +116,37 @@ defmodule SearchTest do
     assert {:ok, _} = ExTypesense.import_documents(Truck, trucks)
 
     trucks_opts = [q: "pickup", query_by: "name", enable_analytics: false]
-
     assert {:ok, %SearchResult{found: 2}} = ExTypesense.search(Truck, trucks_opts)
-    assert {:ok, %SearchResult{found: 2}} = ExTypesense.search(conn, Truck, trucks_opts)
-    assert {:ok, %SearchResult{found: 2}} = ExTypesense.search(map_conn, Truck, trucks_opts)
+
+    trucks_opts = [q: "pickup", query_by: "name", enable_analytics: false, conn: conn]
+    assert {:ok, %SearchResult{found: 2}} = ExTypesense.search(Truck, trucks_opts)
+
+    trucks_opts = [q: "pickup", query_by: "name", enable_analytics: false, conn: map_conn]
+    assert {:ok, %SearchResult{found: 2}} = ExTypesense.search(Truck, trucks_opts)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: search with empty result", %{coll_name: coll_name} do
-    params = %{
-      q: "test",
-      query_by: "shoe_type"
-    }
-
-    assert {:ok, %SearchResult{found: 0}} = ExTypesense.search(coll_name, params)
+    opts = [q: "test", query_by: "shoe_type"]
+    assert {:ok, %SearchResult{found: 0}} = ExTypesense.search(coll_name, opts)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: search with Ecto", %{catalog: catalog, conn: conn, map_conn: map_conn} do
-    params = [q: "duck", query_by: "name"]
-
     catalog_coll_name = Catalog.__schema__(:source)
 
     assert %Ecto.Query{} = Catalog |> where([p], p.id in ^[catalog.catalogs_id])
 
-    assert %Ecto.Query{from: %Ecto.Query.FromExpr{source: {^catalog_coll_name, _}}} =
-             ExTypesense.search_ecto(Catalog, params)
+    opts = [q: "duck", query_by: "name"]
 
-    assert %Ecto.Query{} = ExTypesense.search_ecto(conn, Catalog, params)
-    assert %Ecto.Query{} = ExTypesense.search_ecto(map_conn, Catalog, params)
+    assert %Ecto.Query{from: %Ecto.Query.FromExpr{source: {^catalog_coll_name, _}}} =
+             ExTypesense.search_ecto(Catalog, opts)
+
+    opts = [q: "duck", query_by: "name", conn: conn]
+    assert %Ecto.Query{} = ExTypesense.search_ecto(Catalog, opts)
+
+    opts = [q: "duck", query_by: "name", conn: map_conn]
+    assert %Ecto.Query{} = ExTypesense.search_ecto(Catalog, opts)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -147,10 +158,8 @@ defmodule SearchTest do
 
     assert [%Ecto.Query{}, %Ecto.Query{}] = ExTypesense.multi_search_ecto(searches)
     assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(searches, [])
-    assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(conn, searches)
-    assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(map_conn, searches)
-    assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(conn, searches, [])
-    assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(map_conn, searches, [])
+    assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(searches, conn: conn)
+    assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(searches, conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -163,14 +172,14 @@ defmodule SearchTest do
 
     assert {:ok, _} = ExTypesense.index_document(catalog)
 
-    params = [q: "bulk", query_by: "name"]
+    opts = [q: "bulk", query_by: "name"]
 
     coll_name = Catalog.__schema__(:source)
 
-    assert {:ok, %SearchResult{found: 1}} = ExTypesense.search(Catalog, params)
+    assert {:ok, %SearchResult{found: 1}} = ExTypesense.search(Catalog, opts)
 
     assert %Ecto.Query{from: %Ecto.Query.FromExpr{source: {^coll_name, nil}}} =
-             ExTypesense.search_ecto(Catalog, params)
+             ExTypesense.search_ecto(Catalog, opts)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -257,13 +266,14 @@ defmodule SearchTest do
     assert {:ok, %MultiSearchResult{results: [%{found: 0}, %{found: 0}]}} =
              ExTypesense.multi_search(searches)
 
-    params = [enable_analytics: false]
+    opts = [enable_analytics: false]
+    assert {:ok, _} = ExTypesense.multi_search(searches, opts)
 
-    assert {:ok, _} = ExTypesense.multi_search(searches, params)
-    assert {:ok, _} = ExTypesense.multi_search(conn, searches)
-    assert {:ok, _} = ExTypesense.multi_search(map_conn, searches)
-    assert {:ok, _} = ExTypesense.multi_search(conn, searches, params)
-    assert {:ok, _} = ExTypesense.multi_search(map_conn, searches, params)
+    opts = [enable_analytics: false, conn: conn]
+    assert {:ok, _} = ExTypesense.multi_search(searches, opts)
+
+    opts = [enable_analytics: false, conn: map_conn]
+    assert {:ok, _} = ExTypesense.multi_search(searches, opts)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -288,12 +298,11 @@ defmodule SearchTest do
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: search with non-existent collection" do
-    params = [q: "duck", query_by: "name"]
-
+    opts = [q: "duck", query_by: "name"]
     message = "Not found."
 
-    assert {:error, %ApiResponse{message: ^message}} = ExTypesense.search("test", params)
-    assert {:error, %ApiResponse{message: ^message}} = ExTypesense.search_ecto("test", params)
+    assert {:error, %ApiResponse{message: ^message}} = ExTypesense.search("test", opts)
+    assert {:error, %ApiResponse{message: ^message}} = ExTypesense.search_ecto("test", opts)
 
     defmodule Test do
       use Ecto.Schema
@@ -350,7 +359,7 @@ defmodule SearchTest do
   end
 
   @tag ["28.0": true, "27.1": false, "27.0": false, "26.0": false]
-  test "success: union multi_search", %{conn: conn, coll_name: coll_name} do
+  test "success: union multi_search", %{conn: conn, map_conn: map_conn, coll_name: coll_name} do
     shoes =
       [
         %{
@@ -397,8 +406,11 @@ defmodule SearchTest do
       }
     ]
 
+    assert {:ok, %MultiSearchResult{results: _results}} =
+             ExTypesense.multi_search(searches, union: true, conn: conn)
+
     assert {:ok, %MultiSearchResult{results: results}} =
-             ExTypesense.multi_search(conn, searches, union: true)
+             ExTypesense.multi_search(searches, union: true, conn: map_conn)
 
     assert [%{document: %{shoe_type: "hiking"}} | _rest] = results
   end

@@ -45,10 +45,8 @@ defmodule SynonymTest do
     assert {:ok, %SearchSynonym{id: ^synonym_id}} =
              ExTypesense.upsert_synonym(coll_name, synonym_id, body)
 
-    assert {:ok, _} = ExTypesense.upsert_synonym(conn, coll_name, synonym_id, body)
-    assert {:ok, _} = ExTypesense.upsert_synonym(map_conn, coll_name, synonym_id, body)
-    assert {:ok, _} = ExTypesense.upsert_synonym(conn, coll_name, synonym_id, body, [])
-    assert {:ok, _} = ExTypesense.upsert_synonym(map_conn, coll_name, synonym_id, body, [])
+    assert {:ok, _} = ExTypesense.upsert_synonym(coll_name, synonym_id, body, conn: conn)
+    assert {:ok, _} = ExTypesense.upsert_synonym(coll_name, synonym_id, body, conn: map_conn)
 
     body = %{
       "root" => "sedan",
@@ -61,24 +59,18 @@ defmodule SynonymTest do
              ExTypesense.upsert_synonym(Car, synonym_id, body)
 
     assert {:ok, _} = ExTypesense.upsert_synonym(Car, synonym_id, body, [])
-    assert {:ok, _} = ExTypesense.upsert_synonym(conn, Car, synonym_id, body)
-    assert {:ok, _} = ExTypesense.upsert_synonym(map_conn, Car, synonym_id, body)
-    assert {:ok, _} = ExTypesense.upsert_synonym(conn, Car, synonym_id, body, [])
-    assert {:ok, _} = ExTypesense.upsert_synonym(map_conn, Car, synonym_id, body, [])
+    assert {:ok, _} = ExTypesense.upsert_synonym(Car, synonym_id, body, conn: conn)
+    assert {:ok, _} = ExTypesense.upsert_synonym(Car, synonym_id, body, conn: map_conn)
 
     assert {:ok, %SearchSynonymsResponse{}} = ExTypesense.list_synonyms(coll_name)
     assert {:ok, _} = ExTypesense.list_synonyms(coll_name, [])
-    assert {:ok, _} = ExTypesense.list_synonyms(conn, coll_name)
-    assert {:ok, _} = ExTypesense.list_synonyms(map_conn, coll_name)
-    assert {:ok, _} = ExTypesense.list_synonyms(conn, coll_name, [])
-    assert {:ok, _} = ExTypesense.list_synonyms(map_conn, coll_name, [])
+    assert {:ok, _} = ExTypesense.list_synonyms(coll_name, conn: conn)
+    assert {:ok, _} = ExTypesense.list_synonyms(coll_name, conn: map_conn)
 
     assert {:ok, %SearchSynonymsResponse{}} = ExTypesense.list_synonyms(Car)
     assert {:ok, _} = ExTypesense.list_synonyms(Car, [])
-    assert {:ok, _} = ExTypesense.list_synonyms(conn, Car)
-    assert {:ok, _} = ExTypesense.list_synonyms(map_conn, Car)
-    assert {:ok, _} = ExTypesense.list_synonyms(conn, Car, [])
-    assert {:ok, _} = ExTypesense.list_synonyms(map_conn, Car, [])
+    assert {:ok, _} = ExTypesense.list_synonyms(Car, conn: conn)
+    assert {:ok, _} = ExTypesense.list_synonyms(Car, conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -95,19 +87,17 @@ defmodule SynonymTest do
 
     assert {:ok, %SearchSynonym{id: ^syn_id}} = ExTypesense.get_synonym(coll_name, syn_id)
     assert {:ok, _} = ExTypesense.get_synonym(coll_name, syn_id, [])
-    assert {:ok, _} = ExTypesense.get_synonym(conn, coll_name, syn_id)
-    assert {:ok, _} = ExTypesense.get_synonym(map_conn, coll_name, syn_id)
-    assert {:ok, _} = ExTypesense.get_synonym(conn, coll_name, syn_id, [])
-    assert {:ok, _} = ExTypesense.get_synonym(map_conn, coll_name, syn_id, [])
+    assert {:ok, _} = ExTypesense.get_synonym(coll_name, syn_id, conn: conn)
+    assert {:ok, _} = ExTypesense.get_synonym(coll_name, syn_id, conn: map_conn)
 
     assert {:ok, %SearchSynonymDeleteResponse{id: ^syn_id}} =
              ExTypesense.delete_synonym(coll_name, syn_id)
 
     assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(coll_name, syn_id, [])
-    assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(conn, coll_name, syn_id)
-    assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(map_conn, coll_name, syn_id)
-    assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(conn, coll_name, syn_id, [])
-    assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(map_conn, coll_name, syn_id, [])
+    assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(coll_name, syn_id, conn: conn)
+
+    assert {:error, %ApiResponse{}} =
+             ExTypesense.delete_synonym(coll_name, syn_id, conn: map_conn)
 
     body = %{
       "root" => "sedan",
@@ -119,18 +109,14 @@ defmodule SynonymTest do
     assert {:ok, %SearchSynonym{id: ^syn_id}} = ExTypesense.upsert_synonym(Car, syn_id, body)
     assert {:ok, %SearchSynonym{id: ^syn_id}} = ExTypesense.get_synonym(Car, syn_id)
     assert {:ok, _} = ExTypesense.get_synonym(Car, syn_id, [])
-    assert {:ok, _} = ExTypesense.get_synonym(conn, Car, syn_id)
-    assert {:ok, _} = ExTypesense.get_synonym(map_conn, Car, syn_id)
-    assert {:ok, _} = ExTypesense.get_synonym(conn, Car, syn_id, [])
-    assert {:ok, _} = ExTypesense.get_synonym(map_conn, Car, syn_id, [])
+    assert {:ok, _} = ExTypesense.get_synonym(Car, syn_id, conn: conn)
+    assert {:ok, _} = ExTypesense.get_synonym(Car, syn_id, conn: map_conn)
 
     assert {:ok, %SearchSynonymDeleteResponse{id: ^syn_id}} =
              ExTypesense.delete_synonym(Car, syn_id)
 
     assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(Car, syn_id, [])
-    assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(conn, Car, syn_id)
-    assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(map_conn, Car, syn_id)
-    assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(conn, Car, syn_id, [])
-    assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(map_conn, Car, syn_id, [])
+    assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(Car, syn_id, conn: conn)
+    assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(Car, syn_id, conn: map_conn)
   end
 end

@@ -6,7 +6,6 @@ defmodule ExTypesense.Search do
   More here: https://typesense.org/docs/latest/api/search.html
   """
 
-  alias OpenApiTypesense.Connection
   alias OpenApiTypesense.MultiSearchResult
   alias OpenApiTypesense.SearchResult
 
@@ -14,10 +13,14 @@ defmodule ExTypesense.Search do
 
   @doc """
   Search from a document or Ecto Schema.
-  Search params can be found [here](https://typesense.org/docs/latest/api/search.html#search-parameters).
+
+  ## Options
+
+    * `conn`: The custom connection map or struct you passed
+    * Search params can be found [here](https://typesense.org/docs/latest/api/search.html#search-parameters).
 
   ## Examples
-      iex> params = %{q: "umbrella", query_by: "title,description"}
+      iex> params = [q: "umbrella", query_by: "title,description"]
       iex> ExTypesense.search(Catalog, params)
       {:ok,
        %OpenApiTypesense.SearchResult{
@@ -63,68 +66,54 @@ defmodule ExTypesense.Search do
        }
       }
 
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.search("companies", conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.search("companies", conn: conn)
+
+      iex> opts = [conn: conn, q: "hat", ...]
+      iex> ExTypesense.search("companies", opts)
   """
   @doc since: "1.0.0"
   @spec search(String.t() | module(), keyword()) ::
           {:ok, OpenApiTypesense.SearchResult.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def search(coll_name, opts) do
-    Connection.new() |> search(coll_name, opts)
-  end
-
-  @doc """
-  Same as [search/2](`search/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.search(%{api_key: xyz, host: ...}, "companies", opts)
-
-  ExTypesense.search(OpenApiTypesense.Connection.new(), "companies", opts)
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec search(map() | Connection.t(), String.t() | module(), keyword()) ::
-          {:ok, OpenApiTypesense.SearchResult.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def search(conn, module, opts) when is_atom(module) do
+  def search(module, opts) when is_atom(module) do
     coll_name = module.__schema__(:source)
-    search(conn, coll_name, opts)
+    search(coll_name, opts)
   end
 
-  def search(conn, coll_name, opts) do
-    OpenApiTypesense.Documents.search_collection(conn, coll_name, opts)
+  def search(coll_name, opts) when is_binary(coll_name) do
+    OpenApiTypesense.Documents.search_collection(coll_name, opts)
   end
 
   @doc """
   Same as [search/2](`search/2`) but matches Ecto record(s) and returns struct(s).
 
-  ```elixir
-  ExTypesense.search_ecto("companies", opts)
-  ```
+  ## Options
+
+    * `conn`: The custom connection map or struct you passed
+
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.search_ecto("companies", conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.search_ecto("companies", conn: conn)
+
+      iex> opts = [conn: conn, ...]
+      iex> ExTypesense.search_ecto("companies", opts)
   """
   @doc since: "1.0.0"
   @spec search_ecto(String.t() | module(), keyword()) ::
           Ecto.Query.t() | {:error, OpenApiTypesense.ApiResponse.t()}
-  def search_ecto(coll_name, opts) do
-    Connection.new() |> search_ecto(coll_name, opts)
-  end
-
-  @doc """
-  Same as [search_ecto/2](`search_ecto/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.search_ecto(%{api_key: xyz, host: ...}, "companies", opts)
-
-  ExTypesense.search_ecto(OpenApiTypesense.Connection.new(), "companies", opts)
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec search_ecto(map() | Connection.t(), String.t() | module(), keyword()) ::
-          Ecto.Query.t() | {:error, OpenApiTypesense.ApiResponse.t()}
-  def search_ecto(conn, module, opts) when is_atom(module) do
+  def search_ecto(module, opts) when is_atom(module) do
     coll_name = module.__schema__(:source)
-    search_ecto(conn, coll_name, opts)
+    search_ecto(coll_name, opts)
   end
 
-  def search_ecto(conn, coll_name, opts) do
-    case search(conn, coll_name, opts) do
+  def search_ecto(coll_name, opts) when is_binary(coll_name) do
+    case search(coll_name, opts) do
       {:ok, %SearchResult{} = result} ->
         hits_to_query(result.hits, coll_name)
 
@@ -158,6 +147,7 @@ defmodule ExTypesense.Search do
 
   ## Options
 
+    * `conn`: The custom connection map or struct you passed
     * `limit_multi_searches`: Max number of search requests that can be sent in a
     multi-search request. Default 50
     * `x-typesense-api-key`: You can embed a separate search API key for each search
@@ -238,43 +228,22 @@ defmodule ExTypesense.Search do
   @doc """
   Same as [multi_search/1](`multi_search/1`)
 
-  ```elixir
-  ExTypesense.multi_search(searches, opts)
+  ## Options
 
-  ExTypesense.multi_search(%{api_key: xyz, host: ...}, searches)
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.multi_search(OpenApiTypesense.Connection.new(), searches)
-  ```
+  ## Examples
+      iex> opts = [conn: %{api_key: xyz, host: ...}, ...]
+      iex> ExTypesense.multi_search(searches, opts)
+
+      iex> opts = [conn: OpenApiTypesense.Connection.new(), ...]
+      iex> ExTypesense.multi_search(searches, opts)
   """
   @doc since: "1.0.0"
-  @spec multi_search(
-          map() | Connection.t() | list(map()),
-          list(map()) | keyword()
-        ) ::
+  @spec multi_search(list(map()), keyword()) ::
           {:ok, OpenApiTypesense.MultiSearchResult.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
-  def multi_search(searches, opts) when is_list(opts) and is_list(searches) do
-    Connection.new() |> multi_search(searches, opts)
-  end
-
-  def multi_search(conn, searches) do
-    multi_search(conn, searches, [])
-  end
-
-  @doc """
-  Same as [multi_search/2](`multi_search/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.multi_search(%{api_key: xyz, host: ...}, searches, opts)
-
-  ExTypesense.multi_search(OpenApiTypesense.Connection.new(), searches, opts)
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec multi_search(map() | Connection.t(), list(map()), keyword()) ::
-          {:ok, OpenApiTypesense.MultiSearchResult.t()}
-          | {:error, OpenApiTypesense.ApiResponse.t()}
-  def multi_search(conn, searches, opts) do
+  def multi_search(searches, opts) do
     union = Keyword.get(opts, :union) === true
 
     searches =
@@ -300,7 +269,7 @@ defmodule ExTypesense.Search do
         end
       end)
 
-    OpenApiTypesense.Documents.multi_search(conn, %{union: union, searches: searches}, opts)
+    OpenApiTypesense.Documents.multi_search(%{union: union, searches: searches}, opts)
   end
 
   @doc """
@@ -332,42 +301,22 @@ defmodule ExTypesense.Search do
   @doc """
   Same as [multi_search_ecto/1](`multi_search_ecto/1`)
 
-  ```elixir
-  ExTypesense.multi_search_ecto(searches, opts)
+  ## Options
 
-  ExTypesense.multi_search_ecto(%{api_key: xyz, host: ...}, searches)
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.multi_search_ecto(OpenApiTypesense.Connection.new(), searches)
-  ```
+  ## Examples
+      iex> opts = [conn: %{api_key: xyz, host: ...}, ...]
+      iex> ExTypesense.multi_search_ecto(searches, opts)
+
+      iex> opts = [conn: OpenApiTypesense.Connection.new(), ...]
+      iex> ExTypesense.multi_search_ecto(searches, opts)
   """
   @doc since: "1.0.0"
-  @spec multi_search_ecto(
-          map() | Connection.t() | list(map()),
-          list(map()) | keyword()
-        ) ::
+  @spec multi_search_ecto(list(map()), keyword()) ::
           list(Ecto.Query.t()) | list({:error, OpenApiTypesense.MultiSearchResult.t()})
-  def multi_search_ecto(searches, opts) when is_list(opts) and is_list(searches) do
-    Connection.new() |> multi_search_ecto(searches, opts)
-  end
-
-  def multi_search_ecto(conn, searches) do
-    multi_search_ecto(conn, searches, [])
-  end
-
-  @doc """
-  Same as [multi_search_ecto/2](`multi_search_ecto/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.multi_search_ecto(%{api_key: xyz, host: ...}, searches, opts)
-
-  ExTypesense.multi_search_ecto(OpenApiTypesense.Connection.new(), searches, opts)
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec multi_search_ecto(map() | Connection.t(), list(map()), keyword()) ::
-          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.ApiResponse.t()})
-  def multi_search_ecto(conn, searches, opts) do
-    {:ok, %MultiSearchResult{results: results}} = multi_search(conn, searches, opts)
+  def multi_search_ecto(searches, opts) do
+    {:ok, %MultiSearchResult{results: results}} = multi_search(searches, opts)
 
     Enum.map(results, fn result ->
       case result do

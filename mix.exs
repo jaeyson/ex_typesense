@@ -2,7 +2,7 @@ defmodule ExTypesense.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/jaeyson/ex_typesense"
-  @version "1.2.1"
+  @version "2.0.0"
 
   def project do
     [
@@ -42,7 +42,7 @@ defmodule ExTypesense.MixProject do
       {:ecto, "~> 3.12"},
       {:excoveralls, "~> 0.18", only: :test, runtime: false},
       {:mix_audit, "~> 2.1", only: :test, runtime: false},
-      {:open_api_typesense, "~> 0.7"}
+      {:open_api_typesense, "~> 1.0"}
     ]
   end
 

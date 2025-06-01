@@ -86,7 +86,24 @@
 > Under the hood, this library utilizes [open_api_typesense](https://github.com/jaeyson/open_api_typesense)
 > to make sure it adheres to [Typesense's OpenAPI spec](https://github.com/typesense/typesense-api-spec).
 
-> #### upgrading to `1.0.0` contains **LOTS** of breaking changes. {: .warning}
+> #### Upgrading to v2 {: .warning}
+>
+> Purpose of v2 is to reduce code duplication (from v1) and to streamline
+> passing of options (including `conn`). The breaking change here
+> is that `conn` is now part of `opts`. > when calling functions, see
+> example below:
+
+```elixir
+# pre-v2
+ExTypesense.list_collections(conn, opts)
+
+# v2
+ExTypesense.list_collections(conn: conn)
+
+# another way (v2)
+opts = [limit: 1, conn: conn]
+ExTypesense.list_collections(opts)
+```
 
 ## Installation
 
@@ -100,7 +117,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 1.2"}
+    {:ex_typesense, "~> 2.0"}
 
     # Or from GitHub repository, if you want the latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}
@@ -166,6 +183,12 @@ config :open_api_typesense,
   scheme: "https"
 ```
 
+Test if working:
+
+```elixir
+ExTypesense.health()
+```
+
 ### using map
 
 Option 2: Set credentials from a map
@@ -201,7 +224,7 @@ conn = %{
 
 # NOTE: create a collection and import documents
 # first before using the command below
-ExTypesense.search(conn, collection_name, query)
+ExTypesense.search(collection_name, query, conn: conn)
 ```
 
 Or convert your struct to map, as long as the keys matches in [`OpenApiTypesense.Connection.t()`](https://hexdocs.pm/open_api_typesense/OpenApiTypesense.Connection.html#t:t/0):
@@ -211,7 +234,7 @@ conn = Map.from_struct(MyApp.Credential)
 
 # NOTE: create a collection and import documents
 # first before using the command below
-ExTypesense.search(conn, collection_name, query)
+ExTypesense.search(collection_name, query, conn: conn)
 ```
 
 Or you don't want to change the fields in your Ecto schema, thus you convert it to map:
@@ -233,7 +256,7 @@ conn =
 
 # NOTE: create a collection and import documents
 # first before using the command below
-ExTypesense.search(conn, collection_name, query)
+ExTypesense.search(collection_name, query, conn: conn)
 ```
 
 Or just plain map
@@ -246,7 +269,7 @@ conn = %{
     scheme: "http"
 }
 
-ExTypesense.health(conn)
+ExTypesense.health(conn: conn)
 ```
 
 <!-- tabs-close -->

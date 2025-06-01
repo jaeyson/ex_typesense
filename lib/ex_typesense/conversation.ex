@@ -9,8 +9,6 @@ defmodule ExTypesense.Conversation do
   More here: https://typesense.org/docs/latest/api/conversational-search-rag.html
   """
 
-  alias OpenApiTypesense.Connection
-
   @doc """
   Create conversation model.
 
@@ -42,41 +40,26 @@ defmodule ExTypesense.Conversation do
   @doc """
   Same as [create_model/1](`create_model/1`)
 
-  ```elixir
-  ExTypesense.create_model(body, [])
+  ## Options
 
-  ExTypesense.create_model(%{api_key: xyz, host: ...}, body)
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.create_model(OpenApiTypesense.Connection.new(), body)
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.create_model(body, conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.create_model(body, conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.create_model(body, opts)
   """
   @doc since: "1.0.0"
-  @spec create_model(map() | Connection.t(), map() | keyword()) ::
+  @spec create_model(map(), keyword()) ::
           {:ok, OpenApiTypesense.ConversationModelSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
-  def create_model(body, opts) when is_list(opts) do
-    Connection.new() |> create_model(body, opts)
-  end
-
-  def create_model(conn, body) do
-    create_model(conn, body, [])
-  end
-
-  @doc """
-  Same as [create_model/2](`create_model/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.create_model(%{api_key: xyz, host: ...}, body, [])
-
-  ExTypesense.create_model(OpenApiTypesense.Connection.new(), body, [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec create_model(map() | Connection.t(), map() | keyword()) ::
-          {:ok, OpenApiTypesense.ConversationModelSchema.t()}
-          | {:error, OpenApiTypesense.ApiResponse.t()}
-  def create_model(conn, body, opts) do
-    OpenApiTypesense.Conversations.create_conversation_model(conn, body, opts)
+  def create_model(body, opts) do
+    OpenApiTypesense.Conversations.create_conversation_model(body, opts)
   end
 
   @doc """
@@ -91,39 +74,25 @@ defmodule ExTypesense.Conversation do
   @doc """
   Same as [get_model/1](`get_model/1`)
 
-  ```elixir
-  ExTypesense.get_model("conv-model-1", [])
+  ## Options
 
-  ExTypesense.get_model(%{api_key: xyz, host: ...}, "conv-model-1")
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.get_model(OpenApiTypesense.Connection.new(), "conv-model-1")
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.get_model("conv-model-1", conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.get_model("conv-model-1", conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.get_model("conv-model-1", opts)
   """
   @doc since: "1.0.0"
-  @spec get_model(map() | Connection.t() | String.t(), String.t() | keyword()) ::
+  @spec get_model(String.t(), keyword()) ::
           {:ok, OpenApiTypesense.ConversationModelSchema.t()} | :error
-  def get_model(model_id, opts) when is_list(opts) do
-    Connection.new() |> get_model(model_id, opts)
-  end
-
-  def get_model(conn, model_id) do
-    get_model(conn, model_id, [])
-  end
-
-  @doc """
-  Same as [get_model/2](`get_model/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.get_model(%{api_key: xyz, host: ...}, "conv-model-1", [])
-
-  ExTypesense.get_model(OpenApiTypesense.Connection.new(), "conv-model-1", [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec get_model(map() | Connection.t(), String.t(), keyword()) ::
-          {:ok, OpenApiTypesense.ConversationModelSchema.t()} | :error
-  def get_model(conn, model_id, opts) do
-    OpenApiTypesense.Conversations.retrieve_conversation_model(conn, model_id, opts)
+  def get_model(model_id, opts) do
+    OpenApiTypesense.Conversations.retrieve_conversation_model(model_id, opts)
   end
 
   @doc """
@@ -151,43 +120,25 @@ defmodule ExTypesense.Conversation do
   @doc """
   Same as [update_model/2](`update_model/2`)
 
-  ```elixir
-  ExTypesense.update_model(model_id, body, [])
+  ## Options
 
-  ExTypesense.update_model(%{api_key: xyz, host: ...}, model_id, body)
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.update_model(OpenApiTypesense.Connection.new(), model_id, body)
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.update_model(model_id, body, conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.update_model(model_id, body, conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.update_model(model_id, body, opts)
   """
   @doc since: "1.0.0"
-  @spec update_model(
-          map() | Connection.t() | String.t(),
-          String.t() | map(),
-          map() | keyword()
-        ) ::
+  @spec update_model(String.t(), map(), keyword()) ::
           {:ok, OpenApiTypesense.ConversationModelSchema.t()} | :error
-  def update_model(model_id, body, opts) when is_list(opts) do
-    Connection.new() |> update_model(model_id, body, opts)
-  end
-
-  def update_model(conn, model_id, body) do
-    update_model(conn, model_id, body, [])
-  end
-
-  @doc """
-  Same as [update_model/3](`update_model/3`) but passes another connection.
-
-  ```elixir
-  ExTypesense.update_model(%{api_key: xyz, host: ...}, model_id, body, [])
-
-  ExTypesense.update_model(OpenApiTypesense.Connection.new(), model_id, body, [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec update_model(map() | Connection.t(), String.t(), map(), keyword()) ::
-          {:ok, OpenApiTypesense.ConversationModelSchema.t()} | :error
-  def update_model(conn, model_id, body, opts) do
-    OpenApiTypesense.Conversations.update_conversation_model(conn, model_id, body, opts)
+  def update_model(model_id, body, opts) do
+    OpenApiTypesense.Conversations.update_conversation_model(model_id, body, opts)
   end
 
   @doc """
@@ -203,41 +154,26 @@ defmodule ExTypesense.Conversation do
   @doc """
   Same as [list_models/0](`list_models/0`)
 
-  ```elixir
-  ExTypesense.list_models([])
+  ## Options
 
-  ExTypesense.list_models(%{api_key: xyz, host: ...})
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.list_models(OpenApiTypesense.Connection.new())
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.list_models(conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.list_models(conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.list_models(opts)
   """
   @doc since: "1.0.0"
-  @spec list_models(map() | Connection.t() | keyword()) ::
+  @spec list_models(keyword()) ::
           {:ok, OpenApiTypesense.ConversationModelSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
-  def list_models(opts) when is_list(opts) do
-    Connection.new() |> list_models(opts)
-  end
-
-  def list_models(conn) do
-    list_models(conn, [])
-  end
-
-  @doc """
-  Same as [list_models/1](`list_models/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.list_models(%{api_key: xyz, host: ...}, [])
-
-  ExTypesense.list_models(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec list_models(map() | Connection.t(), keyword()) ::
-          {:ok, OpenApiTypesense.ConversationModelSchema.t()}
-          | {:error, OpenApiTypesense.ApiResponse.t()}
-  def list_models(conn, opts) do
-    OpenApiTypesense.Conversations.retrieve_all_conversation_models(conn, opts)
+  def list_models(opts) do
+    OpenApiTypesense.Conversations.retrieve_all_conversation_models(opts)
   end
 
   @doc """
@@ -252,38 +188,24 @@ defmodule ExTypesense.Conversation do
   @doc """
   Same as [delete_model/1](`delete_model/1`)
 
-  ```elixir
-  ExTypesense.delete_model(model_id, [])
+  ## Options
 
-  ExTypesense.delete_model(%{api_key: xyz, host: ...}, model_id)
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.delete_model(OpenApiTypesense.Connection.new(), model_id)
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.delete_model(model_id, conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.delete_model(model_id, conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.delete_model(model_id, opts)
   """
   @doc since: "1.0.0"
-  @spec delete_model(map() | Connection.t() | String.t(), String.t() | keyword()) ::
+  @spec delete_model(String.t(), keyword()) ::
           {:ok, OpenApiTypesense.ConversationModelSchema.t()} | :error
-  def delete_model(model_id, opts) when is_list(opts) do
-    Connection.new() |> delete_model(model_id, opts)
-  end
-
-  def delete_model(conn, model_id) do
-    delete_model(conn, model_id, [])
-  end
-
-  @doc """
-  Same as [delete_model/2](`delete_model/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.delete_model(%{api_key: xyz, host: ...}, model_id, [])
-
-  ExTypesense.delete_model(OpenApiTypesense.Connection.new(), model_id, [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec delete_model(map() | Connection.t(), String.t(), keyword()) ::
-          {:ok, OpenApiTypesense.ConversationModelSchema.t()} | :error
-  def delete_model(conn, model_id, opts) do
-    OpenApiTypesense.Conversations.delete_conversation_model(conn, model_id, opts)
+  def delete_model(model_id, opts) do
+    OpenApiTypesense.Conversations.delete_conversation_model(model_id, opts)
   end
 end

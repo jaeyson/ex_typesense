@@ -7,10 +7,11 @@ defmodule ExTypesense.Cluster do
   More here: https://typesense.org/docs/latest/api/cluster-operations.html
   """
 
-  alias OpenApiTypesense.Connection
-
   @doc """
   Get health information about a Typesense node.
+
+  ## Examples
+      iex> ExTypesense.health()
   """
   @doc since: "0.3.0"
   @spec health :: {:ok, OpenApiTypesense.HealthStatus.t()} | :error
@@ -21,39 +22,29 @@ defmodule ExTypesense.Cluster do
   @doc """
   Same as [health/0](`health/0`)
 
-  ```elixir
-  ExTypesense.health([])
+  ## Options
 
-  ExTypesense.health(%{api_key: xyz, host: ...})
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.health(OpenApiTypesense.Connection.new())
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.health(conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.health(conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.health(opts)
   """
   @doc since: "1.0.0"
-  @spec health(map() | Connection.t() | keyword()) ::
-          {:ok, OpenApiTypesense.HealthStatus.t()} | :error
-  def health(opts) when is_list(opts) do
-    Connection.new() |> health(opts)
+  @spec health(keyword()) :: {:ok, OpenApiTypesense.HealthStatus.t()} | :error
+  def health([]) do
+    conn = OpenApiTypesense.Connection.new()
+    OpenApiTypesense.Health.health(conn: conn)
   end
 
-  def health(conn) do
-    health(conn, [])
-  end
-
-  @doc """
-  Same as [health/1](`health/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.health(%{api_key: xyz, host: ...}, [])
-
-  ExTypesense.health(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec health(map() | Connection.t(), keyword()) ::
-          {:ok, OpenApiTypesense.HealthStatus.t()} | :error
-  def health(conn, opts) do
-    OpenApiTypesense.Health.health(conn, opts)
+  def health(opts) do
+    OpenApiTypesense.Health.health(opts)
   end
 
   @doc """
@@ -61,6 +52,9 @@ defmodule ExTypesense.Cluster do
 
   This endpoint returns average requests per second and
   latencies for all requests in the last 10 seconds.
+
+  ## Examples
+      iex> ExTypesense.api_stats()
   """
   @doc since: "0.3.0"
   @spec api_stats :: {:ok, OpenApiTypesense.ApiStatsResponse.t()} | :error
@@ -71,43 +65,36 @@ defmodule ExTypesense.Cluster do
   @doc """
   Same as [api_stats/0](`api_stats/0`)
 
-  ```elixir
-  ExTypesense.api_stats([])
+  ## Options
 
-  ExTypesense.api_stats(%{api_key: xyz, host: ...})
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.api_stats(OpenApiTypesense.Connection.new())
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.api_stats(conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.api_stats(conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.api_stats(opts)
   """
   @doc since: "1.0.0"
-  @spec api_stats(map() | Connection.t() | keyword()) ::
-          {:ok, OpenApiTypesense.ApiStatsResponse.t()} | :error
-  def api_stats(opts) when is_list(opts) do
-    Connection.new() |> api_stats(opts)
+  @spec api_stats(keyword()) :: {:ok, OpenApiTypesense.ApiStatsResponse.t()} | :error
+  def api_stats([]) do
+    conn = OpenApiTypesense.Connection.new()
+    OpenApiTypesense.Operations.retrieve_api_stats(conn: conn)
   end
 
-  def api_stats(conn) do
-    api_stats(conn, [])
-  end
-
-  @doc """
-  Same as [api_stats/1](`api_stats/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.api_stats(%{api_key: xyz, host: ...}, [])
-
-  ExTypesense.api_stats(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec api_stats(map() | Connection.t(), keyword()) ::
-          {:ok, OpenApiTypesense.ApiStatsResponse.t()} | :error
-  def api_stats(conn, opts) do
-    OpenApiTypesense.Operations.retrieve_api_stats(conn, opts)
+  def api_stats(opts) do
+    OpenApiTypesense.Operations.retrieve_api_stats(opts)
   end
 
   @doc """
   Get current RAM, CPU, Disk & Network usage metrics.
+
+  ## Examples
+      iex> ExTypesense.cluster_metrics()
   """
   @doc since: "0.3.0"
   @spec cluster_metrics :: {:ok, map} | :error
@@ -118,37 +105,24 @@ defmodule ExTypesense.Cluster do
   @doc """
   Same as [cluster_metrics/0](`cluster_metrics/0`)
 
-  ```elixir
-  ExTypesense.cluster_metrics([])
+  ## Options
 
-  ExTypesense.cluster_metrics(%{api_key: xyz, host: ...})
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.cluster_metrics(OpenApiTypesense.Connection.new())
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.cluster_metrics(conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.cluster_metrics(conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.cluster_metrics(opts)
   """
   @doc since: "1.0.0"
-  @spec cluster_metrics(map() | Connection.t() | keyword()) :: {:ok, map} | :error
-  def cluster_metrics(opts) when is_list(opts) do
-    Connection.new() |> cluster_metrics(opts)
-  end
-
-  def cluster_metrics(conn) do
-    cluster_metrics(conn, [])
-  end
-
-  @doc """
-  Same as [cluster_metrics/1](`cluster_metrics/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.cluster_metrics(%{api_key: xyz, host: ...}, [])
-
-  ExTypesense.cluster_metrics(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec cluster_metrics(map() | Connection.t(), keyword()) :: {:ok, map} | :error
-  def cluster_metrics(conn, opts) do
-    OpenApiTypesense.Operations.retrieve_metrics(conn, opts)
+  @spec cluster_metrics(keyword()) :: {:ok, map} | :error
+  def cluster_metrics(opts) do
+    OpenApiTypesense.Operations.retrieve_metrics(opts)
   end
 
   @doc """
@@ -160,30 +134,26 @@ defmodule ExTypesense.Cluster do
 
   ## Options
 
+    * `conn`: The custom connection map or struct you passed
     * `snapshot_path`: The directory on the server where the snapshot should be saved.
 
+  ## Examples
+      iex> path = "/path/to/snapshot_dir"
+      iex> ExTypesense.create_snapshot(snapshot_path: path)
+
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.create_snapshot(snapshot_path: path, conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.create_snapshot(snapshot_path: path, conn: conn)
+
+      iex> opts = [snapshot_path: path, conn: conn]
+      iex> ExTypesense.create_snapshot(opts)
   """
   @doc since: "1.0.0"
-  @spec create_snapshot(keyword()) ::
-          {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
-  def create_snapshot(opts) when is_list(opts) do
-    Connection.new() |> create_snapshot(opts)
-  end
-
-  @doc """
-  Same as [create_snapshot/1](`create_snapshot/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.create_snapshot(%{api_key: xyz, host: ...}, snapshot_path: "/tmp/typesense-data-snapshot")
-
-  ExTypesense.create_snapshot(OpenApiTypesense.Connection.new(), snapshot_path: "/tmp/typesense-data-snapshot")
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec create_snapshot(map() | Connection.t(), keyword()) ::
-          {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
-  def create_snapshot(conn, opts) do
-    OpenApiTypesense.Operations.take_snapshot(conn, opts)
+  @spec create_snapshot(keyword()) :: {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
+  def create_snapshot(opts) do
+    OpenApiTypesense.Operations.take_snapshot(opts)
   end
 
   @doc """
@@ -195,10 +165,12 @@ defmodule ExTypesense.Cluster do
   RocksDB database. This could reduce the size of the database and decrease read
   latency. While the database will not block during this operation, we recommend
   running it during off-peak hours.
+
+  ## Examples
+      iex> ExTypesense.compact_db()
   """
   @doc since: "1.0.0"
-  @spec compact_db ::
-          {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
+  @spec compact_db :: {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
   def compact_db do
     compact_db([])
   end
@@ -206,39 +178,25 @@ defmodule ExTypesense.Cluster do
   @doc """
   Same as [compact_db/0](`compact_db/0`)
 
-  ```elixir
-  ExTypesense.compact_db([])
+  ## Options
 
-  ExTypesense.compact_db(%{api_key: xyz, host: ...})
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.compact_db(OpenApiTypesense.Connection.new())
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.compact_db(conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.compact_db(conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.compact_db(opts)
   """
   @doc since: "1.0.0"
-  @spec compact_db(map() | Connection.t() | keyword()) ::
+  @spec compact_db(keyword()) ::
           {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
-  def compact_db(opts) when is_list(opts) do
-    Connection.new() |> compact_db(opts)
-  end
-
-  def compact_db(conn) do
-    compact_db(conn, [])
-  end
-
-  @doc """
-  Same as [compact_db/1](`compact_db/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.compact_db(%{api_key: xyz, host: ...}, [])
-
-  ExTypesense.compact_db(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec compact_db(map() | Connection.t(), keyword()) ::
-          {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
-  def compact_db(conn, opts) do
-    OpenApiTypesense.Operations.compact(conn, opts)
+  def compact_db(opts) do
+    OpenApiTypesense.Operations.compact(opts)
   end
 
   @doc """
@@ -247,6 +205,9 @@ defmodule ExTypesense.Cluster do
   Responses of search requests that are sent with
   [`use_cache` parameter](https://typesense.org/docs/latest/api/search.html#caching-parameters)
   are cached in a LRU cache. Clears cache completely.
+
+  ## Examples
+      iex> ExTypesense.clear_cache()
   """
   @doc since: "1.0.0"
   @spec clear_cache :: {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
@@ -257,39 +218,24 @@ defmodule ExTypesense.Cluster do
   @doc """
   Same as [clear_cache/0](`clear_cache/0`)
 
-  ```elixir
-  ExTypesense.clear_cache([])
+  ## Options
 
-  ExTypesense.clear_cache(%{api_key: xyz, host: ...})
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.clear_cache(OpenApiTypesense.Connection.new())
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.clear_cache(conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.clear_cache(conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.clear_cache(opts)
   """
   @doc since: "1.0.0"
-  @spec clear_cache(map() | Connection.t() | keyword()) ::
-          {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
-  def clear_cache(opts) when is_list(opts) do
-    Connection.new() |> clear_cache(opts)
-  end
-
-  def clear_cache(conn) do
-    clear_cache(conn, [])
-  end
-
-  @doc """
-  Same as [clear_cache/1](`clear_cache/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.clear_cache(%{api_key: xyz, host: ...}, [])
-
-  ExTypesense.clear_cache(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec clear_cache(map() | Connection.t(), keyword()) ::
-          {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
-  def clear_cache(conn, opts) do
-    OpenApiTypesense.Operations.clear_cache(conn, opts)
+  @spec clear_cache(keyword()) :: {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
+  def clear_cache(opts) do
+    OpenApiTypesense.Operations.clear_cache(opts)
   end
 
   @doc """
@@ -297,6 +243,9 @@ defmodule ExTypesense.Cluster do
 
   Returns the status of any ongoing schema change operations. If no schema
   changes are in progress, returns an empty response.
+
+  ## Examples
+      iex> ExTypesense.get_schema_changes()
   """
   @doc since: "1.2.0"
   @spec get_schema_changes :: {:ok, [OpenApiTypesense.SchemaChangeStatus.t()]} | :error
@@ -307,39 +256,24 @@ defmodule ExTypesense.Cluster do
   @doc """
   Same as [get_schema_changes/0](`get_schema_changes/0`) but passes another connection.
 
-  ```elixir
-  ExTypesense.get_schema_changes([])
+  ## Options
 
-  ExTypesense.get_schema_changes(%{api_key: xyz, host: ...})
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.get_schema_changes(OpenApiTypesense.Connection.new())
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.get_schema_changes(conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.get_schema_changes(conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.get_schema_changes(opts)
   """
   @doc since: "1.2.0"
-  @spec get_schema_changes(map() | Connection.t() | keyword()) ::
-          {:ok, [OpenApiTypesense.SchemaChangeStatus.t()]} | :error
-  def get_schema_changes(opts) when is_list(opts) do
-    Connection.new() |> get_schema_changes(opts)
-  end
-
-  def get_schema_changes(conn) do
-    get_schema_changes(conn, [])
-  end
-
-  @doc """
-  Same as [get_schema_changes/1](`get_schema_changes/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.get_schema_changes(%{api_key: xyz, host: ...}, [])
-
-  ExTypesense.get_schema_changes(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @doc since: "1.2.0"
-  @spec get_schema_changes(map() | Connection.t(), keyword()) ::
-          {:ok, [OpenApiTypesense.SchemaChangeStatus.t()]} | :error
-  def get_schema_changes(conn, opts) do
-    OpenApiTypesense.Operations.get_schema_changes(conn, opts)
+  @spec get_schema_changes(keyword()) :: {:ok, [OpenApiTypesense.SchemaChangeStatus.t()]} | :error
+  def get_schema_changes(opts) do
+    OpenApiTypesense.Operations.get_schema_changes(opts)
   end
 
   @doc """
@@ -354,8 +288,7 @@ defmodule ExTypesense.Cluster do
 
   """
   @doc since: "1.0.0"
-  @spec toggle_slow_request_log(map()) ::
-          {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
+  @spec toggle_slow_request_log(map()) :: {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
   def toggle_slow_request_log(config) do
     toggle_slow_request_log(config, [])
   end
@@ -363,39 +296,25 @@ defmodule ExTypesense.Cluster do
   @doc """
   Same as [toggle_slow_request_log/1](`toggle_slow_request_log/1`)
 
-  ```elixir
-  ExTypesense.toggle_slow_request_log(config, [])
+  ## Options
 
-  ExTypesense.toggle_slow_request_log(%{api_key: xyz, host: ...}, config)
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.toggle_slow_request_log(OpenApiTypesense.Connection.new(), config)
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.toggle_slow_request_log(config, conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.toggle_slow_request_log(config, conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.toggle_slow_request_log(config, opts)
   """
   @doc since: "1.0.0"
-  @spec toggle_slow_request_log(map() | Connection.t(), map() | keyword()) ::
+  @spec toggle_slow_request_log(map(), keyword()) ::
           {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
-  def toggle_slow_request_log(config, opts) when is_list(opts) do
-    Connection.new() |> toggle_slow_request_log(config, opts)
-  end
-
-  def toggle_slow_request_log(conn, config) do
-    toggle_slow_request_log(conn, config, [])
-  end
-
-  @doc """
-  Same as [toggle_slow_request_log/2](`toggle_slow_request_log/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.toggle_slow_request_log(%{api_key: xyz, host: ...}, config, [])
-
-  ExTypesense.toggle_slow_request_log(OpenApiTypesense.Connection.new(), config, [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec toggle_slow_request_log(map() | Connection.t(), map(), keyword()) ::
-          {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
-  def toggle_slow_request_log(conn, config, opts) do
-    OpenApiTypesense.Operations.config(conn, config, opts)
+  def toggle_slow_request_log(config, opts) do
+    OpenApiTypesense.Operations.config(config, opts)
   end
 
   @doc """
@@ -404,6 +323,9 @@ defmodule ExTypesense.Cluster do
 
   The follower node that you run this operation against will become
   the new leader, once this command succeeds.
+
+  ## Examples
+      iex> ExTypesense.vote()
   """
   @spec vote :: {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
   def vote do
@@ -413,36 +335,22 @@ defmodule ExTypesense.Cluster do
   @doc """
   Same as [vote/0](`vote/0`) but passes another connection.
 
-  ```elixir
-  ExTypesense.vote([])
+  ## Options
 
-  ExTypesense.vote(%{api_key: xyz, host: ...})
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.vote(OpenApiTypesense.Connection.new())
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.vote(conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.vote(conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.vote(opts)
   """
-  @spec vote(map() | Connection.t() | keyword()) ::
-          {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
-  def vote(opts) when is_list(opts) do
-    Connection.new() |> vote(opts)
-  end
-
-  def vote(conn) do
-    vote(conn, [])
-  end
-
-  @doc """
-  Same as [vote/1](`vote/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.vote(%{api_key: xyz, host: ...}, [])
-
-  ExTypesense.vote(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @spec vote(map() | Connection.t(), keyword()) ::
-          {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
-  def vote(conn, opts) do
-    OpenApiTypesense.Operations.vote(conn, opts)
+  @spec vote(keyword()) :: {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
+  def vote(opts) do
+    OpenApiTypesense.Operations.vote(opts)
   end
 end

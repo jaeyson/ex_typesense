@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
+## 2.0.0 (2025.06.01)
+
+### Changed
+
+* Passing `conn` as part of `opts` when calling a function, as this reduces code duplication. [PR #82](https://github.com/jaeyson/ex_typesense/pull/82)
+
+### Chore
+
+* Bumped dev dependencies
+
 ## 1.2.1 (2025.05.11)
 
 ### Fixed

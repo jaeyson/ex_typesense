@@ -37,10 +37,8 @@ defmodule ConversationTest do
     assert {:ok, models} = ExTypesense.list_models()
     assert length(models) >= 0
     assert {:ok, _} = ExTypesense.list_models([])
-    assert {:ok, _} = ExTypesense.list_models(conn)
-    assert {:ok, _} = ExTypesense.list_models(map_conn)
-    assert {:ok, _} = ExTypesense.list_models(conn, [])
-    assert {:ok, _} = ExTypesense.list_models(map_conn, [])
+    assert {:ok, _} = ExTypesense.list_models(conn: conn)
+    assert {:ok, _} = ExTypesense.list_models(conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -49,10 +47,8 @@ defmodule ConversationTest do
              ExTypesense.get_model("non-existent")
 
     assert {:error, _} = ExTypesense.get_model("xyz", [])
-    assert {:error, _} = ExTypesense.get_model(conn, "xyz")
-    assert {:error, _} = ExTypesense.get_model(map_conn, "xyz")
-    assert {:error, _} = ExTypesense.get_model(conn, "xyz", [])
-    assert {:error, _} = ExTypesense.get_model(map_conn, "xyz", [])
+    assert {:error, _} = ExTypesense.get_model("xyz", conn: conn)
+    assert {:error, _} = ExTypesense.get_model("xyz", conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -61,10 +57,8 @@ defmodule ConversationTest do
              ExTypesense.delete_model("non-existent")
 
     assert {:error, _} = ExTypesense.delete_model("xyz", [])
-    assert {:error, _} = ExTypesense.delete_model(conn, "xyz")
-    assert {:error, _} = ExTypesense.delete_model(map_conn, "xyz")
-    assert {:error, _} = ExTypesense.delete_model(conn, "xyz", [])
-    assert {:error, _} = ExTypesense.delete_model(map_conn, "xyz", [])
+    assert {:error, _} = ExTypesense.delete_model("xyz", conn: conn)
+    assert {:error, _} = ExTypesense.delete_model("xyz", conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -94,10 +88,8 @@ defmodule ConversationTest do
            ]) === true
 
     assert {:error, _} = ExTypesense.create_model(body, [])
-    assert {:error, _} = ExTypesense.create_model(conn, body)
-    assert {:error, _} = ExTypesense.create_model(map_conn, body)
-    assert {:error, _} = ExTypesense.create_model(conn, body, [])
-    assert {:error, _} = ExTypesense.create_model(map_conn, body, [])
+    assert {:error, _} = ExTypesense.create_model(body, conn: conn)
+    assert {:error, _} = ExTypesense.create_model(body, conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -121,9 +113,7 @@ defmodule ConversationTest do
     assert {:error, %ApiResponse{message: _}} = ExTypesense.update_model(model_id, body)
     assert {:error, _} = ExTypesense.update_model(model_id, body)
     assert {:error, _} = ExTypesense.update_model(model_id, body, [])
-    assert {:error, _} = ExTypesense.update_model(conn, model_id, body)
-    assert {:error, _} = ExTypesense.update_model(map_conn, model_id, body)
-    assert {:error, _} = ExTypesense.update_model(conn, model_id, body, [])
-    assert {:error, _} = ExTypesense.update_model(map_conn, model_id, body, [])
+    assert {:error, _} = ExTypesense.update_model(model_id, body, conn: conn)
+    assert {:error, _} = ExTypesense.update_model(model_id, body, conn: map_conn)
   end
 end
