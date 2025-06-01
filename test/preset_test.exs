@@ -29,17 +29,13 @@ defmodule PresetTest do
 
     assert {:ok, %PresetSchema{name: ^name}} = ExTypesense.upsert_preset(name, body)
     assert {:ok, _} = ExTypesense.upsert_preset(name, body, [])
-    assert {:ok, _} = ExTypesense.upsert_preset(conn, name, body)
-    assert {:ok, _} = ExTypesense.upsert_preset(map_conn, name, body)
-    assert {:ok, _} = ExTypesense.upsert_preset(conn, name, body, [])
-    assert {:ok, _} = ExTypesense.upsert_preset(map_conn, name, body, [])
+    assert {:ok, _} = ExTypesense.upsert_preset(name, body, conn: conn)
+    assert {:ok, _} = ExTypesense.upsert_preset(name, body, conn: map_conn)
 
     assert {:ok, %PresetSchema{name: ^name}} = ExTypesense.get_preset(name)
     assert {:ok, _} = ExTypesense.get_preset(name, [])
-    assert {:ok, _} = ExTypesense.get_preset(conn, name)
-    assert {:ok, _} = ExTypesense.get_preset(map_conn, name)
-    assert {:ok, _} = ExTypesense.get_preset(conn, name, [])
-    assert {:ok, _} = ExTypesense.get_preset(map_conn, name, [])
+    assert {:ok, _} = ExTypesense.get_preset(name, conn: conn)
+    assert {:ok, _} = ExTypesense.get_preset(name, conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -59,19 +55,15 @@ defmodule PresetTest do
 
     assert {:ok, %PresetDeleteSchema{name: ^name}} = ExTypesense.delete_preset(name)
     assert {:error, %ApiResponse{message: "Not found."}} = ExTypesense.delete_preset(name, [])
-    assert {:error, _} = ExTypesense.delete_preset(conn, name)
-    assert {:error, _} = ExTypesense.delete_preset(map_conn, name)
-    assert {:error, _} = ExTypesense.delete_preset(conn, name, [])
-    assert {:error, _} = ExTypesense.delete_preset(map_conn, name, [])
+    assert {:error, _} = ExTypesense.delete_preset(name, conn: conn)
+    assert {:error, _} = ExTypesense.delete_preset(name, conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: list all search presets", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %PresetsRetrieveSchema{presets: _}} = ExTypesense.list_presets()
     assert {:ok, _} = ExTypesense.list_presets([])
-    assert {:ok, _} = ExTypesense.list_presets(conn)
-    assert {:ok, _} = ExTypesense.list_presets(map_conn)
-    assert {:ok, _} = ExTypesense.list_presets(conn, [])
-    assert {:ok, _} = ExTypesense.list_presets(map_conn, [])
+    assert {:ok, _} = ExTypesense.list_presets(conn: conn)
+    assert {:ok, _} = ExTypesense.list_presets(conn: map_conn)
   end
 end

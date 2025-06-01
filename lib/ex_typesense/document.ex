@@ -49,50 +49,30 @@ defmodule ExTypesense.Document do
   @doc """
   Same as [get_document/2](`get_document/2`).
 
-  ```elixir
-  ExTypesense.get_document("persons", "88", exclude_fields: "name")
+  ## Options
 
-  ExTypesense.get_document(MyModule.Accounts.Person, "88", exclude_fields: "name")
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.get_document(%{api_key: xyz, host: ...}, MyModule.Accounts.Person, "88")
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.get_document("persons", "88", exclude_fields: "name", conn: conn)
 
-  ExTypesense.get_document(OpenApiTypesense.Connection.new(), MyModule.Accounts.Person, "88")
-  ```
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.get_document(MyModule.Accounts.Person, "88", exclude_fields: "name", conn: conn)
+
+      iex> opts = [exclude_fields: "name", conn: conn]
+      iex> ExTypesense.get_document(MyModule.Accounts.Person, "88", opts)
   """
   @doc since: "1.0.0"
-  @spec get_document(
-          map() | Connection.t() | module() | String.t(),
-          String.t() | module(),
-          String.t() | keyword()
-        ) ::
+  @spec get_document(module() | String.t(), String.t(), keyword()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def get_document(collection_name, document_id, opts) when is_list(opts) do
-    Connection.new() |> get_document(collection_name, document_id, opts)
-  end
-
-  def get_document(conn, coll_name, doc_id) do
-    get_document(conn, coll_name, doc_id, [])
-  end
-
-  @doc """
-  Same as [get_document/3](`get_document/3`) but passes another connection.
-
-  ```elixir
-  ExTypesense.get_document(%{api_key: xyz, host: ...}, "persons", "88", exclude_fields: "name")
-
-  ExTypesense.get_document(OpenApiTypesense.Connection.new(), MyModule.Accounts.Person, "88", exclude_fields: "name")
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec get_document(map() | Connection.t(), module() | String.t(), String.t(), keyword()) ::
-          {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def get_document(conn, module, doc_id, opts) when is_atom(module) do
+  def get_document(module, doc_id, opts) when is_atom(module) do
     collection_name = module.__schema__(:source)
-    get_document(conn, collection_name, doc_id, opts)
+    get_document(collection_name, doc_id, opts)
   end
 
-  def get_document(conn, coll_name, doc_id, opts) do
-    OpenApiTypesense.Documents.get_document(conn, coll_name, doc_id, opts)
+  def get_document(coll_name, doc_id, opts) when is_binary(coll_name) do
+    OpenApiTypesense.Documents.get_document(coll_name, doc_id, opts)
   end
 
   @doc """
@@ -151,56 +131,31 @@ defmodule ExTypesense.Document do
   @doc """
   Same as [import_documents/2](`import_documents/2`).
 
-  ```elixir
-  ExTypesense.import_documents("users", documents, [])
+  ## Options
 
-  ExTypesense.import_documents(MyApp.Accounts.User, documents, [])
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.import_documents(%{api_key: xyz, host: ...}, MyApp.Accounts.User, structs)
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.import_documents("users", documents, conn: conn)
+      iex> ExTypesense.import_documents(MyApp.Accounts.User, documents, conn: conn)
 
-  ExTypesense.import_documents(OpenApiTypesense.Connection.new(), "users", [%MyApp.Accounts.User{}])
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.import_documents(MyApp.Accounts.User, structs, conn: conn)
+      iex> ExTypesense.import_documents("users", [%MyApp.Accounts.User{}], conn: conn)
 
-  ExTypesense.import_documents(OpenApiTypesense.Connection.new(), "users", documents)
-  ```
+      iex> opts = [conn: conn]
+      iex> ExTypesense.import_documents("users", documents, opts)
   """
   @doc since: "1.0.0"
-  @spec import_documents(
-          map() | Connection.t() | String.t() | module(),
-          String.t() | [struct()] | [map()],
-          [struct()] | [map()] | keyword()
-        ) ::
+  @spec import_documents(String.t() | module(), [struct()] | [map()], keyword()) ::
           {:ok, [map()]} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def import_documents(conn, coll_name, documents) when is_map(conn) and is_list(documents) do
-    import_documents(conn, coll_name, documents, [])
-  end
-
-  def import_documents(coll_name, docs, opts) when is_list(docs) and is_list(opts) do
-    Connection.new() |> import_documents(coll_name, docs, opts)
-  end
-
-  @doc """
-  Same as [import_documents/3](`import_documents/3`) but passes another connection.
-
-  ```elixir
-  ExTypesense.import_documents(%{api_key: xyz, host: ...}, "companies", documents, batch_size: 100)
-
-  ExTypesense.import_documents(OpenApiTypesense.Connection.new(), MyApp.Account.Person, structs, [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec import_documents(
-          map() | Connection.t(),
-          String.t() | module(),
-          [struct()] | [map()],
-          keyword()
-        ) ::
-          {:ok, [map()]} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def import_documents(conn, module, docs, opts) when is_atom(module) do
+  def import_documents(module, docs, opts) when is_atom(module) do
     coll_name = module.__schema__(:source)
-    import_documents(conn, coll_name, docs, opts)
+    import_documents(coll_name, docs, opts)
   end
 
-  def import_documents(conn, coll_name, [struct | _] = structs, opts)
+  def import_documents(coll_name, [struct | _] = structs, opts)
       when structs != [] and is_struct(struct) do
     body =
       Enum.map(structs, fn record ->
@@ -209,11 +164,11 @@ defmodule ExTypesense.Document do
         |> Map.drop([:id, :__meta__, :__struct__])
       end)
 
-    import_documents(conn, coll_name, body, opts)
+    import_documents(coll_name, body, opts)
   end
 
-  def import_documents(conn, coll_name, docs, opts) do
-    OpenApiTypesense.Documents.import_documents(conn, coll_name, docs, opts)
+  def import_documents(coll_name, docs, opts) do
+    OpenApiTypesense.Documents.import_documents(coll_name, docs, opts)
   end
 
   @doc """
@@ -262,108 +217,67 @@ defmodule ExTypesense.Document do
       iex> ExTypesense.index_document(post)
   """
   @doc since: "1.0.0"
-  @spec index_document(struct()) ::
+  @spec index_document(map() | struct()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def index_document(document) when not is_struct(document) and is_map(document) do
-    collection_name = Map.get(document, "collection_name") || Map.get(document, :collection_name)
-    index_document(collection_name, document)
-  end
-
-  def index_document(record) do
-    index_document(record, [])
+  def index_document(document) do
+    index_document(document, [])
   end
 
   @doc """
   Same as [index_document/1](`index_document/1`).
 
-  ```elixir
-  ExTypesense.index_document("persons", document)
+  ## Options
 
-  ExTypesense.index_document(%{api_key: xyz, host: ...}, document)
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.index_document(OpenApiTypesense.Connection.new(), struct)
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.index_document("persons", document, conn: conn)
 
-  ExTypesense.index_document(struct, action: "upsert")
-  ```
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.index_document(document, conn: conn)
+      iex> ExTypesense.index_document(struct, conn: conn)
+
+      iex> opts = [action: "upsert", conn: conn]
+      iex> ExTypesense.index_document(struct, opts)
   """
-  @spec index_document(
-          map() | Connection.t() | String.t() | struct(),
-          map() | struct() | keyword()
-        ) ::
+  @spec index_document(map() | struct() | String.t(), map() | keyword()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def index_document(document, opts)
-      when not is_struct(document) and is_map(document) and is_list(opts) do
+  def index_document(record, opts) when is_struct(record) do
+    collection_name = record.__struct__.__schema__(:source)
+    document = Map.from_struct(record) |> Map.drop([:id, :__meta__, :__struct__])
+    OpenApiTypesense.Documents.index_document(collection_name, document, opts)
+  end
+
+  def index_document(document, opts) when is_map(document) do
     collection_name = Map.get(document, "collection_name") || Map.get(document, :collection_name)
     index_document(collection_name, document, opts)
   end
 
-  def index_document(record, opts) when is_struct(record) and is_list(opts) do
-    Connection.new() |> index_document(record, opts)
-  end
-
-  def index_document(conn_or_coll_name, record_or_document) do
-    index_document(conn_or_coll_name, record_or_document, [])
+  def index_document(collection_name, document) do
+    index_document(collection_name, document, [])
   end
 
   @doc """
   Same as [index_document/2](`get_document/2`).
 
-  ```elixir
-  ExTypesense.index_document("persons", document, action: "update")
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.index_document("persons", document, action: "update", conn: conn)
 
-  ExTypesense.index_document(%{api_key: xyz, host: ...}, "persons", document)
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.index_document("persons", document, conn: conn)
 
-  ExTypesense.index_document(OpenApiTypesense.Connection.new(), %MyApp.Accounts.Person{...}, action: "upsert")
-  ```
+      iex> opts = [action: "upsert", conn: conn]
+      iex> ExTypesense.index_document("persons", document, opts)
   """
   @doc since: "1.0.0"
-  @spec index_document(
-          map() | Connection.t() | String.t(),
-          String.t() | map() | struct(),
-          map() | keyword()
-        ) ::
+  @spec index_document(String.t(), map(), keyword()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def index_document(coll_name, body, opts) when is_binary(coll_name) and is_list(opts) do
-    Connection.new() |> index_document(coll_name, body, opts)
-  end
-
-  def index_document(conn, document, opts)
-      when not is_struct(document) and is_map(document) and is_list(opts) do
-    collection_name = Map.get(document, "collection_name") || Map.get(document, :collection_name)
-    index_document(conn, collection_name, document, opts)
-  end
-
-  def index_document(conn, record, opts) when is_struct(record) do
-    collection_name = record.__struct__.__schema__(:source)
-    record = Map.from_struct(record) |> Map.drop([:id, :__meta__, :__struct__])
-    OpenApiTypesense.Documents.index_document(conn, collection_name, record, opts)
-  end
-
-  def index_document(conn, collection_name, body) do
-    index_document(conn, collection_name, body, [])
-  end
-
-  @doc """
-  Same as [get_document/3](`get_document/3`) but passes another connection.
-
-  ```elixir
-  ExTypesense.index_document(%{api_key: xyz, host: ...}, "persons", documents, action: "update")
-
-  ExTypesense.index_document(OpenApiTypesense.Connection.new(), "persons", documents, [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec index_document(
-          map() | Connection.t(),
-          String.t(),
-          map(),
-          keyword()
-        ) ::
-          {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def index_document(conn, collection_name, body, opts)
+  def index_document(collection_name, body, opts)
       when is_binary(collection_name) and is_map(body) and is_list(opts) do
     body = Map.drop(body, ["collection_name", :collection_name])
-    OpenApiTypesense.Documents.index_document(conn, collection_name, body, opts)
+    OpenApiTypesense.Documents.index_document(collection_name, body, opts)
   end
 
   @doc """
@@ -422,7 +336,7 @@ defmodule ExTypesense.Document do
       }
   """
   @doc since: "1.0.0"
-  @spec update_document(struct() | map()) ::
+  @spec update_document(map() | struct()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
   def update_document(document) do
     update_document(document, [])
@@ -431,49 +345,39 @@ defmodule ExTypesense.Document do
   @doc """
   Same as [update_document/1](`update_document/1`).
 
-  ```elixir
-  ExTypesense.update_document(document, [])
-  ExTypesense.update_document(%{api_key: xyz, host: ...}, %User{...})
-  ExTypesense.update_document(OpenApiTypesense.Connection.new(), document)
-  ```
+  ## Options
+
+    * `conn`: The custom connection map or struct you passed
+
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.update_document(document, conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.update_document(%User{...}, conn: conn)
+
+      iex> opts = [dirty_values: "reject", conn: conn]
+      iex> ExTypesense.update_document(document, opts)
   """
   @doc since: "1.0.0"
-  @spec update_document(map() | Connection.t() | struct() | map(), struct() | map() | keyword()) ::
+  @spec update_document(map() | struct(), keyword()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def update_document(document, opts) when is_list(opts) do
-    Connection.new() |> update_document(document, opts)
-  end
-
-  def update_document(conn, document) do
-    update_document(conn, document, [])
-  end
-
-  @doc """
-  Same as [update_document/2](`update_document/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.update_document(%{api_key: xyz, host: ...}, document, [])
-  ExTypesense.update_document(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec update_document(map() | Connection.t(), map() | struct(), keyword()) ::
-          {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def update_document(conn, record, opts) when is_struct(record) do
+  def update_document(record, opts) when is_struct(record) do
     coll_name = record.__struct__.__schema__(:source)
     field_name = coll_name <> "_id"
     id = Map.get(record, String.to_existing_atom(field_name))
     opts = Keyword.put_new(opts, :filter_by, "#{field_name}:#{id}")
     body = record |> Map.from_struct() |> Map.drop([:id, :__meta__, :__struct__])
 
-    update_documents_by_query(conn, coll_name, body, opts)
+    update_documents_by_query(coll_name, body, opts)
   end
 
-  def update_document(conn, document, opts) when is_map(document) do
+  def update_document(document, opts) when is_map(document) do
     coll_name = Map.get(document, "collection_name") || Map.get(document, :collection_name)
     doc_id = Map.get(document, "id") || Map.get(document, :id)
     document = Map.drop(document, ["collection_name", :collection_name])
-    OpenApiTypesense.Documents.update_document(conn, coll_name, doc_id, document, opts)
+
+    OpenApiTypesense.Documents.update_document(coll_name, doc_id, document, opts)
   end
 
   @doc """
@@ -489,6 +393,7 @@ defmodule ExTypesense.Document do
 
   ## Options
 
+    * `conn`: The custom connection map or struct you passed
     * `filter_by`: Filter results by a particular value(s) or logical expressions.
     multiple conditions with &&.
     * `action`: Additional action to perform
@@ -498,41 +403,22 @@ defmodule ExTypesense.Document do
       ...>   "tag" => "large",
       ...> }
 
-      iex> opts = [filter_by; "num_employees:>1000"]
-
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> opts = [filter_by: "num_employees:>1000", conn: conn]
       iex> ExTypesense.update_documents_by_query("companies", body, opts)
+
+      iex> ExTypesense.update_documents_by_query("companies", body, action: "upsert", conn: conn)
   """
   @doc since: "1.0.0"
   @spec update_documents_by_query(String.t() | module(), map(), keyword()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def update_documents_by_query(collection_name, body, opts) do
-    Connection.new() |> update_documents_by_query(collection_name, body, opts)
-  end
-
-  @doc """
-  Same as [update_documents_by_query/3](`update_documents_by_query/3`) but passes another connection.
-
-  ```elixir
-  ExTypesense.update_documents_by_query(%{api_key: xyz, host: ...}, "companies", body, action: "upsert")
-
-  ExTypesense.update_documents_by_query(OpenApiTypesense.Connection.new(), MyApp.Accounts.User, body, opts)
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec update_documents_by_query(
-          map() | Connection.t(),
-          String.t() | module(),
-          map(),
-          keyword()
-        ) ::
-          {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def update_documents_by_query(conn, module, body, opts) when is_atom(module) do
+  def update_documents_by_query(module, body, opts) when is_atom(module) do
     collection_name = module.__schema__(:source)
-    update_documents_by_query(conn, collection_name, body, opts)
+    update_documents_by_query(collection_name, body, opts)
   end
 
-  def update_documents_by_query(conn, collection_name, body, opts) do
-    OpenApiTypesense.Documents.update_documents(conn, collection_name, body, opts)
+  def update_documents_by_query(coll_name, body, opts) when is_binary(coll_name) do
+    OpenApiTypesense.Documents.update_documents(coll_name, body, opts)
   end
 
   @doc """
@@ -590,101 +476,78 @@ defmodule ExTypesense.Document do
       }
   """
   @doc since: "1.0.0"
-  @spec delete_document(struct()) ::
+  @spec delete_document(map() | struct()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def delete_document(record) when is_struct(record) do
-    delete_document(record, [])
+  def delete_document(document) do
+    delete_document(document, ignore_not_found: false)
   end
 
   @doc """
   Same as [delete_document/1](`delete_document/1`).
 
-  ```elixir
-  ExTypesense.delete_document("persons", "88")
+  ## Options
 
-  ExTypesense.delete_document(%{api_key: xyz, host: ...}, struct)
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.delete_document(OpenApiTypesense.Connection.new(), struct)
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.delete_document(document, conn: conn)
 
-  ExTypesense.delete_document(struct, ignore_not_found: true)
-  ```
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.delete_document(struct, conn: conn)
+
+      iex> opts = [ignore_not_found: true, conn: conn]
+      iex> ExTypesense.delete_document(struct, opts)
   """
   @doc since: "1.0.0"
   @spec delete_document(
           map() | Connection.t() | String.t(),
-          struct() | String.t() | keyword()
+          String.t() | keyword()
         ) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def delete_document(document, opts) when is_list(opts) do
-    Connection.new() |> delete_document(document, opts)
+  def delete_document(record, opts) when is_struct(record) do
+    coll_name = record.__struct__.__schema__(:source)
+    field_name = coll_name <> "_id"
+    id = Map.get(record, String.to_existing_atom(field_name))
+    opts = Keyword.put_new(opts, :filter_by, "#{field_name}:#{id}")
+    delete_documents_by_query(coll_name, opts)
   end
 
-  def delete_document(conn, document) do
-    delete_document(conn, document, ignore_not_found: false)
+  def delete_document(document, opts) when is_map(document) do
+    coll_name = Map.get(document, "collection_name") || Map.get(document, :collection_name)
+    field_name = coll_name <> "_id"
+    id = Map.get(document, field_name) || Map.get(document, String.to_existing_atom(field_name))
+    opts = Keyword.put_new(opts, :filter_by, "#{field_name}:#{id}")
+    delete_documents_by_query(coll_name, opts)
+  end
+
+  def delete_document(coll_name, doc_id) do
+    opts = [ignore_not_found: false]
+    OpenApiTypesense.Documents.delete_document(coll_name, doc_id, opts)
   end
 
   @doc """
   Same as [delete_document/2](`delete_document/2`).
 
-  ```elixir
-  ExTypesense.delete_document("persons", "88", ignore_not_found: true)
+  ## Options
 
-  ExTypesense.delete_document(%{api_key: xyz, host: ...}, struct, ignore_not_found: false)
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.delete_document(OpenApiTypesense.Connection.new(), "personse", "88")
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.delete_document("persons", "88", conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.delete_document("persons", "88", conn: conn)
+
+      iex> opts = [ignore_not_found: true, conn: conn]
+      iex> ExTypesense.delete_document("persons", "88", opts)
   """
   @doc since: "1.0.0"
-  @spec delete_document(
-          map() | Connection.t() | String.t(),
-          struct() | String.t(),
-          String.t() | keyword()
-        ) ::
+  @spec delete_document(String.t(), String.t(), keyword()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def delete_document(coll_name, doc_id, opts)
-      when is_binary(coll_name) and is_list(opts) do
-    Connection.new() |> delete_document(coll_name, doc_id, opts)
-  end
-
-  def delete_document(conn, record, opts) when is_struct(record) do
-    coll_name = record.__struct__.__schema__(:source)
-    field_name = coll_name <> "_id"
-    id = Map.get(record, String.to_existing_atom(field_name))
-    opts = Keyword.put_new(opts, :filter_by, "#{field_name}:#{id}")
-    delete_documents_by_query(conn, coll_name, opts)
-  end
-
-  def delete_document(conn, document, opts) when is_map(document) do
-    coll_name = Map.get(document, "collection_name") || Map.get(document, :collection_name)
-    field_name = coll_name <> "_id"
-    id = Map.get(document, field_name) || Map.get(document, String.to_existing_atom(field_name))
-    opts = Keyword.put_new(opts, :filter_by, "#{field_name}:#{id}")
-    delete_documents_by_query(conn, coll_name, opts)
-  end
-
-  def delete_document(conn, coll_name, doc_id) do
-    delete_document(conn, coll_name, doc_id, ignore_not_found: false)
-  end
-
-  @doc """
-  Same as [delete_document/3](`delete_document/3`) but passes another connection.
-
-  ```elixir
-  ExTypesense.delete_document(%{api_key: xyz, host: ...}, coll_name, doc_id, [])
-
-  ExTypesense.delete_document(OpenApiTypesense.Connection.new(), coll_name, doc_id, [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec delete_document(
-          map() | Connection.t(),
-          String.t(),
-          String.t(),
-          keyword()
-        ) ::
-          {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def delete_document(conn, coll_name, doc_id, opts) when is_list(opts) do
-    OpenApiTypesense.Documents.delete_document(conn, coll_name, doc_id, opts)
+  def delete_document(coll_name, doc_id, opts) when is_binary(coll_name) and is_binary(doc_id) do
+    OpenApiTypesense.Documents.delete_document(coll_name, doc_id, opts)
   end
 
   @doc """
@@ -706,50 +569,31 @@ defmodule ExTypesense.Document do
   @doc """
   Same as [export_documents/1](`export_documents/1`).
 
-  ```elixir
-  ExTypesense.export_documents("persons", opts)
+  ## Options
 
-  ExTypesense.export_documents(MyModule.Accounts.Person, opts)
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.export_documents(%{api_key: xyz, host: ...}, "persons")
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.export_documents("persons", conn: conn)
+      iex> ExTypesense.export_documents(MyModule.Accounts.Person, conn: conn)
 
-  ExTypesense.export_documents(OpenApiTypesense.Connection.new(), MyModule.Accounts.Person)
-  ```
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.export_documents("persons", conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.export_documents(MyModule.Accounts.Person, opts)
   """
   @doc since: "1.0.0"
   @spec export_documents(String.t() | module(), keyword()) ::
           {:ok, String.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def export_documents(collection_name, opts) when is_list(opts) do
-    Connection.new() |> export_documents(collection_name, opts)
-  end
-
-  def export_documents(conn, collection_name) do
-    export_documents(conn, collection_name, [])
-  end
-
-  @doc """
-  Same as [export_documents/2](`export_documents/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.export_documents(%{api_key: xyz, host: ...}, "persons", opts)
-
-  ExTypesense.export_documents(OpenApiTypesense.Connection.new(), MyModule.Accounts.Person, opts)
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec export_documents(
-          map() | Connection.t(),
-          String.t() | module(),
-          keyword()
-        ) ::
-          {:ok, String.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def export_documents(conn, module, opts) when is_atom(module) do
+  def export_documents(module, opts) when is_atom(module) do
     collection_name = module.__schema__(:source)
-    export_documents(conn, collection_name, opts)
+    export_documents(collection_name, opts)
   end
 
-  def export_documents(conn, collection_name, opts) do
-    OpenApiTypesense.Documents.export_documents(conn, collection_name, opts)
+  def export_documents(coll_name, opts) when is_binary(coll_name) do
+    OpenApiTypesense.Documents.export_documents(coll_name, opts)
   end
 
   @doc """
@@ -757,6 +601,7 @@ defmodule ExTypesense.Document do
 
   ## Options
 
+    * `conn`: The custom connection map or struct you passed
     * `batch_size`: Batch size parameter controls the number of documents
     that should be deleted at a time. A larger value will speed up deletions,
     but will impact performance of other operations running on the server.
@@ -782,36 +627,21 @@ defmodule ExTypesense.Document do
       iex> query = [filter_by: "num_employees:>100", batch_size: 100]
       iex> ExTypesense.delete_documents_by_query(Employee, query)
       {:ok, [...]}
+
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> opts = Keyword.put(query, :conn, conn)
+      iex> ExTypesense.delete_documents_by_query(Employee, opts)
   """
   @doc since: "1.0.0"
   @spec delete_documents_by_query(String.t() | module(), keyword()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def delete_documents_by_query(collection_name, opts) when is_list(opts) do
-    Connection.new() |> delete_documents_by_query(collection_name, opts)
-  end
-
-  @doc """
-  Same as [delete_documents_by_query/2](`delete_documents_by_query/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.delete_documents_by_query(%{api_key: xyz, host: ...}, "persons", opts)
-
-  ExTypesense.delete_documents_by_query(OpenApiTypesense.Connection.new(), MyModule.Accounts.Person, opts)
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec delete_documents_by_query(
-          map() | Connection.t(),
-          String.t() | module(),
-          keyword()
-        ) :: {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def delete_documents_by_query(conn, module, opts) when is_atom(module) do
+  def delete_documents_by_query(module, opts) when is_atom(module) do
     collection_name = module.__schema__(:source)
-    delete_documents_by_query(conn, collection_name, opts)
+    delete_documents_by_query(collection_name, opts)
   end
 
-  def delete_documents_by_query(conn, collection_name, opts) do
-    OpenApiTypesense.Documents.delete_documents(conn, collection_name, opts)
+  def delete_documents_by_query(coll_name, opts) when is_binary(coll_name) do
+    OpenApiTypesense.Documents.delete_documents(coll_name, opts)
   end
 
   @doc """
@@ -833,51 +663,30 @@ defmodule ExTypesense.Document do
   @doc """
   Same as [delete_all_documents/1](`delete_all_documents/1`).
 
-  ```elixir
-  ExTypesense.delete_all_documents("persons", [])
+  ## Options
 
-  ExTypesense.delete_all_documents(%{api_key: xyz, host: ...}, "persons")
+    * `conn`: The custom connection map or struct you passed
 
-  ExTypesense.delete_all_documents(OpenApiTypesense.Connection.new(), MyModule.Accounts.Person)
-  ```
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.delete_all_documents("persons", conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.delete_all_documents("persons", conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.delete_all_documents(MyModule.Accounts.Person, opts)
   """
   @doc since: "1.0.0"
-  @spec delete_all_documents(
-          map() | Connection.t() | module() | String.t(),
-          module() | String.t() | keyword()
-        ) ::
+  @spec delete_all_documents(module() | String.t(), keyword()) ::
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def delete_all_documents(coll_name, opts) when is_list(opts) do
-    Connection.new() |> delete_all_documents(coll_name, opts)
-  end
-
-  def delete_all_documents(conn, collection_name) do
-    delete_all_documents(conn, collection_name, [])
-  end
-
-  @doc """
-  Same as [delete_all_documents/2](`delete_all_documents/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.delete_all_documents(%{api_key: xyz, host: ...}, "persons", [])
-
-  ExTypesense.delete_all_documents(OpenApiTypesense.Connection.new(), MyModule.Accounts.Person, [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec delete_all_documents(
-          map() | Connection.t(),
-          module() | String.t(),
-          keyword()
-        ) ::
-          {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def delete_all_documents(conn, module, opts) when is_atom(module) do
+  def delete_all_documents(module, opts) when is_atom(module) do
     coll_name = module.__schema__(:source)
-    delete_all_documents(conn, coll_name, opts)
+    delete_all_documents(coll_name, opts)
   end
 
-  def delete_all_documents(conn, collection_name, opts) do
+  def delete_all_documents(coll_name, opts) when is_binary(coll_name) do
     opts = Keyword.put_new(opts, :filter_by, "id:!=''")
-    delete_documents_by_query(conn, collection_name, opts)
+    delete_documents_by_query(coll_name, opts)
   end
 end

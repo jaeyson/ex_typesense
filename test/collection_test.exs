@@ -51,16 +51,10 @@ defmodule CollectionTest do
              ExTypesense.create_collection(schema, [])
 
     assert {:error, %ApiResponse{message: _already_exist}} =
-             ExTypesense.create_collection(conn, schema)
+             ExTypesense.create_collection(schema, conn: conn)
 
     assert {:error, %ApiResponse{message: _already_exist}} =
-             ExTypesense.create_collection(map_conn, schema)
-
-    assert {:error, %ApiResponse{message: _already_exist}} =
-             ExTypesense.create_collection(conn, schema, [])
-
-    assert {:error, %ApiResponse{message: _already_exist}} =
-             ExTypesense.create_collection(map_conn, schema, [])
+             ExTypesense.create_collection(schema, conn: map_conn)
 
     assert {:ok, %CollectionResponse{name: ^prod_name}} = ExTypesense.create_collection(Product)
 
@@ -68,16 +62,10 @@ defmodule CollectionTest do
              ExTypesense.create_collection(Product, [])
 
     assert {:error, %ApiResponse{message: _already_exist}} =
-             ExTypesense.create_collection(conn, Product)
+             ExTypesense.create_collection(Product, conn: conn)
 
     assert {:error, %ApiResponse{message: _already_exist}} =
-             ExTypesense.create_collection(map_conn, Product)
-
-    assert {:error, %ApiResponse{message: _already_exist}} =
-             ExTypesense.create_collection(conn, Product, [])
-
-    assert {:error, %ApiResponse{message: _already_exist}} =
-             ExTypesense.create_collection(map_conn, Product, [])
+             ExTypesense.create_collection(Product, conn: map_conn)
 
     assert {:ok, %CollectionResponse{name: ^name}} = ExTypesense.get_collection(name)
     assert {:ok, %CollectionResponse{name: ^prod_name}} = ExTypesense.get_collection(Product)
@@ -87,10 +75,10 @@ defmodule CollectionTest do
   test "success: list all collections", %{conn: conn, map_conn: map_conn} do
     assert {:ok, _} = ExTypesense.list_collections()
     assert {:ok, _} = ExTypesense.list_collections(exclude_fields: "fields")
-    assert {:ok, _} = ExTypesense.list_collections(conn)
-    assert {:ok, _} = ExTypesense.list_collections(map_conn)
-    assert {:ok, _} = ExTypesense.list_collections(conn, [])
-    assert {:ok, _} = ExTypesense.list_collections(map_conn, [])
+    assert {:ok, _} = ExTypesense.list_collections(conn: conn)
+    assert {:ok, _} = ExTypesense.list_collections(conn: map_conn)
+    assert {:ok, _} = ExTypesense.list_collections(conn: conn, exclude_fields: "fields")
+    assert {:ok, _} = ExTypesense.list_collections(conn: map_conn, exclude_fields: "fields")
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -107,16 +95,10 @@ defmodule CollectionTest do
              ExTypesense.clone_collection(name, "new_v", [])
 
     assert {:ok, %CollectionResponse{name: "new_w"}} =
-             ExTypesense.clone_collection(conn, name, "new_w")
+             ExTypesense.clone_collection(name, "new_w", conn: conn)
 
     assert {:ok, %CollectionResponse{name: "new_x"}} =
-             ExTypesense.clone_collection(map_conn, name, "new_x")
-
-    assert {:ok, %CollectionResponse{name: "new_y"}} =
-             ExTypesense.clone_collection(conn, name, "new_y", [])
-
-    assert {:ok, %CollectionResponse{name: "new_z"}} =
-             ExTypesense.clone_collection(map_conn, name, "new_z", [])
+             ExTypesense.clone_collection(name, "new_x", conn: map_conn)
 
     assert {:ok, %CollectionResponse{name: "prod_u"}} =
              ExTypesense.clone_collection(Product, "prod_u")
@@ -125,16 +107,10 @@ defmodule CollectionTest do
              ExTypesense.clone_collection(Product, "prod_v", [])
 
     assert {:ok, %CollectionResponse{name: "prod_w"}} =
-             ExTypesense.clone_collection(conn, Product, "prod_w")
+             ExTypesense.clone_collection(Product, "prod_w", conn: conn)
 
     assert {:ok, %CollectionResponse{name: "prod_x"}} =
-             ExTypesense.clone_collection(map_conn, Product, "prod_x")
-
-    assert {:ok, %CollectionResponse{name: "prod_y"}} =
-             ExTypesense.clone_collection(conn, Product, "prod_y", [])
-
-    assert {:ok, %CollectionResponse{name: "prod_z"}} =
-             ExTypesense.clone_collection(map_conn, Product, "prod_z", [])
+             ExTypesense.clone_collection(Product, "prod_x", conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -151,12 +127,13 @@ defmodule CollectionTest do
     assert {:ok, %CollectionResponse{name: p_coll_name}} =
              ExTypesense.create_collection_with_alias(Product)
 
-    assert {:error, %ApiResponse{}} = ExTypesense.create_collection_with_alias(conn, Product)
-    assert {:error, %ApiResponse{}} = ExTypesense.create_collection_with_alias(map_conn, Product)
-    assert {:error, %ApiResponse{}} = ExTypesense.create_collection_with_alias(conn, Product, [])
+    assert {:error, %ApiResponse{}} = ExTypesense.create_collection_with_alias(Product, [])
 
     assert {:error, %ApiResponse{}} =
-             ExTypesense.create_collection_with_alias(map_conn, Product, [])
+             ExTypesense.create_collection_with_alias(Product, conn: conn)
+
+    assert {:error, %ApiResponse{}} =
+             ExTypesense.create_collection_with_alias(Product, conn: map_conn)
 
     assert {:ok, %CollectionResponse{name: ^p_coll_name}} =
              ExTypesense.get_collection(Product)
@@ -184,10 +161,8 @@ defmodule CollectionTest do
             }} = ExTypesense.upsert_collection_alias(name <> "_alias", name)
 
     assert {:ok, _} = ExTypesense.upsert_collection_alias(name <> "_alias", name, [])
-    assert {:ok, _} = ExTypesense.upsert_collection_alias(conn, name <> "_alias", name)
-    assert {:ok, _} = ExTypesense.upsert_collection_alias(map_conn, name <> "_alias", name)
-    assert {:ok, _} = ExTypesense.upsert_collection_alias(conn, name <> "_alias", name, [])
-    assert {:ok, _} = ExTypesense.upsert_collection_alias(map_conn, name <> "_alias", name, [])
+    assert {:ok, _} = ExTypesense.upsert_collection_alias(name <> "_alias", name, conn: conn)
+    assert {:ok, _} = ExTypesense.upsert_collection_alias(name <> "_alias", name, conn: map_conn)
 
     assert {:ok,
             %CollectionAlias{
@@ -203,28 +178,26 @@ defmodule CollectionTest do
 
     assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(alias_name)
     assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(alias_name, [])
-    assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(conn, alias_name)
-    assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(map_conn, alias_name)
-    assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(conn, alias_name, [])
-    assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(map_conn, alias_name, [])
+    assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(alias_name, conn: conn)
+
+    assert {:ok, %CollectionAlias{}} =
+             ExTypesense.get_collection_alias(alias_name, conn: map_conn)
 
     assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(alias_prod_name)
     assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(alias_prod_name, [])
-    assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(conn, alias_prod_name)
-    assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(map_conn, alias_prod_name)
-    assert {:ok, %CollectionAlias{}} = ExTypesense.get_collection_alias(conn, alias_prod_name, [])
 
     assert {:ok, %CollectionAlias{}} =
-             ExTypesense.get_collection_alias(map_conn, alias_prod_name, [])
+             ExTypesense.get_collection_alias(alias_prod_name, conn: conn)
+
+    assert {:ok, %CollectionAlias{}} =
+             ExTypesense.get_collection_alias(alias_prod_name, conn: map_conn)
 
     assert {:ok, %CollectionAliasesResponse{aliases: aliases}} =
              ExTypesense.list_collection_aliases()
 
     assert {:ok, _} = ExTypesense.list_collection_aliases([])
-    assert {:ok, _} = ExTypesense.list_collection_aliases(conn)
-    assert {:ok, _} = ExTypesense.list_collection_aliases(map_conn)
-    assert {:ok, _} = ExTypesense.list_collection_aliases(conn, [])
-    assert {:ok, _} = ExTypesense.list_collection_aliases(map_conn, [])
+    assert {:ok, _} = ExTypesense.list_collection_aliases(conn: conn)
+    assert {:ok, _} = ExTypesense.list_collection_aliases(conn: map_conn)
 
     assert aliases >= 0
   end
@@ -236,34 +209,32 @@ defmodule CollectionTest do
 
     assert {:error, %ApiResponse{message: ^message}} = ExTypesense.drop_collection(coll_name)
     assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(coll_name, [])
-    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(conn, coll_name)
-    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(map_conn, coll_name)
-    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(conn, coll_name, [])
-    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(map_conn, coll_name, [])
+    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(coll_name, conn: conn)
+    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(coll_name, conn: map_conn)
 
     assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(Product)
     assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(Product, [])
-    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(conn, Product)
-    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(map_conn, Product)
-    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(conn, Product, [])
-    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(map_conn, Product, [])
+    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(Product, conn: conn)
+    assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(Product, conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: get unknown collection", %{conn: conn, map_conn: map_conn} do
     assert {:error, %ApiResponse{message: "Not Found"}} = ExTypesense.get_collection("xyz")
-    assert {:error, %ApiResponse{message: "Not Found"}} = ExTypesense.get_collection(conn, "xyz")
 
     assert {:error, %ApiResponse{message: "Not Found"}} =
-             ExTypesense.get_collection(map_conn, "xyz")
+             ExTypesense.get_collection("xyz", conn: conn)
+
+    assert {:error, %ApiResponse{message: "Not Found"}} =
+             ExTypesense.get_collection("xyz", conn: map_conn)
 
     assert {:error, %ApiResponse{message: "Not Found"}} = ExTypesense.get_collection(Product)
 
     assert {:error, %ApiResponse{message: "Not Found"}} =
-             ExTypesense.get_collection(conn, Product)
+             ExTypesense.get_collection(Product, conn: conn)
 
     assert {:error, %ApiResponse{message: "Not Found"}} =
-             ExTypesense.get_collection(map_conn, Product)
+             ExTypesense.get_collection(Product, conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -300,40 +271,29 @@ defmodule CollectionTest do
              ExTypesense.update_collection_fields(schema.name, fields, [])
 
     assert {:error, %ApiResponse{}} =
-             ExTypesense.update_collection_fields(conn, schema.name, fields)
+             ExTypesense.update_collection_fields(schema.name, fields, conn: conn)
 
     assert {:error, %ApiResponse{}} =
-             ExTypesense.update_collection_fields(map_conn, schema.name, fields)
-
-    assert {:error, %ApiResponse{}} =
-             ExTypesense.update_collection_fields(conn, schema.name, fields, [])
-
-    assert {:error, %ApiResponse{}} =
-             ExTypesense.update_collection_fields(map_conn, schema.name, fields, [])
+             ExTypesense.update_collection_fields(schema.name, fields, conn: map_conn)
 
     assert {:error, %ApiResponse{}} = ExTypesense.update_collection_fields(Product, fields)
     assert {:error, %ApiResponse{}} = ExTypesense.update_collection_fields(Product, fields, [])
-    assert {:error, %ApiResponse{}} = ExTypesense.update_collection_fields(conn, Product, fields)
 
     assert {:error, %ApiResponse{}} =
-             ExTypesense.update_collection_fields(map_conn, Product, fields)
+             ExTypesense.update_collection_fields(Product, fields, conn: conn)
 
     assert {:error, %ApiResponse{}} =
-             ExTypesense.update_collection_fields(map_conn, Product, fields)
+             ExTypesense.update_collection_fields(Product, fields, conn: map_conn)
 
     assert {:ok, collection} = ExTypesense.get_collection(schema.name)
     assert {:ok, _} = ExTypesense.get_collection(schema.name, [])
-    assert {:ok, _} = ExTypesense.get_collection(conn, schema.name)
-    assert {:ok, _} = ExTypesense.get_collection(map_conn, schema.name)
-    assert {:ok, _} = ExTypesense.get_collection(conn, schema.name, [])
-    assert {:ok, _} = ExTypesense.get_collection(map_conn, schema.name, [])
+    assert {:ok, _} = ExTypesense.get_collection(schema.name, conn: conn)
+    assert {:ok, _} = ExTypesense.get_collection(schema.name, conn: map_conn)
 
     assert {:error, _} = ExTypesense.get_collection(Product)
     assert {:error, _} = ExTypesense.get_collection(Product, [])
-    assert {:error, _} = ExTypesense.get_collection(conn, Product)
-    assert {:error, _} = ExTypesense.get_collection(map_conn, Product)
-    assert {:error, _} = ExTypesense.get_collection(conn, Product, [])
-    assert {:error, _} = ExTypesense.get_collection(map_conn, Product, [])
+    assert {:error, _} = ExTypesense.get_collection(Product, conn: conn)
+    assert {:error, _} = ExTypesense.get_collection(Product, conn: map_conn)
 
     test = Enum.find(collection.fields, fn map -> map.name === "test" end)
 
@@ -352,10 +312,8 @@ defmodule CollectionTest do
     assert {:error, %ApiResponse{message: "Not Found"}} = ExTypesense.get_collection_alias("xyz")
     assert {:ok, _} = ExTypesense.get_collection_alias(alias_name)
     assert {:ok, _} = ExTypesense.get_collection_alias(alias_name, [])
-    assert {:ok, _} = ExTypesense.get_collection_alias(conn, alias_name)
-    assert {:ok, _} = ExTypesense.get_collection_alias(map_conn, alias_name)
-    assert {:ok, _} = ExTypesense.get_collection_alias(conn, alias_name, [])
-    assert {:ok, _} = ExTypesense.get_collection_alias(map_conn, alias_name, [])
+    assert {:ok, _} = ExTypesense.get_collection_alias(alias_name, conn: conn)
+    assert {:ok, _} = ExTypesense.get_collection_alias(alias_name, conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -371,12 +329,10 @@ defmodule CollectionTest do
 
     assert {:ok, %CollectionAlias{}} = ExTypesense.delete_collection_alias(alias_name)
     assert {:error, %ApiResponse{}} = ExTypesense.delete_collection_alias(alias_name, [])
-    assert {:error, %ApiResponse{}} = ExTypesense.delete_collection_alias(conn, alias_name)
-    assert {:error, %ApiResponse{}} = ExTypesense.delete_collection_alias(map_conn, alias_name)
-    assert {:error, %ApiResponse{}} = ExTypesense.delete_collection_alias(conn, alias_name, [])
+    assert {:error, %ApiResponse{}} = ExTypesense.delete_collection_alias(alias_name, conn: conn)
 
     assert {:error, %ApiResponse{}} =
-             ExTypesense.delete_collection_alias(map_conn, alias_name, [])
+             ExTypesense.delete_collection_alias(alias_name, conn: map_conn)
 
     assert {:error, %ApiResponse{message: "Not Found"}} ===
              ExTypesense.get_collection_alias(alias_name)

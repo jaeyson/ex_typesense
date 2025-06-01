@@ -9,8 +9,6 @@ defmodule ExTypesense.Key do
   More here: https://typesense.org/docs/latest/api/api-keys.html
   """
 
-  alias OpenApiTypesense.Connection
-
   @doc """
   Retrieve (metadata about) all keys.
   """
@@ -24,36 +22,25 @@ defmodule ExTypesense.Key do
   @doc """
   Same as [get_key/1](`get_key/1`)
 
-  ```elixir
-  ExTypesense.get_key(6, [])
-  ExTypesense.get_key(%{api_key: xyz, host: ...}, 7)
-  ExTypesense.get_key(OpenApiTypesense.Connection.new(), 8)
-  ```
+  ## Options
+
+    * `conn`: The custom connection map or struct you passed
+
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.get_key(6, conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.get_key(7, conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.get_key(8, opts)
   """
   @doc since: "1.0.0"
-  @spec get_key(map() | Connection.t() | integer(), integer() | keyword()) ::
+  @spec get_key(integer(), keyword()) ::
           {:ok, OpenApiTypesense.ApiKey.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def get_key(key_id, opts) when is_list(opts) do
-    Connection.new() |> get_key(key_id, opts)
-  end
-
-  def get_key(conn, key_id) do
-    get_key(conn, key_id, [])
-  end
-
-  @doc """
-  Same as [get_key/2](`get_key/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.get_key(%{api_key: xyz, host: ...}, 7, [])
-  ExTypesense.get_key(OpenApiTypesense.Connection.new(), 8, [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec get_key(map() | Connection.t(), integer(), keyword()) ::
-          {:ok, OpenApiTypesense.ApiKey.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def get_key(conn, key_id, opts) do
-    OpenApiTypesense.Keys.get_key(conn, key_id, opts)
+  def get_key(key_id, opts) do
+    OpenApiTypesense.Keys.get_key(key_id, opts)
   end
 
   @doc """
@@ -70,38 +57,26 @@ defmodule ExTypesense.Key do
   @doc """
   Same as [delete_key/1](`delete_key/1`)
 
-  ```elixir
-  ExTypesense.delete_key(6, [])
-  ExTypesense.delete_key(%{api_key: xyz, host: ...}, 7)
-  ExTypesense.delete_key(OpenApiTypesense.Connection.new(), 8)
-  ```
+  ## Options
+
+    * `conn`: The custom connection map or struct you passed
+
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.delete_key(6, conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.delete_key(7, conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.delete_key(8, opts)
   """
   @doc since: "1.0.0"
-  @spec delete_key(map() | Connection.t() | integer(), integer() | keyword()) ::
+  @spec delete_key(integer(), keyword()) ::
           {:ok, OpenApiTypesense.ApiKeyDeleteResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
-  def delete_key(key_id, opts) when is_list(opts) do
-    Connection.new() |> delete_key(key_id, opts)
-  end
-
-  def delete_key(conn, key_id) do
-    delete_key(conn, key_id, [])
-  end
-
-  @doc """
-  Same as [delete_key/2](`delete_key/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.delete_key(%{api_key: xyz, host: ...}, 7, [])
-  ExTypesense.delete_key(OpenApiTypesense.Connection.new(), 8, [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec delete_key(map() | Connection.t(), integer(), keyword()) ::
-          {:ok, OpenApiTypesense.ApiKeyDeleteResponse.t()}
-          | {:error, OpenApiTypesense.ApiResponse.t()}
-  def delete_key(conn, key_id, opts) do
-    OpenApiTypesense.Keys.delete_key(conn, key_id, opts)
+  def delete_key(key_id, opts) do
+    OpenApiTypesense.Keys.delete_key(key_id, opts)
   end
 
   @doc """
@@ -128,36 +103,25 @@ defmodule ExTypesense.Key do
   @doc """
   Same as [create_key/1](`create_key/1`)
 
-  ```elixir
-  ExTypesense.create_key(body, [])
-  ExTypesense.create_key(%{api_key: xyz, host: ...}, body)
-  ExTypesense.create_key(OpenApiTypesense.Connection.new(), body)
-  ```
+  ## Options
+
+    * `conn`: The custom connection map or struct you passed
+
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.create_key(body, conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.create_key(body, conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.create_key(body, opts)
   """
   @doc since: "1.0.0"
-  @spec create_key(map() | Connection.t(), map() | keyword()) ::
+  @spec create_key(map(), keyword()) ::
           {:ok, OpenApiTypesense.ApiKey.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def create_key(body, opts) when is_list(opts) do
-    Connection.new() |> create_key(body, opts)
-  end
-
-  def create_key(conn, body) do
-    create_key(conn, body, [])
-  end
-
-  @doc """
-  Same as [create_key/2](`create_key/2`) but passes another connection.
-
-  ```elixir
-  ExTypesense.create_key(%{api_key: xyz, host: ...}, body, [])
-  ExTypesense.create_key(OpenApiTypesense.Connection.new(), body, [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec create_key(map() | Connection.t(), map(), keyword()) ::
-          {:ok, OpenApiTypesense.ApiKey.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
-  def create_key(conn, body, opts) do
-    OpenApiTypesense.Keys.create_key(conn, body, opts)
+  def create_key(body, opts) do
+    OpenApiTypesense.Keys.create_key(body, opts)
   end
 
   @doc """
@@ -172,35 +136,24 @@ defmodule ExTypesense.Key do
   @doc """
   Same as [list_keys/0](`list_keys/0`)
 
-  ```elixir
-  ExTypesense.list_keys([])
-  ExTypesense.list_keys(%{api_key: xyz, host: ...})
-  ExTypesense.list_keys(OpenApiTypesense.Connection.new())
-  ```
+  ## Options
+
+    * `conn`: The custom connection map or struct you passed
+
+  ## Examples
+      iex> conn = %{api_key: xyz, host: ...}
+      iex> ExTypesense.list_keys(conn: conn)
+
+      iex> conn = OpenApiTypesense.Connection.new()
+      iex> ExTypesense.list_keys(conn: conn)
+
+      iex> opts = [conn: conn]
+      iex> ExTypesense.list_keys(opts)
   """
   @doc since: "1.0.0"
-  @spec list_keys(map() | Connection.t() | keyword()) ::
+  @spec list_keys(keyword()) ::
           {:ok, OpenApiTypesense.ApiKeysResponse.t()} | :error
-  def list_keys(opts) when is_list(opts) do
-    Connection.new() |> list_keys(opts)
-  end
-
-  def list_keys(conn) do
-    list_keys(conn, [])
-  end
-
-  @doc """
-  Same as [list_keys/1](`list_keys/1`) but passes another connection.
-
-  ```elixir
-  ExTypesense.list_keys(%{api_key: xyz, host: ...}, [])
-  ExTypesense.list_keys(OpenApiTypesense.Connection.new(), [])
-  ```
-  """
-  @doc since: "1.0.0"
-  @spec list_keys(map() | Connection.t() | keyword()) ::
-          {:ok, OpenApiTypesense.ApiKeysResponse.t()} | :error
-  def list_keys(conn, opts) do
-    OpenApiTypesense.Keys.get_keys(conn, opts)
+  def list_keys(opts) do
+    OpenApiTypesense.Keys.get_keys(opts)
   end
 end

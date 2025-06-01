@@ -15,9 +15,7 @@ defmodule DebugTest do
   test "debug", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %Debug{version: _}} = ExTypesense.debug()
     assert {:ok, _} = ExTypesense.debug([])
-    assert {:ok, _} = ExTypesense.debug(conn)
-    assert {:ok, _} = ExTypesense.debug(map_conn)
-    assert {:ok, _} = ExTypesense.debug(conn, [])
-    assert {:ok, _} = ExTypesense.debug(map_conn, [])
+    assert {:ok, _} = ExTypesense.debug(conn: conn)
+    assert {:ok, _} = ExTypesense.debug(conn: map_conn)
   end
 end

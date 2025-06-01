@@ -52,26 +52,26 @@ defmodule StemmingTest do
               %{"root" => "person", "word" => "people"},
               %{"root" => "child", "word" => "children"},
               %{"root" => "goose", "word" => "geese"}
-            ]} = ExTypesense.import_stemming_dictionary(conn, body, id: id)
+            ]} = ExTypesense.import_stemming_dictionary(body, id: id, conn: conn)
 
     assert {:ok,
             [
               %{"root" => "person", "word" => "people"},
               %{"root" => "child", "word" => "children"},
               %{"root" => "goose", "word" => "geese"}
-            ]} = ExTypesense.import_stemming_dictionary(map_conn, body, id: id)
+            ]} = ExTypesense.import_stemming_dictionary(body, id: id, conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": false, "27.0": false, "26.0": false]
   test "success: list stemming dictionaries", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %OpenApiTypesense.Stemming{}} = ExTypesense.list_stemming_dictionaries()
     assert {:ok, %OpenApiTypesense.Stemming{}} = ExTypesense.list_stemming_dictionaries([])
-    assert {:ok, %OpenApiTypesense.Stemming{}} = ExTypesense.list_stemming_dictionaries(conn)
-    assert {:ok, %OpenApiTypesense.Stemming{}} = ExTypesense.list_stemming_dictionaries(map_conn)
-    assert {:ok, %OpenApiTypesense.Stemming{}} = ExTypesense.list_stemming_dictionaries(conn, [])
 
     assert {:ok, %OpenApiTypesense.Stemming{}} =
-             ExTypesense.list_stemming_dictionaries(map_conn, [])
+             ExTypesense.list_stemming_dictionaries(conn: conn)
+
+    assert {:ok, %OpenApiTypesense.Stemming{}} =
+             ExTypesense.list_stemming_dictionaries(conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": false, "27.0": false, "26.0": false]
@@ -97,11 +97,11 @@ defmodule StemmingTest do
 
     assert {:ok, %StemmingDictionary{id: ^id}} = ExTypesense.get_stemming_dictionary(id)
     assert {:ok, %StemmingDictionary{id: ^id}} = ExTypesense.get_stemming_dictionary(id, [])
-    assert {:ok, %StemmingDictionary{id: ^id}} = ExTypesense.get_stemming_dictionary(conn, id)
-    assert {:ok, %StemmingDictionary{id: ^id}} = ExTypesense.get_stemming_dictionary(map_conn, id)
-    assert {:ok, %StemmingDictionary{id: ^id}} = ExTypesense.get_stemming_dictionary(conn, id, [])
 
     assert {:ok, %StemmingDictionary{id: ^id}} =
-             ExTypesense.get_stemming_dictionary(map_conn, id, [])
+             ExTypesense.get_stemming_dictionary(id, conn: conn)
+
+    assert {:ok, %StemmingDictionary{id: ^id}} =
+             ExTypesense.get_stemming_dictionary(id, conn: map_conn)
   end
 end

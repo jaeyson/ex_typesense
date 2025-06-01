@@ -56,50 +56,38 @@ defmodule CurationTest do
              ExTypesense.upsert_override(schema.name, name, body)
 
     assert {:ok, _} = ExTypesense.upsert_override(schema.name, name, body, [])
-    assert {:ok, _} = ExTypesense.upsert_override(conn, schema.name, name, body)
-    assert {:ok, _} = ExTypesense.upsert_override(map_conn, schema.name, name, body)
-    assert {:ok, _} = ExTypesense.upsert_override(conn, schema.name, name, body, [])
-    assert {:ok, _} = ExTypesense.upsert_override(map_conn, schema.name, name, body, [])
+    assert {:ok, _} = ExTypesense.upsert_override(schema.name, name, body, conn: conn)
+    assert {:ok, _} = ExTypesense.upsert_override(schema.name, name, body, conn: map_conn)
 
     assert {:ok, %SearchOverride{id: ^name}} =
              ExTypesense.upsert_override(House, name, body)
 
     assert {:ok, _} = ExTypesense.upsert_override(House, name, body, [])
-    assert {:ok, _} = ExTypesense.upsert_override(conn, House, name, body)
-    assert {:ok, _} = ExTypesense.upsert_override(map_conn, House, name, body)
-    assert {:ok, _} = ExTypesense.upsert_override(conn, House, name, body, [])
-    assert {:ok, _} = ExTypesense.upsert_override(map_conn, House, name, body, [])
+    assert {:ok, _} = ExTypesense.upsert_override(House, name, body, conn: conn)
+    assert {:ok, _} = ExTypesense.upsert_override(House, name, body, conn: map_conn)
 
     assert {:ok, %SearchOverride{id: ^name}} = ExTypesense.get_override(schema.name, name)
     assert {:ok, _} = ExTypesense.get_override(schema.name, name, [])
-    assert {:ok, _} = ExTypesense.get_override(conn, schema.name, name)
-    assert {:ok, _} = ExTypesense.get_override(map_conn, schema.name, name)
-    assert {:ok, _} = ExTypesense.get_override(conn, schema.name, name, [])
-    assert {:ok, _} = ExTypesense.get_override(map_conn, schema.name, name, [])
+    assert {:ok, _} = ExTypesense.get_override(schema.name, name, conn: conn)
+    assert {:ok, _} = ExTypesense.get_override(schema.name, name, conn: map_conn)
 
     assert {:ok, %SearchOverride{id: ^name}} = ExTypesense.get_override(House, name)
     assert {:ok, _} = ExTypesense.get_override(House, name, [])
-    assert {:ok, _} = ExTypesense.get_override(conn, House, name)
-    assert {:ok, _} = ExTypesense.get_override(map_conn, House, name)
-    assert {:ok, _} = ExTypesense.get_override(conn, House, name, [])
-    assert {:ok, _} = ExTypesense.get_override(map_conn, House, name, [])
+    assert {:ok, _} = ExTypesense.get_override(House, name, conn: conn)
+    assert {:ok, _} = ExTypesense.get_override(House, name, conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: list all overrides", %{schema: schema, conn: conn, map_conn: map_conn} do
     assert {:ok, %SearchOverridesResponse{}} = ExTypesense.list_overrides(schema.name)
     assert {:ok, _} = ExTypesense.list_overrides(schema.name, [])
-    assert {:ok, _} = ExTypesense.list_overrides(conn, schema.name)
-    assert {:ok, _} = ExTypesense.list_overrides(map_conn, schema.name)
-    assert {:ok, _} = ExTypesense.list_overrides(conn, schema.name, [])
-    assert {:ok, _} = ExTypesense.list_overrides(map_conn, schema.name, [])
+    assert {:ok, _} = ExTypesense.list_overrides(schema.name, conn: conn)
+    assert {:ok, _} = ExTypesense.list_overrides(schema.name, conn: map_conn)
 
     assert {:ok, %SearchOverridesResponse{}} = ExTypesense.list_overrides(House)
     assert {:ok, _} = ExTypesense.list_overrides(House, [])
-    assert {:ok, _} = ExTypesense.list_overrides(conn, House)
-    assert {:ok, _} = ExTypesense.list_overrides(map_conn, House)
-    assert {:ok, _} = ExTypesense.list_overrides(conn, House, [])
-    assert {:ok, _} = ExTypesense.list_overrides(map_conn, House, [])
+    assert {:ok, _} = ExTypesense.list_overrides(House, conn: conn)
+    assert {:ok, _} = ExTypesense.list_overrides(House, conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -130,10 +118,8 @@ defmodule CurationTest do
     assert {:error, %ApiResponse{message: "Could not find that `id`."}} =
              ExTypesense.delete_override(schema.name, name, [])
 
-    assert {:error, _} = ExTypesense.delete_override(conn, schema.name, name)
-    assert {:error, _} = ExTypesense.delete_override(map_conn, schema.name, name)
-    assert {:error, _} = ExTypesense.delete_override(conn, schema.name, name, [])
-    assert {:error, _} = ExTypesense.delete_override(map_conn, schema.name, name, [])
+    assert {:error, _} = ExTypesense.delete_override(schema.name, name, conn: conn)
+    assert {:error, _} = ExTypesense.delete_override(schema.name, name, conn: map_conn)
 
     assert {:ok, %SearchOverride{id: ^name}} =
              ExTypesense.upsert_override(House, name, body)
@@ -144,9 +130,7 @@ defmodule CurationTest do
     assert {:error, %ApiResponse{message: "Could not find that `id`."}} =
              ExTypesense.delete_override(House, name, [])
 
-    assert {:error, _} = ExTypesense.delete_override(conn, House, name)
-    assert {:error, _} = ExTypesense.delete_override(map_conn, House, name)
-    assert {:error, _} = ExTypesense.delete_override(conn, House, name, [])
-    assert {:error, _} = ExTypesense.delete_override(map_conn, House, name, [])
+    assert {:error, _} = ExTypesense.delete_override(House, name, conn: conn)
+    assert {:error, _} = ExTypesense.delete_override(House, name, conn: map_conn)
   end
 end

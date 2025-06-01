@@ -86,6 +86,25 @@
 > Under the hood, this library utilizes [open_api_typesense](https://github.com/jaeyson/open_api_typesense)
 > to make sure it adheres to [Typesense's OpenAPI spec](https://github.com/typesense/typesense-api-spec).
 
+> #### Upgrading to v2 {: .warning}
+>
+> Purpose of v2 is to reduce code duplication and to streamline
+> passing of options (including `conn`). The breaking change here
+> is `conn` is now part of `opts`. > when calling functions, see
+> example below:
+
+```elixir
+# pre-v1
+Collections.get_collections(conn, opts)
+
+# v1
+Collections.get_collections(conn: conn)
+
+# another way (v1)
+opts = [limit: 1, conn: conn]
+Collections.get_collections(opts)
+```
+
 > #### upgrading to `1.0.0` contains **LOTS** of breaking changes. {: .warning}
 
 ## Installation
@@ -166,6 +185,12 @@ config :open_api_typesense,
   scheme: "https"
 ```
 
+Test if working:
+
+```elixir
+ExTypesense.health()
+```
+
 ### using map
 
 Option 2: Set credentials from a map
@@ -201,7 +226,7 @@ conn = %{
 
 # NOTE: create a collection and import documents
 # first before using the command below
-ExTypesense.search(conn, collection_name, query)
+ExTypesense.search(collection_name, query, conn: conn)
 ```
 
 Or convert your struct to map, as long as the keys matches in [`OpenApiTypesense.Connection.t()`](https://hexdocs.pm/open_api_typesense/OpenApiTypesense.Connection.html#t:t/0):
@@ -211,7 +236,7 @@ conn = Map.from_struct(MyApp.Credential)
 
 # NOTE: create a collection and import documents
 # first before using the command below
-ExTypesense.search(conn, collection_name, query)
+ExTypesense.search(collection_name, query, conn: conn)
 ```
 
 Or you don't want to change the fields in your Ecto schema, thus you convert it to map:
@@ -233,7 +258,7 @@ conn =
 
 # NOTE: create a collection and import documents
 # first before using the command below
-ExTypesense.search(conn, collection_name, query)
+ExTypesense.search(collection_name, query, conn: conn)
 ```
 
 Or just plain map
@@ -246,7 +271,7 @@ conn = %{
     scheme: "http"
 }
 
-ExTypesense.health(conn)
+ExTypesense.health(conn: conn)
 ```
 
 <!-- tabs-close -->
