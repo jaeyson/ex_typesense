@@ -348,7 +348,6 @@ defmodule ExTypesense.Cluster do
 
       iex> opts = [conn: conn]
       iex> ExTypesense.vote(opts)
-  ```
   """
   @spec vote(keyword()) :: {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
   def vote(opts) do

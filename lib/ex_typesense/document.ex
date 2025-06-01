@@ -180,6 +180,11 @@ defmodule ExTypesense.Document do
   > when using maps as documents using [`index_document/1`](`index_document/1`),
   > you should pass a key named `collection_name`.
 
+  > #### on using struct {: .info}
+  >
+  > Please refer on this [page](`ExTypesense`) for more info on how to
+  > setup with Ecto Schema.
+
   ## Options
 
     * `action`: "create" (default), "upsert", "update", "emplace"
@@ -651,7 +656,7 @@ defmodule ExTypesense.Document do
   >
   > As of this writing (v0.5.0), there's no built-in way of deleting
   > all documents via [Typesense docs](https://github.com/typesense/typesense/issues/1613#issuecomment-1994986258).
-  > This function uses [`delete_documents_by_query/3`](`delete_documents_by_query/3`) under the hood.
+  > This function uses [`delete_documents_by_query/2`](`delete_documents_by_query/2`) under the hood.
   """
   @doc since: "1.0.0"
   @spec delete_all_documents(module() | String.t()) ::

@@ -95,14 +95,14 @@
 
 ```elixir
 # pre-v2
-Collections.get_collections(conn, opts)
+ExTypesense.list_collections(conn, opts)
 
 # v2
-Collections.get_collections(conn: conn)
+ExTypesense.list_collections(conn: conn)
 
 # another way (v2)
 opts = [limit: 1, conn: conn]
-Collections.get_collections(opts)
+ExTypesense.list_collections(opts)
 ```
 
 ## Installation
