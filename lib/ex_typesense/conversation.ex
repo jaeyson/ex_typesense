@@ -146,7 +146,7 @@ defmodule ExTypesense.Conversation do
   """
   @doc since: "1.0.0"
   @spec list_models ::
-          {:ok, [OpenApiTypesense.ConversationModelSchema.t()]} | :error
+          {:ok, [OpenApiTypesense.ConversationModelSchema.t()]} | {:error, OpenApiTypesense.ApiResponse.t()}
   def list_models do
     list_models([])
   end

@@ -74,7 +74,8 @@ defmodule ExTypesense.Stemming do
   @spec import_stemming_dictionary(list(map()), keyword()) ::
           {:ok, String.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def import_stemming_dictionary(body, opts) do
-    OpenApiTypesense.Stemming.import_stemming_dictionary(body, opts)
+    json_body = Jason.encode!(body)
+    OpenApiTypesense.Stemming.import_stemming_dictionary(json_body, opts)
   end
 
   @doc """

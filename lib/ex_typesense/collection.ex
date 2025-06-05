@@ -203,6 +203,7 @@ defmodule ExTypesense.Collection do
     OpenApiTypesense.Collections.create_collection(schema, opts)
   end
 
+
   @doc """
   Clone an existing collection's schema (documents are not copied),
   overrides and synonyms. The actual documents in the collection are
