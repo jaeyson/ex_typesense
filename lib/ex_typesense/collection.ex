@@ -200,9 +200,9 @@ defmodule ExTypesense.Collection do
   end
 
   def create_collection(schema, opts) when is_map(schema) do
-    collection_schema = struct!(OpenApiTypesense.CollectionSchema, schema)
-    OpenApiTypesense.Collections.create_collection(collection_schema, opts)
+    OpenApiTypesense.Collections.create_collection(schema, opts)
   end
+
 
   @doc """
   Clone an existing collection's schema (documents are not copied),
@@ -547,7 +547,7 @@ defmodule ExTypesense.Collection do
   end
 
   def upsert_collection_alias(alias_name, coll_name, opts) when is_binary(coll_name) do
-    body = %OpenApiTypesense.CollectionAliasSchema{collection_name: coll_name}
+    body = %{"collection_name" => coll_name}
     OpenApiTypesense.Collections.upsert_alias(alias_name, body, opts)
   end
 
