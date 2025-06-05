@@ -269,7 +269,7 @@ defmodule ExTypesense.Search do
         end
       end)
 
-    OpenApiTypesense.Documents.multi_search(%{union: union, searches: searches}, opts)
+    OpenApiTypesense.Documents.multi_search(%OpenApiTypesense.MultiSearchSearchesParameter{union: union, searches: searches}, opts)
   end
 
   @doc """
@@ -293,7 +293,7 @@ defmodule ExTypesense.Search do
   """
   @doc since: "1.0.0"
   @spec multi_search_ecto(list(map())) ::
-          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.MultiSearchResult.t()})
+          list(Ecto.Query.t() | OpenApiTypesense.ApiResponse.t())
   def multi_search_ecto(searches) do
     multi_search_ecto(searches, [])
   end
@@ -314,20 +314,24 @@ defmodule ExTypesense.Search do
   """
   @doc since: "1.0.0"
   @spec multi_search_ecto(list(map()), keyword()) ::
-          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.MultiSearchResult.t()})
+          list(Ecto.Query.t() | OpenApiTypesense.ApiResponse.t())
   def multi_search_ecto(searches, opts) do
-    {:ok, %MultiSearchResult{results: results}} = multi_search(searches, opts)
+    case multi_search(searches, opts) do
+      {:ok, %MultiSearchResult{results: results}} ->
+        Enum.map(results, fn result ->
+          case result do
+            %{error: message, code: _http_status_code} ->
+              %OpenApiTypesense.ApiResponse{message: message}
 
-    Enum.map(results, fn result ->
-      case result do
-        %{error: message, code: _http_status_code} ->
-          %OpenApiTypesense.ApiResponse{message: message}
+            _ ->
+              collection_name = get_in(result, [:request_params, :collection_name])
+              hits_to_query(result.hits, collection_name)
+          end
+        end)
 
-        _ ->
-          collection_name = get_in(result, [:request_params, :collection_name])
-          hits_to_query(result.hits, collection_name)
-      end
-    end)
+      {:error, error} ->
+        [error]
+    end
   end
 
   @doc false
