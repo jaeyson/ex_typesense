@@ -57,7 +57,7 @@ defmodule ExTypesense.Cluster do
       iex> ExTypesense.api_stats()
   """
   @doc since: "0.3.0"
-  @spec api_stats :: {:ok, OpenApiTypesense.ApiStatsResponse.t()} | :error
+  @spec api_stats :: {:ok, OpenApiTypesense.APIStatsResponse.t()} | :error
   def api_stats do
     api_stats([])
   end
@@ -80,7 +80,7 @@ defmodule ExTypesense.Cluster do
       iex> ExTypesense.api_stats(opts)
   """
   @doc since: "1.0.0"
-  @spec api_stats(keyword()) :: {:ok, OpenApiTypesense.ApiStatsResponse.t()} | :error
+  @spec api_stats(keyword()) :: {:ok, OpenApiTypesense.APIStatsResponse.t()} | :error
   def api_stats([]) do
     conn = OpenApiTypesense.Connection.new()
     OpenApiTypesense.Operations.retrieve_api_stats(conn: conn)
