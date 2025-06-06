@@ -129,6 +129,36 @@ jobs:
         run: mix format --check-formatted
         if: ${{ matrix.lint }}
 
+      - name: Restore PLT cache
+        id: plt_cache
+        uses: actions/cache/restore@v4
+        with:
+          key: |
+            plt-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            plt-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-
+          path: |
+            priv/plts
+        if: ${{ matrix.lint }}
+
+      - name: Create PLTs
+        if: ${{ steps.plt_cache.outputs.cache-hit != 'true' && matrix.lint }}
+        run: mix dialyzer --plt
+
+      - name: Save PLT cache
+        id: plt_cache_save
+        uses: actions/cache/save@v4
+        if: ${{ steps.plt_cache.outputs.cache-hit != 'true' && matrix.lint }}
+        with:
+          key: |
+            plt-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
+          path: |
+            priv/plts
+
+      - name: Dialyzer
+        run: mix dialyzer --format github --format dialyxir
+        if: ${{ matrix.lint }}
+
       - name: Run tests
         run: mix test --only ${{ matrix.typesense }}:true --trace
 
