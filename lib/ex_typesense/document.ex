@@ -123,7 +123,7 @@ defmodule ExTypesense.Document do
   """
   @doc since: "1.0.0"
   @spec import_documents(String.t() | module(), [struct()] | [map()]) ::
-          {:ok, [map()]} | {:error, OpenApiTypesense.ApiResponse.t()}
+          {:ok, String.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def import_documents(coll_name, docs) do
     import_documents(coll_name, docs, [])
   end
@@ -149,7 +149,7 @@ defmodule ExTypesense.Document do
   """
   @doc since: "1.0.0"
   @spec import_documents(String.t() | module(), [struct()] | [map()], keyword()) ::
-          {:ok, [map()]} | {:error, OpenApiTypesense.ApiResponse.t()}
+          {:ok, String.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def import_documents(module, docs, opts) when is_atom(module) do
     coll_name = module.__schema__(:source)
     import_documents(coll_name, docs, opts)

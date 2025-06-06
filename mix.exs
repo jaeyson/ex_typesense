@@ -19,6 +19,9 @@ defmodule ExTypesense.MixProject do
         "coveralls.post": :test,
         "coveralls.html": :test
       ],
+      dialyzer: [
+        plt_file: {:no_warn, "priv/plts/project.plt"}
+      ],
       description: "Typesense client for Elixir with support for importing your Ecto schemas.",
       docs: docs(),
       package: package(),
@@ -42,7 +45,8 @@ defmodule ExTypesense.MixProject do
       {:ecto, "~> 3.12"},
       {:excoveralls, "~> 0.18", only: :test, runtime: false},
       {:mix_audit, "~> 2.1", only: :test, runtime: false},
-      {:open_api_typesense, "~> 1.0"}
+      {:open_api_typesense, "~> 1.0"},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 

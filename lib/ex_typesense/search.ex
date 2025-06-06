@@ -269,7 +269,10 @@ defmodule ExTypesense.Search do
         end
       end)
 
-    OpenApiTypesense.Documents.multi_search(%{union: union, searches: searches}, opts)
+    body =
+      struct(OpenApiTypesense.MultiSearchSearchesParameter, %{union: union, searches: searches})
+
+    OpenApiTypesense.Documents.multi_search(body, opts)
   end
 
   @doc """
@@ -293,7 +296,7 @@ defmodule ExTypesense.Search do
   """
   @doc since: "1.0.0"
   @spec multi_search_ecto(list(map())) ::
-          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.MultiSearchResult.t()})
+          list(Ecto.Query.t()) | list(OpenApiTypesense.ApiResponse.t())
   def multi_search_ecto(searches) do
     multi_search_ecto(searches, [])
   end
@@ -314,7 +317,7 @@ defmodule ExTypesense.Search do
   """
   @doc since: "1.0.0"
   @spec multi_search_ecto(list(map()), keyword()) ::
-          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.MultiSearchResult.t()})
+          list(Ecto.Query.t()) | list(OpenApiTypesense.ApiResponse.t())
   def multi_search_ecto(searches, opts) do
     {:ok, %MultiSearchResult{results: results}} = multi_search(searches, opts)
 

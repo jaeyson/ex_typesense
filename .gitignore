@@ -37,3 +37,6 @@ ex_typesense-*.tar
 # Misc.
 .elixir_ls
 *.DS_Store
+
+/priv/plts/*.plt
+/priv/plts/*.plt.hash
