@@ -249,7 +249,7 @@ defmodule ExTypesense.Collection do
 
   def clone_collection(src_coll, new_coll, opts) when is_binary(src_coll) do
     opts = Keyword.put_new(opts, :src_name, src_coll)
-    body = struct(OpenApiTypesense.CollectionSchema, %{"name" => new_coll})
+    body = struct(OpenApiTypesense.CollectionSchema, name: new_coll)
     create_collection(body, opts)
   end
 
@@ -547,7 +547,7 @@ defmodule ExTypesense.Collection do
   end
 
   def upsert_collection_alias(alias_name, coll_name, opts) when is_binary(coll_name) do
-    body = struct(OpenApiTypesense.CollectionAliasSchema, %{"collection_name" => coll_name})
+    body = struct(OpenApiTypesense.CollectionAliasSchema, collection_name: coll_name)
     OpenApiTypesense.Collections.upsert_alias(alias_name, body, opts)
   end
 
