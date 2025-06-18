@@ -150,6 +150,16 @@ defmodule SearchTest do
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  test "success: empty results from multi_search Ecto" do
+    searches = [
+      %{collection: Catalog, q: "non-existent-duck", query_by: "name"},
+      %{"collection" => "catalogs", "q" => "non-existent-quack", "query_by" => "name"}
+    ]
+
+    assert [] = ExTypesense.multi_search_ecto(searches)
+  end
+
+  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: multi_search Ecto", %{conn: conn, map_conn: map_conn} do
     catalogs_id = 4_441
 

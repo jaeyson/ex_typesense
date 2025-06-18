@@ -343,11 +343,6 @@ defmodule ExTypesense.Search do
   @doc false
   @doc since: "1.0.0"
   @spec hits_to_query(Enum.t(), String.t()) :: Ecto.Query.t()
-  defp hits_to_query([], schema_name) do
-    schema_name
-    |> where([i], i.id in [])
-  end
-
   defp hits_to_query(hits, schema_name) do
     values =
       Enum.map(hits, fn %{document: document} ->
