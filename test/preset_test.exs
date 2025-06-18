@@ -11,6 +11,16 @@ defmodule PresetTest do
     conn = Connection.new()
     map_conn = %{api_key: "xyz", host: "localhost", port: 8108, scheme: "http"}
 
+    on_exit(fn ->
+      {:ok, %PresetsRetrieveSchema{presets: presets}} = ExTypesense.list_presets([])
+
+      presets
+      |> Enum.map(fn preset ->
+        name = preset.name
+        {:ok, %PresetDeleteSchema{name: ^name}} = ExTypesense.delete_preset(name)
+      end)
+    end)
+
     %{conn: conn, map_conn: map_conn}
   end
 

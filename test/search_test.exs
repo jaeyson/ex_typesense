@@ -151,12 +151,22 @@ defmodule SearchTest do
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: multi_search Ecto", %{conn: conn, map_conn: map_conn} do
+    catalogs_id = 4_441
+
+    doc = %{
+      collection_name: "catalogs",
+      name: "Lil Bertrand ducky",
+      description: "small yellow rubbery ducky toy",
+      catalogs_id: catalogs_id
+    }
+
     searches = [
       %{collection: Catalog, q: "duck", query_by: "name"},
       %{"collection" => "catalogs", "q" => "umbrella", "query_by" => "name"}
     ]
 
-    assert [%Ecto.Query{}, %Ecto.Query{}] = ExTypesense.multi_search_ecto(searches)
+    assert {:ok, %{catalogs_id: ^catalogs_id}} = ExTypesense.index_document(doc)
+    assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(searches)
     assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(searches, [])
     assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(searches, conn: conn)
     assert [%Ecto.Query{} | _] = ExTypesense.multi_search_ecto(searches, conn: map_conn)
@@ -396,22 +406,24 @@ defmodule SearchTest do
         collection: coll_name,
         q: "*",
         filter_by: "shoe_type:outdoor",
+        query_by: "shoe_type,description",
         exclude_fields: "shoe_description_embedding"
       },
       %{
         collection: coll_name,
         q: "*",
         filter_by: "shoe_type:hiking",
+        query_by: "shoe_type,description",
         exclude_fields: "shoe_description_embedding"
       }
     ]
 
-    assert {:ok, %MultiSearchResult{results: _results}} =
+    assert {:ok, %MultiSearchResult{results: []}} =
              ExTypesense.multi_search(searches, union: true, conn: conn)
 
-    assert {:ok, %MultiSearchResult{results: results}} =
-             ExTypesense.multi_search(searches, union: true, conn: map_conn)
+    assert {:ok, %MultiSearchResult{results: [%{hits: results} | _rest]}} =
+             ExTypesense.multi_search(searches, union: false, conn: map_conn)
 
-    assert [%{document: %{shoe_type: "hiking"}} | _rest] = results
+    assert [%{document: %{shoe_type: "outdoor"}} | _rest] = results
   end
 end

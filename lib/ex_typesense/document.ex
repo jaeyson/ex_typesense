@@ -168,17 +168,13 @@ defmodule ExTypesense.Document do
   end
 
   def import_documents(coll_name, docs, opts) do
-    OpenApiTypesense.Documents.import_documents(coll_name, docs, opts)
+    body = Enum.map_join(docs, "\n", &Jason.encode_to_iodata!/1)
+    OpenApiTypesense.Documents.import_documents(coll_name, body, opts)
   end
 
   @doc """
   Indexes a single document using struct or map. When using struct,
   the pk maps to document's id as string.
-
-  > #### indexing your document as a map {: .info}
-  >
-  > when using maps as documents using [`index_document/1`](`index_document/1`),
-  > you should pass a key named `collection_name`.
 
   > #### on using struct {: .info}
   >
@@ -208,6 +204,24 @@ defmodule ExTypesense.Document do
       ...>    description: "jumps over the lazy dog"
       ...>  }
       iex> ExTypesense.index_document("posts", body)
+      {:ok,
+        %{
+          id: "34",
+          posts_id: 28,
+          title: "the quick brown fox",
+          description: "jumps over the lazy dog"
+        }
+      }
+
+      iex> doc =
+      ...>  %{
+      ...>    collection_name: "posts"
+      ...>    id: "34", # you can omit this key, Typesense will generate for you.
+      ...>    posts_id: 28,
+      ...>    title: "the quick brown fox",
+      ...>    description: "jumps over the lazy dog"
+      ...>  }
+      iex> ExTypesense.index_document(doc)
       {:ok,
         %{
           id: "34",

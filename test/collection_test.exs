@@ -27,6 +27,10 @@ defmodule CollectionTest do
       ExTypesense.list_collections()
       |> then(fn {_, colls} -> colls end)
       |> Enum.each(&ExTypesense.drop_collection(&1.name))
+
+      ExTypesense.list_collection_aliases()
+      |> then(fn {_, %CollectionAliasesResponse{aliases: aliases}} -> aliases end)
+      |> Enum.each(&ExTypesense.delete_collection_alias(&1.name))
     end)
 
     %{schema: schema, conn: conn, map_conn: map_conn}
@@ -115,31 +119,40 @@ defmodule CollectionTest do
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: create collection with alias", %{schema: schema, conn: conn, map_conn: map_conn} do
-    assert {:ok, %CollectionResponse{name: collection_name}} =
+    assert {:ok, %CollectionResponse{name: c_collection_name}} =
              ExTypesense.create_collection_with_alias(schema)
 
-    assert {:ok, %CollectionAlias{collection_name: ^collection_name, name: alias_name}} =
+    assert {:ok, %CollectionAlias{collection_name: ^c_collection_name, name: c_alias_name}} =
              ExTypesense.get_collection_alias(schema.name)
 
-    assert {:ok, %CollectionResponse{name: ^collection_name}} =
-             ExTypesense.get_collection(alias_name)
+    assert {:ok, %CollectionResponse{name: ^c_collection_name}} =
+             ExTypesense.get_collection(c_alias_name)
 
     assert {:ok, %CollectionResponse{name: p_coll_name}} =
              ExTypesense.create_collection_with_alias(Product)
 
-    assert {:error, %ApiResponse{}} = ExTypesense.create_collection_with_alias(Product, [])
-
-    assert {:error, %ApiResponse{}} =
-             ExTypesense.create_collection_with_alias(Product, conn: conn)
-
-    assert {:error, %ApiResponse{}} =
-             ExTypesense.create_collection_with_alias(Product, conn: map_conn)
+    assert {:ok, %CollectionAlias{collection_name: ^p_coll_name, name: p_alias_name}} =
+             ExTypesense.get_collection_alias(Product)
 
     assert {:ok, %CollectionResponse{name: ^p_coll_name}} =
-             ExTypesense.get_collection(Product)
+             ExTypesense.get_collection(p_alias_name)
 
-    assert {:ok, %CollectionAlias{collection_name: ^p_coll_name}} =
-             ExTypesense.get_collection_alias(Product)
+    error = "already exists"
+
+    assert {:error, %ApiResponse{message: message}} =
+             ExTypesense.create_collection_with_alias(Product, [])
+
+    assert message =~ error
+
+    assert {:error, %ApiResponse{message: message}} =
+             ExTypesense.create_collection_with_alias(Product, conn: conn)
+
+    assert message =~ error
+
+    assert {:error, %ApiResponse{message: message}} =
+             ExTypesense.create_collection_with_alias(Product, conn: map_conn)
+
+    assert message =~ error
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]

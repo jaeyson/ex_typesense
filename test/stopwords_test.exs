@@ -11,6 +11,16 @@ defmodule StopwordsTest do
     conn = Connection.new()
     map_conn = %{api_key: "xyz", host: "localhost", port: 8108, scheme: "http"}
 
+    on_exit(fn ->
+      {:ok, %StopwordsSetsRetrieveAllSchema{stopwords: stopwords}} = ExTypesense.list_stopwords()
+
+      stopwords
+      |> Enum.each(fn stopword ->
+        stop_id = stopword.id
+        {:ok, %OpenApiTypesense.Stopwords{id: ^stop_id}} = ExTypesense.delete_stopword(stop_id)
+      end)
+    end)
+
     %{conn: conn, map_conn: map_conn}
   end
 
