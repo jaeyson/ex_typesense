@@ -5,5 +5,7 @@ config :open_api_typesense,
   host: "localhost",
   port: 8108,
   scheme: "http",
-  max_retries: 0,
-  retry: false
+  options: [
+    max_retries: 0,
+    retry: false
+  ]

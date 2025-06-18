@@ -6,7 +6,6 @@ defmodule ExTypesense.Search do
   More here: https://typesense.org/docs/latest/api/search.html
   """
 
-  alias OpenApiTypesense.MultiSearchResult
   alias OpenApiTypesense.SearchResult
 
   import Ecto.Query, warn: false
@@ -269,7 +268,10 @@ defmodule ExTypesense.Search do
         end
       end)
 
-    OpenApiTypesense.Documents.multi_search(%{union: union, searches: searches}, opts)
+    body =
+      struct(OpenApiTypesense.MultiSearchSearchesParameter, %{union: union, searches: searches})
+
+    OpenApiTypesense.Documents.multi_search(body, opts)
   end
 
   @doc """
@@ -293,7 +295,7 @@ defmodule ExTypesense.Search do
   """
   @doc since: "1.0.0"
   @spec multi_search_ecto(list(map())) ::
-          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.MultiSearchResult.t()})
+          list(Ecto.Query.t()) | list(OpenApiTypesense.ApiResponse.t())
   def multi_search_ecto(searches) do
     multi_search_ecto(searches, [])
   end
@@ -314,34 +316,38 @@ defmodule ExTypesense.Search do
   """
   @doc since: "1.0.0"
   @spec multi_search_ecto(list(map()), keyword()) ::
-          list(Ecto.Query.t()) | list({:error, OpenApiTypesense.MultiSearchResult.t()})
+          list(Ecto.Query.t()) | list(OpenApiTypesense.ApiResponse.t())
   def multi_search_ecto(searches, opts) do
-    {:ok, %MultiSearchResult{results: results}} = multi_search(searches, opts)
+    {:ok, %{results: results}} = multi_search(searches, opts)
 
     Enum.map(results, fn result ->
       case result do
+        %{found: 0, hits: []} ->
+          []
+
+        %{
+          found: found,
+          hits: hits,
+          request_params: %{collection_name: collection_name}
+        }
+        when found > 0 and hits != [] ->
+          hits_to_query(result.hits, collection_name)
+
         %{error: message, code: _http_status_code} ->
           %OpenApiTypesense.ApiResponse{message: message}
-
-        _ ->
-          collection_name = get_in(result, [:request_params, :collection_name])
-          hits_to_query(result.hits, collection_name)
       end
     end)
+    |> List.flatten()
   end
 
   @doc false
   @doc since: "1.0.0"
   @spec hits_to_query(Enum.t(), String.t()) :: Ecto.Query.t()
-  defp hits_to_query([], schema_name) do
-    schema_name
-    |> where([i], i.id in [])
-  end
-
   defp hits_to_query(hits, schema_name) do
     values =
       Enum.map(hits, fn %{document: document} ->
-        document[schema_name <> "_id"]
+        key = String.to_existing_atom(schema_name <> "_id")
+        Map.get(document, key)
       end)
 
     schema_name

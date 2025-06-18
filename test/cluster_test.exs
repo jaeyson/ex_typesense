@@ -132,6 +132,13 @@ defmodule ClusterTest do
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "create snapshot", %{conn: conn, map_conn: map_conn} do
+    # we have to add sleep timer for github actions
+    # otherwise it will return like:
+    # {:error,
+    #  %OpenApiTypesense.ApiResponse{
+    #    message: "Another snapshot is in progress."
+    #  }}
+
     path = "/tmp/typesense-data-snapshot"
 
     assert {:ok, %SuccessStatus{success: true}} = ExTypesense.create_snapshot(snapshot_path: path)
@@ -145,14 +152,6 @@ defmodule ClusterTest do
 
     assert {:ok, %SuccessStatus{success: true}} =
              ExTypesense.create_snapshot(snapshot_path: path, conn: map_conn)
-
-    Process.sleep(@rate_limit)
-    opts = [snapshot_path: path, conn: conn]
-    assert {:ok, %SuccessStatus{success: true}} = ExTypesense.create_snapshot(opts)
-
-    Process.sleep(@rate_limit)
-    opts = [snapshot_path: path, conn: map_conn]
-    assert {:ok, %SuccessStatus{success: true}} = ExTypesense.create_snapshot(opts)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
@@ -173,7 +172,7 @@ defmodule ClusterTest do
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "toggle slow request log", %{conn: conn, map_conn: map_conn} do
-    config = %{"log_slow_requests_time_ms" => 2_000}
+    config = %{"log_slow_requests_time_ms" => :timer.seconds(2)}
     assert {:ok, %SuccessStatus{success: true}} = ExTypesense.toggle_slow_request_log(config)
     assert {:ok, _} = ExTypesense.toggle_slow_request_log(config, [])
     assert {:ok, _} = ExTypesense.toggle_slow_request_log(config, conn: conn)
