@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
+## 2.0.1 (2025.06.18)
+
+### Fixed
+
+* Dialyzer issues, inconsistent return types [Issue #80](https://github.com/jaeyson/ex_typesense/issues/80) [PR #84](https://github.com/jaeyson/ex_typesense/pull/84).
+
 ## 2.0.0 (2025.06.01)
 
 ### Changed
