@@ -24,7 +24,7 @@ jobs:
           --name typesense \
           -v /tmp/typesense-data:/data \
           -v /tmp/typesense-analytics-data:/analytics-data \
-          typesense/typesense:${{ matrix.typesense}} \
+          typesense/typesense:${{ matrix.typesense-version}} \
           --api-key=xyz \
           --data-dir=/data \
           --enable-search-analytics=true \
