@@ -39,12 +39,12 @@ jobs:
           start_time=$(date +%s)
           timeout=30
           counter=0
+          echo "Waiting for Typesense to be healthy..."
           until curl -s http://localhost:8108/health | grep -q '"ok":true'; do
             if [ $counter -eq $timeout ]; then
               echo "Timed out waiting for Typesense to be healthy"
               exit 1
             fi
-            echo "Waiting for Typesense to be healthy..."
             sleep 1
             counter=$((counter + 1))
           done
