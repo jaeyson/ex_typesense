@@ -81,6 +81,8 @@
 
 [Typesense](https://typesense.org) client for [Elixir](https://elixir-lang.org) with support for your Ecto schemas.
 
+**Note**: the only place where ai is used/integrated is in PR reviews. I am NOT interested in adding/integrating ai generated code in my codebase, as this little library can be fit in my mental model. ai has it’s own great use case, it’s just that I wanted to be hands-on with these projects.
+
 > #### OpenAPI adherence {: .tip}
 >
 > Under the hood, this library utilizes [open_api_typesense](https://github.com/jaeyson/open_api_typesense)
