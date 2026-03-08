@@ -21,7 +21,7 @@ visit https://elixir-lang.org/install.html
 
 ### 2. via `vfox`
 
-[`vfox`](https://vfox.lhan.me)
+[vfox.lhan.me](https://vfox.lhan.me)
 
 1. https://vfox.lhan.me/guides/quick-start.html
 2. https://github.com/version-fox/vfox-elixir
@@ -30,7 +30,7 @@ visit https://elixir-lang.org/install.html
 
 ### 3. via `asdf`
 
-[`asdf`](https://asdf-vm.com)
+[`asdf-vm.com`](https://asdf-vm.com)
 
 1. https://asdf-vm.com/guide/getting-started.html
 2. https://github.com/asdf-vm/asdf-elixir
@@ -40,6 +40,8 @@ visit https://elixir-lang.org/install.html
 ### 4. using Dockerfile
 
 Please refer to this repo: https://github.com/jaeyson/docker-dev-setup/tree/master/elixir.
+
+Look for file `elixir.dockerfile`
 
 > #### editing `elixir.dockerfile` {: .info}
 >

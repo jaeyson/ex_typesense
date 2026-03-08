@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `Stemming` module
 * Tests for new module
 * `ExTypesense.get_schema_changes`
+* Support for Typesense v28.0
 
 ### Changed
 
