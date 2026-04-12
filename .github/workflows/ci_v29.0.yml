@@ -1,4 +1,4 @@
-name: CI v28.0
+name: CI v29.0
 
 on:
   push:
@@ -24,23 +24,23 @@ jobs:
     env:
       MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      LATEST_TYPESENSE: '28.0'
+      LATEST_TYPESENSE: '29.0'
 
     strategy:
       matrix:
         include:
-        - typesense: '28.0'
+        - typesense: '29.0'
           otp: '25'
           elixir: '1.14'
           lint: false
-        - typesense: '28.0'
+        - typesense: '29.0'
           otp: '27'
           elixir: '1.18'
           lint: false
-        - typesense: '28.0'
+        - typesense: '29.0'
           otp: '28'
           elixir: '1.19'
-          lint: false
+          lint: true
 
     services:
       typesense:
@@ -134,6 +134,14 @@ jobs:
 
       - name: Check format files
         run: mix format --check-formatted
+        if: ${{ matrix.lint }}
+
+      - name: Create PLTs
+        if: ${{ steps.cache_restore.outputs.cache-hit != 'true' && matrix.lint }}
+        run: mix dialyzer --plt
+
+      - name: Dialyzer
+        run: mix dialyzer --format github --format dialyxir
         if: ${{ matrix.lint }}
 
       - name: Run tests
