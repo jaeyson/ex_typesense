@@ -7,7 +7,6 @@ defmodule AnalyticsTest do
   alias OpenApiTypesense.AnalyticsRule
   alias OpenApiTypesense.AnalyticsRuleSchema
   alias OpenApiTypesense.AnalyticsRulesRetrieveSchema
-  alias OpenApiTypesense.AnalyticsStatus
   alias OpenApiTypesense.ApiResponse
   alias OpenApiTypesense.CollectionResponse
   alias OpenApiTypesense.Connection
@@ -210,9 +209,9 @@ defmodule AnalyticsTest do
   test "success (v29.0): list analytics rules", %{conn: conn, map_conn: map_conn} do
     assert {:ok, rules} = ExTypesense.list_analytics_rules()
     assert length(rules) >= 0
-    assert {:ok, rules} = ExTypesense.list_analytics_rules([])
-    assert {:ok, rules} = ExTypesense.list_analytics_rules(conn: conn)
-    assert {:ok, rules} = ExTypesense.list_analytics_rules(conn: map_conn)
+    assert {:ok, _rules} = ExTypesense.list_analytics_rules([])
+    assert {:ok, _rules} = ExTypesense.list_analytics_rules(conn: conn)
+    assert {:ok, _rules} = ExTypesense.list_analytics_rules(conn: map_conn)
   end
 
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
