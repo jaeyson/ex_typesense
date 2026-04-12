@@ -36,6 +36,10 @@ jobs:
         - typesense: '28.0'
           otp: '27'
           elixir: '1.18'
+          lint: false
+        - typesense: '28.0'
+          otp: '28'
+          elixir: '1.19'
           lint: true
 
     services:
@@ -44,7 +48,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check for misspellings
         uses: codespell-project/actions-codespell@v2
