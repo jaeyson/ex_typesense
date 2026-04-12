@@ -268,6 +268,16 @@ defmodule ExTypesense do
 
   defdelegate delete_analytics_rule(rule_name), to: ExTypesense.Analytics
   defdelegate delete_analytics_rule(rule_name, opts), to: ExTypesense.Analytics
+
+  defdelegate flush_analytics, to: ExTypesense.Analytics
+  defdelegate flush_analytics(opts), to: ExTypesense.Analytics
+
+  defdelegate get_analytics_events, to: ExTypesense.Analytics
+  defdelegate get_analytics_events(opts), to: ExTypesense.Analytics
+
+  defdelegate get_analytics_status, to: ExTypesense.Analytics
+  defdelegate get_analytics_status(opts), to: ExTypesense.Analytics
+
   ##########################################################
   # end analytics
   ##########################################################

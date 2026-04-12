@@ -18,7 +18,7 @@ services:
       --analytics-minute-rate-limit=100
       --enable-cors
   typesense_dashboard:
-    image: ghcr.io/bfritscher/typesense-dashboard:1.9.3
+    image: ghcr.io/bfritscher/typesense-dashboard:2.1.0
     container_name: typesense_dashboard
     restart: on-failure
     ports:

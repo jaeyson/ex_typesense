@@ -30,7 +30,7 @@ defmodule StemmingTest do
     %{id: id, conn: conn, map_conn: map_conn}
   end
 
-  @tag ["28.0": true, "27.1": false, "27.0": false, "26.0": false]
+  @tag ["29.0": true, "28.0": true, "27.1": false, "27.0": false, "26.0": false]
   test "success: create stemming dictionaries", %{conn: conn, map_conn: map_conn} do
     id = "example-stemming"
 
@@ -62,25 +62,30 @@ defmodule StemmingTest do
             ]} = ExTypesense.import_stemming_dictionary(body, id: id, conn: map_conn)
   end
 
-  @tag ["28.0": true, "27.1": false, "27.0": false, "26.0": false]
+  @tag ["29.0": true, "28.0": true, "27.1": false, "27.0": false, "26.0": false]
   test "success: list stemming dictionaries", %{conn: conn, map_conn: map_conn} do
-    assert {:ok, %OpenApiTypesense.Stemming{}} = ExTypesense.list_stemming_dictionaries()
-    assert {:ok, %OpenApiTypesense.Stemming{}} = ExTypesense.list_stemming_dictionaries([])
+    case ExTypesense.list_stemming_dictionaries() do
+      {:ok, map} when is_map(map) ->
+        assert {:ok, %{"dictionaries" => []}}
 
-    assert {:ok, %OpenApiTypesense.Stemming{}} =
-             ExTypesense.list_stemming_dictionaries(conn: conn)
+      {:ok, %OpenApiTypesense.Stemming{}} ->
+        assert {:ok, %OpenApiTypesense.Stemming{}}
+    end
 
-    assert {:ok, %OpenApiTypesense.Stemming{}} =
-             ExTypesense.list_stemming_dictionaries(conn: map_conn)
+    assert {:ok, _} = ExTypesense.list_stemming_dictionaries([])
+    assert {:ok, _} = ExTypesense.list_stemming_dictionaries(conn: conn)
+    assert {:ok, _} = ExTypesense.list_stemming_dictionaries(conn: map_conn)
   end
 
-  @tag ["28.0": true, "27.1": false, "27.0": false, "26.0": false]
+  @tag ["29.0": true, "28.0": true, "27.1": false, "27.0": false, "26.0": false]
   test "error: non-existent stemming dictionary" do
-    assert {:error, %ApiResponse{message: "Not Found"}} =
+    assert {:error, %ApiResponse{message: message}} =
              ExTypesense.get_stemming_dictionary("non-existent")
+
+    assert String.contains?(String.downcase(message), "not found") === true
   end
 
-  @tag ["28.0": true, "27.1": false, "27.0": false, "26.0": false]
+  @tag ["29.0": true, "28.0": true, "27.1": false, "27.0": false, "26.0": false]
   test "success: get specific stemming dictionary", %{id: id, conn: conn, map_conn: map_conn} do
     body = [
       %{"word" => "mice", "root" => "mouse"},

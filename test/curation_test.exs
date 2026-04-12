@@ -33,7 +33,7 @@ defmodule CurationTest do
     %{schema: schema, conn: conn, map_conn: map_conn}
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: get override", %{schema: schema, conn: conn, map_conn: map_conn} do
     body =
       %{
@@ -77,7 +77,7 @@ defmodule CurationTest do
     assert {:ok, _} = ExTypesense.get_override(House, name, conn: map_conn)
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: list all overrides", %{schema: schema, conn: conn, map_conn: map_conn} do
     assert {:ok, %SearchOverridesResponse{}} = ExTypesense.list_overrides(schema.name)
     assert {:ok, _} = ExTypesense.list_overrides(schema.name, [])
@@ -90,7 +90,7 @@ defmodule CurationTest do
     assert {:ok, _} = ExTypesense.list_overrides(House, conn: map_conn)
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: delete override", %{schema: schema, conn: conn, map_conn: map_conn} do
     body =
       %{

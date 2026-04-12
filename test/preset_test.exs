@@ -24,7 +24,7 @@ defmodule PresetTest do
     %{conn: conn, map_conn: map_conn}
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: retrieve presets", %{conn: conn, map_conn: map_conn} do
     body =
       %{
@@ -48,7 +48,7 @@ defmodule PresetTest do
     assert {:ok, _} = ExTypesense.get_preset(name, conn: map_conn)
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: delete presets", %{conn: conn, map_conn: map_conn} do
     body =
       %{
@@ -69,7 +69,7 @@ defmodule PresetTest do
     assert {:error, _} = ExTypesense.delete_preset(name, conn: map_conn)
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: list all search presets", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %PresetsRetrieveSchema{presets: _}} = ExTypesense.list_presets()
     assert {:ok, _} = ExTypesense.list_presets([])

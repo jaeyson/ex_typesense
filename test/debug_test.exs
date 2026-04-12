@@ -11,6 +11,14 @@ defmodule DebugTest do
     %{conn: conn, map_conn: map_conn}
   end
 
+  @tag ["29.0": true]
+  test "debug (v29.0)", %{conn: conn, map_conn: map_conn} do
+    assert {:ok, %{"state" => 1, "version" => _version}} = ExTypesense.debug()
+    assert {:ok, _} = ExTypesense.debug([])
+    assert {:ok, _} = ExTypesense.debug(conn: conn)
+    assert {:ok, _} = ExTypesense.debug(conn: map_conn)
+  end
+
   @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "debug", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %Debug{version: _}} = ExTypesense.debug()
