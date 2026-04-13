@@ -6,6 +6,7 @@ defmodule ClusterTest do
   alias OpenApiTypesense.APIStatsResponse
   alias OpenApiTypesense.Connection
   alias OpenApiTypesense.HealthStatus
+  alias OpenApiTypesense.SchemaChangeStatus
   alias OpenApiTypesense.SuccessStatus
 
   @rate_limit :timer.seconds(5)

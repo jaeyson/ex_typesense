@@ -120,7 +120,7 @@ defmodule AnalyticsTest do
     assert {:error, _} = ExTypesense.create_analytics_rule(body, conn: map_conn)
   end
 
-  @tag ["29.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success (v29.0): upsert analytics rule", %{conn: conn, map_conn: map_conn} do
     name = "product_no_hits"
 
@@ -148,7 +148,7 @@ defmodule AnalyticsTest do
              ExTypesense.upsert_analytics_rule(name, body, conn: map_conn)
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag []
   test "success: upsert analytics rule", %{conn: conn, map_conn: map_conn} do
     name = "product_no_hits"
 
@@ -205,7 +205,7 @@ defmodule AnalyticsTest do
     assert {:error, %ApiResponse{message: _}} = ExTypesense.create_analytics_rule(body)
   end
 
-  @tag ["29.0": true]
+  @tag ["29.0": true, "27.1": true, "26.0": true]
   test "success (v29.0): list analytics rules", %{conn: conn, map_conn: map_conn} do
     case ExTypesense.list_analytics_rules() do
       {:ok, []} ->
@@ -220,7 +220,7 @@ defmodule AnalyticsTest do
     end
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["28.0": true, "27.0": true]
   test "success: list analytics rules", %{conn: conn, map_conn: map_conn} do
     case ExTypesense.list_analytics_rules() do
       {:ok, %AnalyticsRulesRetrieveSchema{rules: []}} = rules ->
@@ -254,7 +254,7 @@ defmodule AnalyticsTest do
     assert ^reason = ExTypesense.get_analytics_status(map_conn: map_conn)
   end
 
-  @tag ["29.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true]
   test "success (v29.0): create analytics rule and event", %{conn: conn, map_conn: map_conn} do
     name = "product_popularity"
 
@@ -310,81 +310,6 @@ defmodule AnalyticsTest do
              ExTypesense.create_analytics_event(body, conn: map_conn)
 
     assert {:ok, %AnalyticsRule{name: ^name}} = ExTypesense.delete_analytics_rule(name)
-
-    assert {:error, %ApiResponse{message: _}} = ExTypesense.delete_analytics_rule(name, [])
-
-    assert {:error, %ApiResponse{message: _}} =
-             ExTypesense.delete_analytics_rule(name, conn: conn)
-
-    assert {:error, %ApiResponse{message: _}} =
-             ExTypesense.delete_analytics_rule(name, conn: map_conn)
-  end
-
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": false]
-  test "success (v27.1): create analytics rule and event", %{conn: conn, map_conn: map_conn} do
-    name = "product_popularity"
-
-    event_name = "products_click_event#{System.unique_integer()}"
-
-    body =
-      %{
-        "name" => name,
-        "type" => "counter",
-        "params" => %{
-          "source" => %{
-            "collections" => ["products"],
-            "events" => [
-              %{"type" => "click", "weight" => 1, "name" => event_name}
-            ]
-          },
-          "destination" => %{
-            "collection" => "products",
-            "counter_field" => "popularity"
-          }
-        }
-      }
-
-    assert {:ok, %AnalyticsRuleSchema{name: ^name}} = ExTypesense.create_analytics_rule(body)
-    assert {:ok, %AnalyticsRuleSchema{name: ^name}} = ExTypesense.get_analytics_rule(name)
-
-    assert {:ok, %AnalyticsRuleSchema{name: ^name}} =
-             ExTypesense.get_analytics_rule(name, [])
-
-    assert {:ok, %AnalyticsRuleSchema{name: ^name}} =
-             ExTypesense.get_analytics_rule(name, conn: conn)
-
-    assert {:ok, %AnalyticsRuleSchema{name: ^name}} =
-             ExTypesense.get_analytics_rule(name, conn: map_conn)
-
-    body =
-      %{
-        "name" => event_name,
-        "type" => "click",
-        "data" => %{
-          "q" => "nike_shoes",
-          "doc_id" => "2468",
-          "user_id" => "9903"
-        }
-      }
-
-    # Here's the reason why v26.0 is not tested
-    # Docs v26.0: https://typesense.org/docs/26.0/api/analytics-query-suggestions.html#sending-click-events
-    # Problem: the response JSON body is actually {"ok": true
-    # where it is missing a closing curly bracket "}"
-    assert {:ok, %AnalyticsEventCreateResponse{ok: true}} =
-             ExTypesense.create_analytics_event(body)
-
-    assert {:ok, %AnalyticsEventCreateResponse{ok: true}} =
-             ExTypesense.create_analytics_event(body, [])
-
-    assert {:ok, %AnalyticsEventCreateResponse{ok: true}} =
-             ExTypesense.create_analytics_event(body, conn: conn)
-
-    assert {:ok, %AnalyticsEventCreateResponse{ok: true}} =
-             ExTypesense.create_analytics_event(body, conn: map_conn)
-
-    assert {:ok, %AnalyticsRuleDeleteResponse{name: ^name}} =
-             ExTypesense.delete_analytics_rule(name)
 
     assert {:error, %ApiResponse{message: _}} = ExTypesense.delete_analytics_rule(name, [])
 

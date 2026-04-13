@@ -38,6 +38,9 @@ defmodule ExTypesense.Analytics do
   @doc since: "1.0.0"
   @spec create_analytics_rule(map()) ::
           {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
+          | {:ok,
+             OpenApiTypesense.AnalyticsRule.t()
+             | [map | OpenApiTypesense.AnalyticsRule.t()]}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_analytics_rule(body) do
     create_analytics_rule(body, [])
@@ -63,6 +66,9 @@ defmodule ExTypesense.Analytics do
   @doc since: "1.0.0"
   @spec create_analytics_rule(map(), keyword()) ::
           {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
+          | {:ok,
+             OpenApiTypesense.AnalyticsRule.t()
+             | [map | OpenApiTypesense.AnalyticsRule.t()]}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_analytics_rule(body, opts) do
     OpenApiTypesense.Analytics.create_analytics_rule(body, opts)
