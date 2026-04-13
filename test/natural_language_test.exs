@@ -52,7 +52,7 @@ defmodule NaturalLanguageTest do
         assert {:error, ^error} = ExTypesense.create_nl_search_model(model, conn: conn)
         assert {:error, ^error} = ExTypesense.create_nl_search_model(model, map_conn: map_conn)
 
-      {:ok, %NLSearchModelSchema{id: id}} ->
+      {:ok, %NLSearchModelSchema{id: _id}} ->
         assert "gemini-model" === model["id"]
         assert {:error, error} = ExTypesense.create_nl_search_model(model)
 
