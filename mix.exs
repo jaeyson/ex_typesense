@@ -45,7 +45,7 @@ defmodule ExTypesense.MixProject do
       {:excoveralls, "~> 0.18", only: :test, runtime: false},
       {:mix_audit, "~> 2.1", only: :test, runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:open_api_typesense, path: "/Users/jaeyson/Documents/Github/open_api_typesense"},
+      {:open_api_typesense, "~> 1.2"},
       {:ecto, "~> 3.12"}
     ]
   end
