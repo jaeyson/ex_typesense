@@ -205,7 +205,7 @@ defmodule AnalyticsTest do
     assert {:error, %ApiResponse{message: _}} = ExTypesense.create_analytics_rule(body)
   end
 
-  @tag ["29.0": true, "27.1": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success (v29.0): list analytics rules", %{conn: conn, map_conn: map_conn} do
     case ExTypesense.list_analytics_rules() do
       {:ok, []} ->
@@ -217,21 +217,6 @@ defmodule AnalyticsTest do
         assert {:ok, _rules} = ExTypesense.list_analytics_rules([])
         assert {:ok, _rules} = ExTypesense.list_analytics_rules(conn: conn)
         assert {:ok, _rules} = ExTypesense.list_analytics_rules(conn: map_conn)
-    end
-  end
-
-  @tag ["28.0": true, "27.0": true]
-  test "success: list analytics rules", %{conn: conn, map_conn: map_conn} do
-    case ExTypesense.list_analytics_rules() do
-      {:ok, %AnalyticsRulesRetrieveSchema{rules: []}} = rules ->
-        assert ^rules = ExTypesense.list_analytics_rules([])
-        assert ^rules = ExTypesense.list_analytics_rules(conn: conn)
-        assert ^rules = ExTypesense.list_analytics_rules(conn: map_conn)
-
-      {:ok, [first | _]} when is_struct(first, AnalyticsRule) ->
-        assert {:ok, _} = ExTypesense.list_analytics_rules([])
-        assert {:ok, _} = ExTypesense.list_analytics_rules(conn: conn)
-        assert {:ok, _} = ExTypesense.list_analytics_rules(conn: map_conn)
     end
   end
 
