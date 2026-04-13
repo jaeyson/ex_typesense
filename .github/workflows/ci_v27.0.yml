@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: ["main"]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs
   # Workflows that would otherwise be triggered using `on: push` or

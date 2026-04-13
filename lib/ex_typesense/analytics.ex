@@ -288,7 +288,7 @@ defmodule ExTypesense.Analytics do
           {:ok, OpenApiTypesense.AnalyticsEventCreateResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def flush_analytics do
-    OpenApiTypesense.Analytics.flush_analytics([])
+    flush_analytics([])
   end
 
   @doc """
@@ -324,7 +324,7 @@ defmodule ExTypesense.Analytics do
           {:ok, OpenApiTypesense.AnalyticsEventsResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_analytics_events do
-    OpenApiTypesense.Analytics.get_analytics_events([])
+    get_analytics_events([])
   end
 
   @doc """
@@ -352,7 +352,7 @@ defmodule ExTypesense.Analytics do
   @spec get_analytics_status ::
           {:ok, OpenApiTypesense.AnalyticsStatus.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_analytics_status do
-    OpenApiTypesense.Analytics.get_analytics_status([])
+    get_analytics_status([])
   end
 
   @doc """

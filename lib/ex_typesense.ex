@@ -388,4 +388,25 @@ defmodule ExTypesense do
   ##########################################################
   # end cluster operations
   ##########################################################
+
+  ##########################################################
+  # start natural language search
+  ##########################################################
+  defdelegate create_nl_search_model(body), to: ExTypesense.NaturalLanguage
+  defdelegate create_nl_search_model(body, opts), to: ExTypesense.NaturalLanguage
+
+  defdelegate delete_nl_search_model(model_id), to: ExTypesense.NaturalLanguage
+  defdelegate delete_nl_search_model(model_id, opts), to: ExTypesense.NaturalLanguage
+
+  defdelegate retrieve_all_nl_search_models, to: ExTypesense.NaturalLanguage
+  defdelegate retrieve_all_nl_search_models(opts), to: ExTypesense.NaturalLanguage
+
+  defdelegate retrieve_nl_search_model(model_id), to: ExTypesense.NaturalLanguage
+  defdelegate retrieve_nl_search_model(model_id, opts), to: ExTypesense.NaturalLanguage
+
+  defdelegate update_nl_search_model(model_id, body), to: ExTypesense.NaturalLanguage
+  defdelegate update_nl_search_model(model_id, body, opts), to: ExTypesense.NaturalLanguage
+  ##########################################################
+  # end natural language search
+  ##########################################################
 end

@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Chore
 
 * Update compatibility to include Typesense v29.0
-* Added `NaturalLanguage` operation
+* Added `ExTypesense.NaturalLanguage` operation
 * Added `ExTypesense.flush_analytics/1`
 * Added `ExTypesense.get_analytics_status/1`
 * Added `ExTypesense.get_analytics_events/1`
+* Added tests for new operations
 
 ### Removed
 
