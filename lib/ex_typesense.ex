@@ -268,6 +268,16 @@ defmodule ExTypesense do
 
   defdelegate delete_analytics_rule(rule_name), to: ExTypesense.Analytics
   defdelegate delete_analytics_rule(rule_name, opts), to: ExTypesense.Analytics
+
+  defdelegate flush_analytics, to: ExTypesense.Analytics
+  defdelegate flush_analytics(opts), to: ExTypesense.Analytics
+
+  defdelegate get_analytics_events, to: ExTypesense.Analytics
+  defdelegate get_analytics_events(opts), to: ExTypesense.Analytics
+
+  defdelegate get_analytics_status, to: ExTypesense.Analytics
+  defdelegate get_analytics_status(opts), to: ExTypesense.Analytics
+
   ##########################################################
   # end analytics
   ##########################################################
@@ -377,5 +387,26 @@ defmodule ExTypesense do
   defdelegate vote(opts), to: ExTypesense.Cluster
   ##########################################################
   # end cluster operations
+  ##########################################################
+
+  ##########################################################
+  # start natural language search
+  ##########################################################
+  defdelegate create_nl_search_model(body), to: ExTypesense.NaturalLanguage
+  defdelegate create_nl_search_model(body, opts), to: ExTypesense.NaturalLanguage
+
+  defdelegate delete_nl_search_model(model_id), to: ExTypesense.NaturalLanguage
+  defdelegate delete_nl_search_model(model_id, opts), to: ExTypesense.NaturalLanguage
+
+  defdelegate retrieve_all_nl_search_models, to: ExTypesense.NaturalLanguage
+  defdelegate retrieve_all_nl_search_models(opts), to: ExTypesense.NaturalLanguage
+
+  defdelegate retrieve_nl_search_model(model_id), to: ExTypesense.NaturalLanguage
+  defdelegate retrieve_nl_search_model(model_id, opts), to: ExTypesense.NaturalLanguage
+
+  defdelegate update_nl_search_model(model_id, body), to: ExTypesense.NaturalLanguage
+  defdelegate update_nl_search_model(model_id, body, opts), to: ExTypesense.NaturalLanguage
+  ##########################################################
+  # end natural language search
   ##########################################################
 end

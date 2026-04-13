@@ -196,7 +196,7 @@ defmodule ExTypesense.Cluster do
   @spec compact_db(keyword()) ::
           {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
   def compact_db(opts) do
-    OpenApiTypesense.Operations.compact(opts)
+    OpenApiTypesense.Operations.compact_db(opts)
   end
 
   @doc """
@@ -314,7 +314,7 @@ defmodule ExTypesense.Cluster do
   @spec toggle_slow_request_log(map(), keyword()) ::
           {:ok, OpenApiTypesense.SuccessStatus.t()} | :error
   def toggle_slow_request_log(config, opts) do
-    OpenApiTypesense.Operations.config(config, opts)
+    OpenApiTypesense.Operations.toggle_slow_request_log(config, opts)
   end
 
   @doc """

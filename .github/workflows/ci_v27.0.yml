@@ -1,10 +1,12 @@
 name: CI v27.0
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs
@@ -19,7 +21,6 @@ jobs:
   # - [actions skip]
 
   test:
-    if: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && github.repository == 'jaeyson/ex_typesense' }}
     runs-on: ubuntu-latest
     environment: review
 
@@ -43,10 +44,6 @@ jobs:
           otp: '28'
           elixir: '1.19'
           lint: false
-
-    services:
-      typesense:
-        image: typesense/typesense:${{ matrix.typesense }}
 
     steps:
       - name: Checkout repo
@@ -96,15 +93,12 @@ jobs:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
 
-      - name: Restore cache
-        id: cache_restore
-        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7
-        if: ${{ matrix.lint }}
+      - name: Cache dependencies/builds
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
         with:
           path: |
             deps
             _build
-            priv/plts
           key: ${{ runner.os }}-typesense-${{ matrix.typesense}}-${{ matrix.otp}}-${{ matrix.elixir}}-mix-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-typesense-${{ matrix.typesense}}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-
@@ -144,15 +138,3 @@ jobs:
       - name: Post test coverage to Coveralls
         run: mix coveralls.github
         if: ${{ matrix.lint && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-
-      - name: Save cache
-        id: cache_save
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7
-        if: ${{ matrix.lint }}
-        with:
-          path: |
-            deps
-            _build
-            priv/plts
-          key: |
-            ${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('**/mix.lock') }}

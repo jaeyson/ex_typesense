@@ -1,15 +1,13 @@
 # ExTypesense
 
 <p align="center">
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="https://raw.githubusercontent.com/typesense/typesense/refs/heads/v29/assets/typesense_logo_dark.svg">
   <img
     alt="Typesense logo"
-    src="https://github.com/typesense/typesense/raw/main/assets/typesense_logo.svg"
-    width="180">
-  <img
-    alt="lightning bolt svg"
-    height="40"
-    src="https://github.com/jaeyson/ex_typesense/raw/main/assets/lightning-bolt.svg"
-    width="40">
+    src="https://raw.githubusercontent.com/typesense/typesense/refs/heads/v29/assets/typesense_logo.svg"
+    width="230">
   <source
     media="(prefers-color-scheme: dark)"
     srcset="https://github.com/elixir-lang/elixir-lang.github.com/raw/main/images/logo/logo-dark.png">
@@ -53,6 +51,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v29.0.yml">
+    <img
+      alt="CI for v29.0"
+      src="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v29.0.yml/badge.svg"
+    >
+  </a>
   <a href="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v28.0.yml">
     <img
       alt="CI for v28.0"
@@ -118,7 +122,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 2.0"}
+    {:ex_typesense, "~> 2.1"}
 
     # Or from GitHub repository, if you want the latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}

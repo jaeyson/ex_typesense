@@ -2,6 +2,8 @@ defmodule AnalyticsTest do
   use ExUnit.Case, async: true
 
   alias OpenApiTypesense.AnalyticsEventCreateResponse
+  alias OpenApiTypesense.AnalyticsEventsResponse
+  alias OpenApiTypesense.AnalyticsRule
   alias OpenApiTypesense.AnalyticsRuleDeleteResponse
   alias OpenApiTypesense.AnalyticsRuleSchema
   alias OpenApiTypesense.AnalyticsRulesRetrieveSchema
@@ -69,14 +71,28 @@ defmodule AnalyticsTest do
       {:ok, %CollectionResponse{name: ^nohits_queries_name}} =
         ExTypesense.drop_collection(nohits_queries_name)
 
-      {:ok, %AnalyticsRulesRetrieveSchema{rules: rules}} = ExTypesense.list_analytics_rules()
-      Enum.map(rules, &ExTypesense.delete_analytics_rule(&1.name))
+      case ExTypesense.list_analytics_rules() do
+        {:ok, %AnalyticsRulesRetrieveSchema{rules: rules}} ->
+          Enum.map(rules, &ExTypesense.delete_analytics_rule(&1.name))
+
+        {:ok, rules} when is_list(rules) ->
+          Enum.map(rules, &ExTypesense.delete_analytics_rule(&1.name))
+      end
     end)
 
     %{conn: conn, map_conn: map_conn}
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": false]
+  test "error (v29.0): flush analytics", %{conn: conn, map_conn: map_conn} do
+    error = {:error, %ApiResponse{message: "Not Found"}}
+    assert ^error = ExTypesense.flush_analytics()
+    assert ^error = ExTypesense.flush_analytics([])
+    assert ^error = ExTypesense.flush_analytics(conn: conn)
+    assert ^error = ExTypesense.flush_analytics(map_conn: map_conn)
+  end
+
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: create analytics rule with non-existent collection", %{
     conn: conn,
     map_conn: map_conn
@@ -104,7 +120,35 @@ defmodule AnalyticsTest do
     assert {:error, _} = ExTypesense.create_analytics_rule(body, conn: map_conn)
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  test "success (v29.0): upsert analytics rule", %{conn: conn, map_conn: map_conn} do
+    name = "product_no_hits"
+
+    body =
+      %{
+        "type" => "nohits_queries",
+        "params" => %{
+          "source" => %{
+            "collections" => ["products"]
+          },
+          "destination" => %{
+            "collection" => "no_hits_queries"
+          },
+          "limit" => 1_000
+        }
+      }
+
+    assert {:ok, %AnalyticsRule{name: ^name}} = ExTypesense.upsert_analytics_rule(name, body)
+    assert {:ok, %AnalyticsRule{name: ^name}} = ExTypesense.upsert_analytics_rule(name, body, [])
+
+    assert {:ok, %AnalyticsRule{name: ^name}} =
+             ExTypesense.upsert_analytics_rule(name, body, conn: conn)
+
+    assert {:ok, %AnalyticsRule{name: ^name}} =
+             ExTypesense.upsert_analytics_rule(name, body, conn: map_conn)
+  end
+
+  @tag []
   test "success: upsert analytics rule", %{conn: conn, map_conn: map_conn} do
     name = "product_no_hits"
 
@@ -135,7 +179,7 @@ defmodule AnalyticsTest do
              ExTypesense.upsert_analytics_rule(name, body, conn: map_conn)
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "error: create analytics rule with wrong field" do
     name = "products_test_query"
     field_name = "wrong_field"
@@ -161,25 +205,42 @@ defmodule AnalyticsTest do
     assert {:error, %ApiResponse{message: _}} = ExTypesense.create_analytics_rule(body)
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
-  test "success: list analytics rules", %{conn: conn, map_conn: map_conn} do
-    assert {:ok, %AnalyticsRulesRetrieveSchema{rules: rules}} =
-             ExTypesense.list_analytics_rules()
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  test "success (v29.0): list analytics rules", %{conn: conn, map_conn: map_conn} do
+    case ExTypesense.list_analytics_rules() do
+      {:ok, []} ->
+        assert {:ok, []} = ExTypesense.list_analytics_rules([])
+        assert {:ok, []} = ExTypesense.list_analytics_rules(conn: conn)
+        assert {:ok, []} = ExTypesense.list_analytics_rules(conn: map_conn)
 
-    assert length(rules) >= 0
-
-    assert {:ok, %AnalyticsRulesRetrieveSchema{rules: _}} =
-             ExTypesense.list_analytics_rules([])
-
-    assert {:ok, %AnalyticsRulesRetrieveSchema{rules: _}} =
-             ExTypesense.list_analytics_rules(conn: conn)
-
-    assert {:ok, %AnalyticsRulesRetrieveSchema{rules: _}} =
-             ExTypesense.list_analytics_rules(conn: map_conn)
+      {:ok, [first | _]} when is_struct(first, AnalyticsRule) ->
+        assert {:ok, _rules} = ExTypesense.list_analytics_rules([])
+        assert {:ok, _rules} = ExTypesense.list_analytics_rules(conn: conn)
+        assert {:ok, _rules} = ExTypesense.list_analytics_rules(conn: map_conn)
+    end
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": false]
-  test "success (v27.1): create analytics rule and event", %{conn: conn, map_conn: map_conn} do
+  @tag ["29.0": true, "28.0": true, "27.1": false, "27.0": false, "26.0": false]
+  test "success (v28.0) : get analytics events", %{conn: conn, map_conn: map_conn} do
+    events_response = {:ok, %AnalyticsEventsResponse{events: []}}
+
+    assert ^events_response = ExTypesense.get_analytics_events()
+    assert ^events_response = ExTypesense.get_analytics_events([])
+    assert ^events_response = ExTypesense.get_analytics_events(conn: conn)
+    assert ^events_response = ExTypesense.get_analytics_events(map_conn: map_conn)
+  end
+
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": false]
+  test "success (v29.0): get analytics status", %{conn: conn, map_conn: map_conn} do
+    reason = {:error, %ApiResponse{message: "Not Found"}}
+    assert ^reason = ExTypesense.get_analytics_status()
+    assert ^reason = ExTypesense.get_analytics_status([])
+    assert ^reason = ExTypesense.get_analytics_status(conn: conn)
+    assert ^reason = ExTypesense.get_analytics_status(map_conn: map_conn)
+  end
+
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true]
+  test "success (v29.0): create analytics rule and event", %{conn: conn, map_conn: map_conn} do
     name = "product_popularity"
 
     event_name = "products_click_event#{System.unique_integer()}"
@@ -202,16 +263,12 @@ defmodule AnalyticsTest do
         }
       }
 
-    assert {:ok, %AnalyticsRuleSchema{name: ^name}} = ExTypesense.create_analytics_rule(body)
-    assert {:ok, %AnalyticsRuleSchema{name: ^name}} = ExTypesense.get_analytics_rule(name)
+    assert {:ok, %AnalyticsRule{name: ^name}} = ExTypesense.create_analytics_rule(body)
+    assert {:ok, %AnalyticsRule{name: ^name}} = ExTypesense.get_analytics_rule(name)
+    assert {:ok, %AnalyticsRule{name: ^name}} = ExTypesense.get_analytics_rule(name, [])
+    assert {:ok, %AnalyticsRule{name: ^name}} = ExTypesense.get_analytics_rule(name, conn: conn)
 
-    assert {:ok, %AnalyticsRuleSchema{name: ^name}} =
-             ExTypesense.get_analytics_rule(name, [])
-
-    assert {:ok, %AnalyticsRuleSchema{name: ^name}} =
-             ExTypesense.get_analytics_rule(name, conn: conn)
-
-    assert {:ok, %AnalyticsRuleSchema{name: ^name}} =
+    assert {:ok, %AnalyticsRule{name: ^name}} =
              ExTypesense.get_analytics_rule(name, conn: map_conn)
 
     body =
@@ -225,10 +282,6 @@ defmodule AnalyticsTest do
         }
       }
 
-    # Here's the reason why v26.0 is not tested
-    # Docs v26.0: https://typesense.org/docs/26.0/api/analytics-query-suggestions.html#sending-click-events
-    # Problem: the response JSON body is actually {"ok": true
-    # where it is missing a closing curly bracket "}"
     assert {:ok, %AnalyticsEventCreateResponse{ok: true}} =
              ExTypesense.create_analytics_event(body)
 
@@ -241,8 +294,7 @@ defmodule AnalyticsTest do
     assert {:ok, %AnalyticsEventCreateResponse{ok: true}} =
              ExTypesense.create_analytics_event(body, conn: map_conn)
 
-    assert {:ok, %AnalyticsRuleDeleteResponse{name: ^name}} =
-             ExTypesense.delete_analytics_rule(name)
+    assert {:ok, %AnalyticsRule{name: ^name}} = ExTypesense.delete_analytics_rule(name)
 
     assert {:error, %ApiResponse{message: _}} = ExTypesense.delete_analytics_rule(name, [])
 

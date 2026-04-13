@@ -38,6 +38,9 @@ defmodule ExTypesense.Analytics do
   @doc since: "1.0.0"
   @spec create_analytics_rule(map()) ::
           {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
+          | {:ok,
+             OpenApiTypesense.AnalyticsRule.t()
+             | [map | OpenApiTypesense.AnalyticsRule.t()]}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_analytics_rule(body) do
     create_analytics_rule(body, [])
@@ -63,6 +66,9 @@ defmodule ExTypesense.Analytics do
   @doc since: "1.0.0"
   @spec create_analytics_rule(map(), keyword()) ::
           {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
+          | {:ok,
+             OpenApiTypesense.AnalyticsRule.t()
+             | [map | OpenApiTypesense.AnalyticsRule.t()]}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_analytics_rule(body, opts) do
     OpenApiTypesense.Analytics.create_analytics_rule(body, opts)
@@ -126,7 +132,10 @@ defmodule ExTypesense.Analytics do
       iex> ExTypesense.list_analytics_rules()
   """
   @doc since: "1.0.0"
-  @spec list_analytics_rules :: {:ok, OpenApiTypesense.AnalyticsRulesRetrieveSchema.t()} | :error
+  @spec list_analytics_rules ::
+          {:ok, [OpenApiTypesense.AnalyticsRule.t()]}
+          | {:ok, OpenApiTypesense.AnalyticsRulesRetrieveSchema.t()}
+          | :error
   def list_analytics_rules do
     list_analytics_rules([])
   end
@@ -150,7 +159,9 @@ defmodule ExTypesense.Analytics do
   """
   @doc since: "1.0.0"
   @spec list_analytics_rules(keyword()) ::
-          {:ok, OpenApiTypesense.AnalyticsRulesRetrieveSchema.t()} | :error
+          {:ok, [OpenApiTypesense.AnalyticsRule.t()]}
+          | {:ok, OpenApiTypesense.AnalyticsRulesRetrieveSchema.t()}
+          | :error
   def list_analytics_rules(opts) do
     OpenApiTypesense.Analytics.retrieve_analytics_rules(opts)
   end
@@ -199,7 +210,8 @@ defmodule ExTypesense.Analytics do
   """
   @doc since: "1.0.0"
   @spec upsert_analytics_rule(String.t(), map()) ::
-          {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
+          {:ok, OpenApiTypesense.AnalyticsRule.t()}
+          | {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_analytics_rule(rule_name, body) do
     upsert_analytics_rule(rule_name, body, [])
@@ -224,7 +236,8 @@ defmodule ExTypesense.Analytics do
   """
   @doc since: "1.0.0"
   @spec upsert_analytics_rule(String.t(), map(), keyword()) ::
-          {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
+          {:ok, OpenApiTypesense.AnalyticsRule.t()}
+          | {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_analytics_rule(rule_name, body, opts) do
     OpenApiTypesense.Analytics.upsert_analytics_rule(rule_name, body, opts)
@@ -238,6 +251,7 @@ defmodule ExTypesense.Analytics do
   @doc since: "1.0.0"
   @spec delete_analytics_rule(String.t()) ::
           {:ok, OpenApiTypesense.AnalyticsRuleDeleteResponse.t()}
+          | {:ok, OpenApiTypesense.AnalyticsRule.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_analytics_rule(rule_name) do
     delete_analytics_rule(rule_name, [])
@@ -263,8 +277,102 @@ defmodule ExTypesense.Analytics do
   @doc since: "1.0.0"
   @spec delete_analytics_rule(String.t(), keyword()) ::
           {:ok, OpenApiTypesense.AnalyticsRuleDeleteResponse.t()}
+          | {:ok, OpenApiTypesense.AnalyticsRule.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_analytics_rule(rule_name, opts) do
     OpenApiTypesense.Analytics.delete_analytics_rule(rule_name, opts)
+  end
+
+  @doc """
+  Flush in-memory analytics to disk
+
+  Triggers a flush of analytics data to persistent storage.
+
+  """
+  @doc since: "2.1.0"
+  @spec flush_analytics ::
+          {:ok, OpenApiTypesense.AnalyticsEventCreateResponse.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def flush_analytics do
+    flush_analytics([])
+  end
+
+  @doc """
+  Same as [flush_analytics/0](`flush_analytics/0`)
+
+  ## Options
+
+    * `conn`: The custom connection map or struct you passed
+
+  """
+  @doc since: "2.1.0"
+  @spec flush_analytics(opts :: keyword) ::
+          {:ok, OpenApiTypesense.AnalyticsEventCreateResponse.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def flush_analytics(opts) do
+    OpenApiTypesense.Analytics.flush_analytics(opts)
+  end
+
+  @doc """
+  Retrieve analytics events
+
+  Retrieve the most recent events for a user and rule.
+
+  ## Options
+
+    * `user_id`
+    * `name`: Analytics rule name
+    * `n`: Number of events to return (max 1000)
+
+  """
+  @doc since: "2.1.0"
+  @spec get_analytics_events ::
+          {:ok, OpenApiTypesense.AnalyticsEventsResponse.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def get_analytics_events do
+    get_analytics_events([])
+  end
+
+  @doc """
+  Same as [get_analytics_events/0](`get_analytics_events/0`)
+
+  ## Options
+
+    * `conn`: The custom connection map or struct you passed
+
+  """
+  @doc since: "2.1.0"
+  @spec get_analytics_events(opts :: keyword) ::
+          {:ok, OpenApiTypesense.AnalyticsEventsResponse.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+  def get_analytics_events(opts) do
+    OpenApiTypesense.Analytics.get_analytics_events(opts)
+  end
+
+  @doc """
+  Get analytics subsystem status
+
+  Returns sizes of internal analytics buffers and queues.
+  """
+  @doc since: "2.1.0"
+  @spec get_analytics_status ::
+          {:ok, OpenApiTypesense.AnalyticsStatus.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
+  def get_analytics_status do
+    get_analytics_status([])
+  end
+
+  @doc """
+  Same as [get_analytics_status/0](`get_analytics_status/0`)
+
+  ## Options
+
+    * `conn`: The custom connection map or struct you passed
+
+  """
+  @doc since: "2.1.0"
+  @spec get_analytics_status(opts :: keyword) ::
+          {:ok, OpenApiTypesense.AnalyticsStatus.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
+  def get_analytics_status(opts) do
+    OpenApiTypesense.Analytics.get_analytics_status(opts)
   end
 end

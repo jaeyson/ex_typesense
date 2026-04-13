@@ -33,7 +33,7 @@ defmodule SynonymTest do
     %{coll_name: coll_name, conn: conn, map_conn: map_conn}
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "upsert and list all synonyms", %{coll_name: coll_name, conn: conn, map_conn: map_conn} do
     body = %{
       "root" => "hat",
@@ -73,7 +73,7 @@ defmodule SynonymTest do
     assert {:ok, _} = ExTypesense.list_synonyms(Car, conn: map_conn)
   end
 
-  @tag ["28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "delete synonyms", %{coll_name: coll_name, conn: conn, map_conn: map_conn} do
     body = %{
       "root" => "hat",
