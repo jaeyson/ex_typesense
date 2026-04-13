@@ -11,16 +11,13 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: review
     strategy:
       matrix:
         # versions are wrapped in quotes to preserve the exact versions
         # especially numbers that has "0" on right-most side (e.g. 26.0)
         typesense-version: ['28.0', '29.0']
         typesense-port: ['8108:8108']
-
-    services:
-      typesense:
-        image: typesense/typesense:${{ matrix.typesense-version }}
 
     steps:
       - name: Start Typesense

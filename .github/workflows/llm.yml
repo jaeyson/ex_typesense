@@ -13,7 +13,6 @@ jobs:
     secrets: inherit
 
   llm:
-    if: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && github.repository == 'jaeyson/ex_typesense' }}
     runs-on: ubuntu-latest
     environment: review
     needs: [ci_workflow]
@@ -31,10 +30,6 @@ jobs:
         - typesense: '29.0'
           otp: '28'
           elixir: '1.18'
-
-    services:
-      typesense:
-        image: typesense/typesense:${{ matrix.typesense }}
 
     steps:
       - name: Start Typesense

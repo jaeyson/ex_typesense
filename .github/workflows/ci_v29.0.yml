@@ -1,10 +1,7 @@
 name: CI v29.0
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+  workflow_call:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,7 +20,6 @@ jobs:
   # - [actions skip]
 
   test:
-    if: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && github.repository == 'jaeyson/ex_typesense' }}
     runs-on: ubuntu-latest
     environment: review
 
@@ -47,10 +43,6 @@ jobs:
           otp: '28'
           elixir: '1.19'
           lint: true
-
-    services:
-      typesense:
-        image: typesense/typesense:${{ matrix.typesense }}
 
     steps:
       - name: Checkout repo
@@ -166,5 +158,4 @@ jobs:
             deps
             _build
             priv/plts
-          key: |
-            ${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('**/mix.lock') }}
+          key: ${{ runner.os }}-typesense-${{ matrix.typesense }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles('**/mix.lock') }}
