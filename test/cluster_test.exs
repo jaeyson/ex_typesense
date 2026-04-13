@@ -189,11 +189,16 @@ defmodule ClusterTest do
 
   @tag ["29.0": true, "28.0": true, "27.1": false, "27.0": false, "26.0": false]
   test "success: get schema changes", %{conn: conn, map_conn: map_conn} do
-    assert {:ok, schemas} = ExTypesense.get_schema_changes()
-    assert length(schemas) >= 0
+    case ExTypesense.get_schema_changes() do
+      {:ok, []} ->
+        assert {:ok, []} = ExTypesense.get_schema_changes([])
+        assert {:ok, []} = ExTypesense.get_schema_changes(conn: conn)
+        assert {:ok, []} = ExTypesense.get_schema_changes(conn: map_conn)
 
-    assert {:ok, _} = ExTypesense.get_schema_changes([])
-    assert {:ok, _} = ExTypesense.get_schema_changes(conn: conn)
-    assert {:ok, _} = ExTypesense.get_schema_changes(conn: map_conn)
+      {:ok, [first | _]} when is_struct(first, SchemaChangeStatus) ->
+        assert {:ok, _} = ExTypesense.get_schema_changes([])
+        assert {:ok, _} = ExTypesense.get_schema_changes(conn: conn)
+        assert {:ok, _} = ExTypesense.get_schema_changes(conn: map_conn)
+    end
   end
 end

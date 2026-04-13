@@ -34,11 +34,17 @@ defmodule ConversationTest do
 
   @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: list conversation models", %{conn: conn, map_conn: map_conn} do
-    assert {:ok, models} = ExTypesense.list_models()
-    assert length(models) >= 0
-    assert {:ok, _} = ExTypesense.list_models([])
-    assert {:ok, _} = ExTypesense.list_models(conn: conn)
-    assert {:ok, _} = ExTypesense.list_models(conn: map_conn)
+    case ExTypesense.list_models() do
+      {:ok, []} ->
+        assert {:ok, []} = ExTypesense.list_models([])
+        assert {:ok, []} = ExTypesense.list_models(conn: conn)
+        assert {:ok, []} = ExTypesense.list_models(conn: map_conn)
+
+      {:ok, [first | _]} when is_struct(first, NLSearchModelSchema) ->
+        assert {:ok, _} = ExTypesense.list_models([])
+        assert {:ok, _} = ExTypesense.list_models(conn: conn)
+        assert {:ok, _} = ExTypesense.list_models(conn: map_conn)
+    end
   end
 
   @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
