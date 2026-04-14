@@ -45,7 +45,15 @@ defmodule CollectionTest do
     :ok
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: create collection", %{schema: schema, conn: conn, map_conn: map_conn} do
     name = schema.name
     prod_name = Product.__schema__(:source)
@@ -75,7 +83,15 @@ defmodule CollectionTest do
     assert {:ok, %CollectionResponse{name: ^prod_name}} = ExTypesense.get_collection(Product)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: list all collections", %{conn: conn, map_conn: map_conn} do
     assert {:ok, _} = ExTypesense.list_collections()
     assert {:ok, _} = ExTypesense.list_collections(exclude_fields: "fields")
@@ -85,7 +101,15 @@ defmodule CollectionTest do
     assert {:ok, _} = ExTypesense.list_collections(conn: map_conn, exclude_fields: "fields")
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: clone collection", %{schema: schema, conn: conn, map_conn: map_conn} do
     name = schema.name
     prod_name = Product.__schema__(:source)
@@ -117,7 +141,15 @@ defmodule CollectionTest do
              ExTypesense.clone_collection(Product, "prod_x", conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: create collection with alias", %{schema: schema, conn: conn, map_conn: map_conn} do
     assert {:ok, %CollectionResponse{name: c_collection_name}} =
              ExTypesense.create_collection_with_alias(schema)
@@ -155,7 +187,15 @@ defmodule CollectionTest do
     assert message =~ error
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: dropping collection won't affect alias", %{
     schema: schema,
     conn: conn,
@@ -216,7 +256,15 @@ defmodule CollectionTest do
     assert aliases >= 0
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "error: dropping unknown collection", %{conn: conn, map_conn: map_conn} do
     coll_name = "unknown"
     message = ~s(No collection with name `#{coll_name}` found.)
@@ -232,7 +280,15 @@ defmodule CollectionTest do
     assert {:error, %ApiResponse{}} = ExTypesense.drop_collection(Product, conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "error: get unknown collection", %{conn: conn, map_conn: map_conn} do
     assert {:error, %ApiResponse{message: message}} = ExTypesense.get_collection("xyz")
     assert String.contains?(String.downcase(message), "not found") === true
@@ -243,7 +299,15 @@ defmodule CollectionTest do
     assert {:error, _} = ExTypesense.get_collection(Product, conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: dropping collection deletes all documents", %{schema: schema} do
     ExTypesense.create_collection(schema)
 
@@ -261,7 +325,15 @@ defmodule CollectionTest do
     assert String.contains?(String.downcase(message), "not found") === true
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: update schema fields", %{schema: schema, conn: conn, map_conn: map_conn} do
     assert {:ok, %CollectionResponse{}} = ExTypesense.create_collection(schema)
 
@@ -308,7 +380,15 @@ defmodule CollectionTest do
     assert test.name === "test"
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: get collection name by alias", %{schema: schema, conn: conn, map_conn: map_conn} do
     name = schema.name
 
@@ -325,7 +405,15 @@ defmodule CollectionTest do
     assert {:ok, _} = ExTypesense.get_collection_alias(alias_name, conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: create, get, delete alias", %{schema: schema, conn: conn, map_conn: map_conn} do
     name = schema.name
 

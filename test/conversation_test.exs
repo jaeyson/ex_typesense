@@ -32,7 +32,15 @@ defmodule ConversationTest do
     %{conn: conn, map_conn: map_conn}
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: list conversation models", %{conn: conn, map_conn: map_conn} do
     case ExTypesense.list_models() do
       {:ok, []} ->
@@ -47,7 +55,15 @@ defmodule ConversationTest do
     end
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "error: get a non-existent conversation model", %{conn: conn, map_conn: map_conn} do
     assert {:error, %ApiResponse{message: "Model not found"}} =
              ExTypesense.get_model("non-existent")
@@ -57,7 +73,15 @@ defmodule ConversationTest do
     assert {:error, _} = ExTypesense.get_model("xyz", conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: delete a conversation model", %{conn: conn, map_conn: map_conn} do
     assert {:error, %ApiResponse{message: "Model not found"}} =
              ExTypesense.delete_model("non-existent")
@@ -67,7 +91,15 @@ defmodule ConversationTest do
     assert {:error, _} = ExTypesense.delete_model("xyz", conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "error: create a conversation model with incorrect API key", %{
     conn: conn,
     map_conn: map_conn
@@ -98,7 +130,15 @@ defmodule ConversationTest do
     assert {:error, _} = ExTypesense.create_model(body, conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "error: update a conversation model with incorrect API key", %{
     conn: conn,
     map_conn: map_conn

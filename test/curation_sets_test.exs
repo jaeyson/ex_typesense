@@ -32,7 +32,7 @@ defmodule CurationSetsTest do
     %{conn: conn, map_conn: map_conn}
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: retrieve a curation set", %{conn: conn, map_conn: map_conn} do
     name = "curate_catalog"
 
@@ -68,7 +68,7 @@ defmodule CurationSetsTest do
              ExTypesense.retrieve_curation_set(name, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "error: retrieve a non-existing curation set", %{conn: conn, map_conn: map_conn} do
     set_name = "unkown-set"
     error = {:error, %ApiResponse{message: "Curation index not found"}}
@@ -78,7 +78,7 @@ defmodule CurationSetsTest do
     assert ^error = ExTypesense.retrieve_curation_set(set_name, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "error: retrieve a non-existing curation set item", %{conn: conn, map_conn: map_conn} do
     name = "curate_products_error"
 
@@ -112,7 +112,7 @@ defmodule CurationSetsTest do
     assert ^error = ExTypesense.retrieve_curation_set_item(name, item_id, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "error: retrieving an item_id with a whitespace on its name", %{
     conn: conn,
     map_conn: map_conn
@@ -129,7 +129,7 @@ defmodule CurationSetsTest do
     assert ^error = ExTypesense.retrieve_curation_set_item(set_name, item_id, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: list all curation sets", %{conn: conn, map_conn: map_conn} do
     name = "curate_products"
 
@@ -162,7 +162,7 @@ defmodule CurationSetsTest do
     assert {:ok, _} = ExTypesense.retrieve_curation_sets(map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: list all curation set items", %{conn: conn, map_conn: map_conn} do
     set_name = "curate_products"
 
@@ -212,7 +212,7 @@ defmodule CurationSetsTest do
              ExTypesense.retrieve_curation_set_items(set_name, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: create or update a curation set", %{conn: conn, map_conn: map_conn} do
     name = "curate_products"
 
@@ -248,7 +248,7 @@ defmodule CurationSetsTest do
              ExTypesense.upsert_curation_set(name, curation_set, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: upsert a curation set item", %{conn: conn, map_conn: map_conn} do
     set_name = "curate_products"
 
@@ -299,7 +299,7 @@ defmodule CurationSetsTest do
              ExTypesense.upsert_curation_set_item(set_name, item_id, body, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: delete a curation set", %{conn: conn, map_conn: map_conn} do
     name = "curate_products_delete"
 
@@ -333,7 +333,7 @@ defmodule CurationSetsTest do
     assert ^error = ExTypesense.delete_curation_set(name, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: delete a curation set item", %{conn: conn, map_conn: map_conn} do
     name = "curate_products_item"
 
