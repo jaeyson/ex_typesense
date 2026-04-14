@@ -326,6 +326,39 @@ defmodule ExTypesense do
   ##########################################################
 
   ##########################################################
+  # start curation sets
+  ##########################################################
+  defdelegate delete_curation_set(set_name), to: ExTypesense.CurationSets
+  defdelegate delete_curation_set(set_name, opts), to: ExTypesense.CurationSets
+
+  defdelegate delete_curation_set_item(set_name, item_id), to: ExTypesense.CurationSets
+  defdelegate delete_curation_set_item(set_name, item_id, opts), to: ExTypesense.CurationSets
+
+  defdelegate retrieve_curation_set(set_name), to: ExTypesense.CurationSets
+  defdelegate retrieve_curation_set(set_name, opts), to: ExTypesense.CurationSets
+
+  defdelegate retrieve_curation_set_item(set_name, item_id), to: ExTypesense.CurationSets
+  defdelegate retrieve_curation_set_item(set_name, item_id, opts), to: ExTypesense.CurationSets
+
+  defdelegate retrieve_curation_set_items(set_name), to: ExTypesense.CurationSets
+  defdelegate retrieve_curation_set_items(set_name, opts), to: ExTypesense.CurationSets
+
+  defdelegate retrieve_curation_sets, to: ExTypesense.CurationSets
+  defdelegate retrieve_curation_sets(opts), to: ExTypesense.CurationSets
+
+  defdelegate upsert_curation_set(set_name, body), to: ExTypesense.CurationSets
+  defdelegate upsert_curation_set(set_name, body, opts), to: ExTypesense.CurationSets
+
+  defdelegate upsert_curation_set_item(set_name, item_id, body), to: ExTypesense.CurationSets
+
+  defdelegate upsert_curation_set_item(set_name, item_id, body, opts),
+    to: ExTypesense.CurationSets
+
+  ##########################################################
+  # end curation sets
+  ##########################################################
+
+  ##########################################################
   # start synonyms
   ##########################################################
   defdelegate list_synonyms(coll_name), to: ExTypesense.Synonym
@@ -339,6 +372,30 @@ defmodule ExTypesense do
 
   defdelegate upsert_synonym(coll_name, syn_id, body), to: ExTypesense.Synonym
   defdelegate upsert_synonym(coll_name, syn_id, body, opts), to: ExTypesense.Synonym
+
+  defdelegate upsert_synonym_set(set_name, body), to: ExTypesense.Synonym
+  defdelegate upsert_synonym_set(set_name, body, opts), to: ExTypesense.Synonym
+
+  defdelegate upsert_synonym_set_item(set_name, item_id, body), to: ExTypesense.Synonym
+  defdelegate upsert_synonym_set_item(set_name, item_id, body, opts), to: ExTypesense.Synonym
+
+  defdelegate delete_synonym_set(set_name), to: ExTypesense.Synonym
+  defdelegate delete_synonym_set(set_name, opts), to: ExTypesense.Synonym
+
+  defdelegate delete_synonym_set_item(set_name, item_id), to: ExTypesense.Synonym
+  defdelegate delete_synonym_set_item(set_name, item_id, opts), to: ExTypesense.Synonym
+
+  defdelegate retrieve_synonym_set(set_name), to: ExTypesense.Synonym
+  defdelegate retrieve_synonym_set(set_name, opts), to: ExTypesense.Synonym
+
+  defdelegate retrieve_synonym_sets, to: ExTypesense.Synonym
+  defdelegate retrieve_synonym_sets(opts), to: ExTypesense.Synonym
+
+  defdelegate retrieve_synonym_set_item(set_name, item_id), to: ExTypesense.Synonym
+  defdelegate retrieve_synonym_set_item(set_name, item_id, opts), to: ExTypesense.Synonym
+
+  defdelegate retrieve_synonym_set_items(set_name), to: ExTypesense.Synonym
+  defdelegate retrieve_synonym_set_items(set_name, opts), to: ExTypesense.Synonym
   ##########################################################
   # end synonyms
   ##########################################################

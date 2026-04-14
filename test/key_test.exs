@@ -28,7 +28,7 @@ defmodule KeyTest do
     %{api_key_schema: api_key_schema, conn: conn, map_conn: map_conn}
   end
 
-  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: get keys", %{api_key_schema: api_key_schema, conn: conn, map_conn: map_conn} do
     assert {:ok, api_key} = ExTypesense.create_key(api_key_schema)
     assert {:ok, _} = ExTypesense.create_key(api_key_schema, [])
@@ -43,7 +43,7 @@ defmodule KeyTest do
     assert {:ok, %ApiKey{id: ^key_id}} = ExTypesense.get_key(key_id, conn: map_conn)
   end
 
-  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: delete keys", %{api_key_schema: api_key_schema, conn: conn, map_conn: map_conn} do
     assert {:ok, api_key} = ExTypesense.create_key(api_key_schema)
     key_id = api_key.id
@@ -54,7 +54,7 @@ defmodule KeyTest do
     assert {:error, _} = ExTypesense.delete_key(key_id, conn: map_conn)
   end
 
-  @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
   test "success: list all keys", %{conn: conn, map_conn: map_conn} do
     assert {:ok, %ApiKeysResponse{}} = ExTypesense.list_keys()
     assert {:ok, _} = ExTypesense.list_keys([])

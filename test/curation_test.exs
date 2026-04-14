@@ -11,6 +11,7 @@ defmodule CurationTest do
   setup_all do
     conn = Connection.new()
     map_conn = %{api_key: "xyz", host: "localhost", port: 8108, scheme: "http"}
+    name = "brands"
 
     schema = %{
       name: "curate_companies",
@@ -30,7 +31,69 @@ defmodule CurationTest do
       ExTypesense.drop_collection(House)
     end)
 
-    %{schema: schema, conn: conn, map_conn: map_conn}
+    %{schema_name: name, schema: schema, conn: conn, map_conn: map_conn}
+  end
+
+  @tag ["30.0": true]
+  test "error (v30.0): deprecated function for upsert search override", %{
+    schema_name: schema_name
+  } do
+    override_id = "customize-loca-cola"
+
+    body =
+      %{
+        "rule" => %{
+          "query" => "Loca Cola",
+          "match" => "exact"
+        },
+        "includes" => [
+          %{"id" => "422", "position" => 1},
+          %{"id" => "54", "position" => 2}
+        ],
+        "excludes" => [
+          %{"id" => "287"}
+        ]
+      }
+
+    error = {:error, %ApiResponse{message: "Not Found"}}
+    assert ^error = ExTypesense.upsert_override(schema_name, override_id, body)
+    assert ^error = ExTypesense.upsert_override(schema_name, override_id, body, [])
+    assert ^error = ExTypesense.upsert_override(House, override_id, body)
+    assert ^error = ExTypesense.upsert_override(House, override_id, body, [])
+  end
+
+  @tag ["30.0": true]
+  test "error (v30.0): deprecated function for get search override", %{
+    schema: schema
+  } do
+    name = "cust-company"
+    error = {:error, %ApiResponse{message: "Not Found"}}
+    assert ^error = ExTypesense.get_override(schema.name, name)
+    assert ^error = ExTypesense.get_override(schema.name, name, [])
+    assert ^error = ExTypesense.get_override(House, name)
+    assert ^error = ExTypesense.get_override(House, name, [])
+  end
+
+  @tag ["30.0": true]
+  test "error (v30.0): deprecated function for list collection overrides", %{
+    schema_name: schema_name
+  } do
+    error = {:error, %ApiResponse{message: "Not Found"}}
+    assert ^error = ExTypesense.list_overrides(schema_name)
+    assert ^error = ExTypesense.list_overrides(schema_name, [])
+    assert ^error = ExTypesense.list_overrides(House)
+    assert ^error = ExTypesense.list_overrides(House, [])
+  end
+
+  @tag ["30.0": true]
+  test "error (v30.0): deprecated function for delete search override", %{
+    schema_name: schema_name
+  } do
+    error = {:error, %ApiResponse{message: "Not Found"}}
+    assert ^error = ExTypesense.delete_override(schema_name, "test")
+    assert ^error = ExTypesense.delete_override(schema_name, "test", [])
+    assert ^error = ExTypesense.delete_override(House, "test")
+    assert ^error = ExTypesense.delete_override(House, "test", [])
   end
 
   @tag ["29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
