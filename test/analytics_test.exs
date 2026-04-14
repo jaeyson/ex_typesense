@@ -5,10 +5,10 @@ defmodule AnalyticsTest do
   alias OpenApiTypesense.AnalyticsEventsResponse
   alias OpenApiTypesense.AnalyticsRule
   alias OpenApiTypesense.AnalyticsRulesRetrieveSchema
+  alias OpenApiTypesense.AnalyticsStatus
   alias OpenApiTypesense.ApiResponse
   alias OpenApiTypesense.CollectionResponse
   alias OpenApiTypesense.Connection
-  alias OpenApiTypesense.AnalyticsStatus
 
   setup_all do
     conn = Connection.new()
