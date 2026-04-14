@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   ci_workflow:
-    uses: ./.github/workflows/ci_v30.0.yml
+    uses: ./.github/workflows/ci_v30.1.yml
     secrets: inherit
 
   llm:
@@ -24,6 +24,12 @@ jobs:
     strategy:
       matrix:
         include:
+        - typesense: '30.1'
+          otp: '25'
+          elixir: '1.14'
+        - typesense: '30.1'
+          otp: '28'
+          elixir: '1.18'
         - typesense: '30.0'
           otp: '25'
           elixir: '1.14'

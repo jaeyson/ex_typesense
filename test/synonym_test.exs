@@ -128,7 +128,7 @@ defmodule SynonymTest do
     assert {:error, %ApiResponse{}} = ExTypesense.delete_synonym(Car, syn_id, conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "error (v30.0): deprecated function for list collection synonyms", %{coll_name: coll_name} do
     error = {:error, %ApiResponse{message: "Not Found"}}
     assert ^error = ExTypesense.list_synonyms(coll_name)
@@ -137,7 +137,7 @@ defmodule SynonymTest do
     assert ^error = ExTypesense.list_synonyms(Car, [])
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "error (v30.0): deprecated function for upsert a collection synonym", %{
     coll_name: coll_name
   } do
@@ -154,7 +154,7 @@ defmodule SynonymTest do
     assert ^error = ExTypesense.upsert_synonym(Car, synonym_id, body)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "error (v30.0): deprecated function for delete a collection synonym", %{
     coll_name: coll_name
   } do
@@ -171,7 +171,7 @@ defmodule SynonymTest do
     assert ^error = ExTypesense.upsert_synonym(coll_name, synonym_id, body, [])
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: delete a synonym set item", %{conn: conn, map_conn: map_conn} do
     name = "tech-synonyms"
 
@@ -206,7 +206,7 @@ defmodule SynonymTest do
     assert ^error = ExTypesense.delete_synonym_set_item(name, item_id, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "error (v30.0): deprecate function delete a synonym associated with a collection", %{
     coll_name: coll_name
   } do
@@ -218,7 +218,7 @@ defmodule SynonymTest do
     assert ^error = ExTypesense.delete_synonym(Car, synonym_id, [])
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: list all synonym sets", %{conn: conn, map_conn: map_conn} do
     name = "sample"
 
@@ -240,7 +240,7 @@ defmodule SynonymTest do
     assert {:ok, _} = ExTypesense.retrieve_synonym_sets(map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: retrieve a synonym set", %{conn: conn, map_conn: map_conn} do
     name = "sample"
 
@@ -264,7 +264,7 @@ defmodule SynonymTest do
              ExTypesense.retrieve_synonym_set(name, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: retrieve a synonym set item", %{conn: conn, map_conn: map_conn} do
     name = "tech-synonyms"
 
@@ -303,7 +303,7 @@ defmodule SynonymTest do
              ExTypesense.retrieve_synonym_set_item(name, item_id, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: retrieve a synonym set items", %{conn: conn, map_conn: map_conn} do
     name = "tech-synonyms"
 
@@ -336,7 +336,7 @@ defmodule SynonymTest do
     assert {:ok, _} = ExTypesense.retrieve_synonym_set_items(name, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "error (v30.0): deprecated function for get a collection synonym", %{coll_name: coll_name} do
     synonym_id = "t-shirt-synonyms"
     error = {:error, %ApiResponse{message: "Not Found"}}
@@ -346,7 +346,7 @@ defmodule SynonymTest do
     assert ^error = ExTypesense.get_synonym(Car, synonym_id, [])
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: create or update a synonym set (multi-way synonym)", %{
     conn: conn,
     map_conn: map_conn
@@ -372,7 +372,7 @@ defmodule SynonymTest do
              ExTypesense.upsert_synonym_set(name, body, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: create or update a synonym set (one-way synonym)", %{
     conn: conn,
     map_conn: map_conn
@@ -399,7 +399,7 @@ defmodule SynonymTest do
              ExTypesense.upsert_synonym_set(name, body, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: upsert a synonym set item", %{conn: conn, map_conn: map_conn} do
     name = "tech-synonyms"
 
@@ -435,7 +435,7 @@ defmodule SynonymTest do
              ExTypesense.upsert_synonym_set_item(name, item_id, body, map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success: delete a synonym set", %{conn: conn, map_conn: map_conn} do
     name = "tech-synonyms"
 

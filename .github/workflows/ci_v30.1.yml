@@ -1,8 +1,7 @@
-name: CI v30.0
+name: CI v30.1
 
 on:
-  pull_request:
-    branches: ["main"]
+  workflow_call:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -27,20 +26,20 @@ jobs:
     env:
       MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      LATEST_TYPESENSE: '30.0'
+      LATEST_TYPESENSE: '30.1'
 
     strategy:
       matrix:
         include:
-        - typesense: '30.0'
+        - typesense: '30.1'
           otp: '25'
           elixir: '1.14'
           lint: false
-        - typesense: '30.0'
+        - typesense: '30.1'
           otp: '27'
           elixir: '1.18'
           lint: false
-        - typesense: '30.0'
+        - typesense: '30.1'
           otp: '28'
           elixir: '1.19'
           lint: true
@@ -93,12 +92,15 @@ jobs:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
 
-      - name: Cache dependencies/builds
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
+      - name: Restore cache
+        id: cache_restore
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        if: ${{ matrix.lint }}
         with:
           path: |
             deps
             _build
+            priv/plts
           key: ${{ runner.os }}-typesense-${{ matrix.typesense}}-${{ matrix.otp}}-${{ matrix.elixir}}-mix-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-typesense-${{ matrix.typesense}}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-
@@ -132,9 +134,28 @@ jobs:
         run: mix format --check-formatted
         if: ${{ matrix.lint }}
 
+      - name: Create PLTs
+        if: ${{ steps.cache_restore.outputs.cache-hit != 'true' && matrix.lint }}
+        run: mix dialyzer --plt
+
+      - name: Dialyzer
+        run: mix dialyzer --format github --format dialyxir
+        if: ${{ matrix.lint }}
+
       - name: Run tests
         run: mix test --only ${{ matrix.typesense }}:true --only nls:true --trace
 
       - name: Post test coverage to Coveralls
         run: mix coveralls.github
         if: ${{ matrix.lint && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+      - name: Save cache
+        id: cache_save
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        if: ${{ matrix.lint }}
+        with:
+          path: |
+            deps
+            _build
+            priv/plts
+          key: ${{ runner.os }}-typesense-${{ matrix.typesense }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles('**/mix.lock') }}

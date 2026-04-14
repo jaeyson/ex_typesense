@@ -66,7 +66,15 @@ defmodule DocumentTest do
     :ok
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "error: get unknown document", %{schema: schema, conn: conn, map_conn: map_conn} do
     unknown_id = "999"
     message = ~s(Could not find a document with id: #{unknown_id})
@@ -96,7 +104,15 @@ defmodule DocumentTest do
              ExTypesense.get_document(schema.name, unknown_id, conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: index a document using a map then fetch if indexed", %{
     document: document,
     conn: conn,
@@ -126,7 +142,15 @@ defmodule DocumentTest do
     assert {:ok, %{company_name: ^company_name}} = ExTypesense.get_document(coll_name, id)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: adding unknown field", %{document: document} do
     document = Map.put(document, :unknown_field, "unknown_value")
 
@@ -135,7 +159,15 @@ defmodule DocumentTest do
     assert {:ok, %{id: ^id}} = ExTypesense.get_document(document.collection_name, id)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "error: collection_name field removed in return value when indexing or updating", %{
     document: document
   } do
@@ -156,7 +188,15 @@ defmodule DocumentTest do
     refute Map.has_key?(updated_map, :collection_name)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: upsert to update a document", %{document: document} do
     assert {:ok, %{id: id}} = ExTypesense.index_document(document)
     company_name = "Stark Industries"
@@ -170,7 +210,15 @@ defmodule DocumentTest do
              ExTypesense.index_document(updated_document, action: "upsert")
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "error: creates a document with a specific id twice", %{document: document} do
     document = Map.put(document, :id, "99")
     assert {:ok, %{id: id}} = ExTypesense.index_document(document)
@@ -178,7 +226,15 @@ defmodule DocumentTest do
     assert {:error, %ApiResponse{message: ^message}} = ExTypesense.index_document(document)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: update a document", %{document: document, conn: conn, map_conn: map_conn} do
     assert {:ok, %{id: id}} = ExTypesense.index_document(document)
 
@@ -219,7 +275,15 @@ defmodule DocumentTest do
     assert {:ok, _} = ExTypesense.update_document(updated_struct, conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: export documents", %{
     schema: schema,
     multiple_documents: multiple_documents,
@@ -245,7 +309,15 @@ defmodule DocumentTest do
     assert {:ok, _} = ExTypesense.export_documents(Person, conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: delete a document", %{
     schema: schema,
     document: document,
@@ -315,7 +387,15 @@ defmodule DocumentTest do
     assert {:ok, _} = ExTypesense.delete_document(person, ignore_not_found: true)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: deletes a document by struct", %{conn: conn, map_conn: map_conn} do
     person = %Person{name: "John Smith", persons_id: 99, country: "Brazil"}
 
@@ -349,7 +429,15 @@ defmodule DocumentTest do
     assert {:ok, _} = ExTypesense.delete_document(person, conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: index multiple documents", %{
     schema: schema,
     multiple_documents: multiple_documents,
@@ -386,7 +474,15 @@ defmodule DocumentTest do
              ExTypesense.import_documents(Person, persons, conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: update multiple documents", %{
     multiple_documents: multiple_documents,
     schema: schema
@@ -414,7 +510,15 @@ defmodule DocumentTest do
              ExTypesense.get_document(schema.name, second_id)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: delete all documents using Ecto schema module", %{conn: conn, map_conn: map_conn} do
     person = %Person{name: "John Doe", persons_id: 1_111, country: "Scotland"}
 
@@ -432,7 +536,15 @@ defmodule DocumentTest do
     assert {:ok, _} = ExTypesense.delete_all_documents(Person, conn: map_conn)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: deleting all documents won't drop the collection", %{
     schema: schema,
     conn: conn,
@@ -474,7 +586,15 @@ defmodule DocumentTest do
     assert {:ok, %CollectionResponse{name: ^name}} = ExTypesense.get_collection(name)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: update documents by query no change", %{
     schema: schema,
     multiple_documents: multiple_documents,
@@ -521,7 +641,15 @@ defmodule DocumentTest do
     assert {:ok, _} = ExTypesense.update_documents_by_query(Person, body, opts)
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: delete documents by query (Ecto schema)", %{conn: conn, map_conn: map_conn} do
     john_toe = %Person{name: "John Toe", persons_id: 32, country: "Egypt"}
     john_foe = %Person{name: "John Foe", persons_id: 14, country: "Cuba"}
@@ -560,7 +688,15 @@ defmodule DocumentTest do
     end
   end
 
-  @tag ["30.0": true, "29.0": true, "28.0": true, "27.1": true, "27.0": true, "26.0": true]
+  @tag [
+    "30.1": true,
+    "30.0": true,
+    "29.0": true,
+    "28.0": true,
+    "27.1": true,
+    "27.0": true,
+    "26.0": true
+  ]
   test "success: delete documents by query (map)", %{schema: schema} do
     documents = [
       %{

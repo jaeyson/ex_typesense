@@ -82,7 +82,7 @@ defmodule AnalyticsTest do
     %{conn: conn, map_conn: map_conn}
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "error (v30.0): create analytics rule with non-existent collection", %{
     conn: conn,
     map_conn: map_conn
@@ -115,7 +115,7 @@ defmodule AnalyticsTest do
     assert {:error, _} = ExTypesense.create_analytics_rule(body, conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success (v30.0): upsert analytics rule", %{conn: conn, map_conn: map_conn} do
     name = "product_no_hits"
 
@@ -143,7 +143,7 @@ defmodule AnalyticsTest do
              ExTypesense.upsert_analytics_rule(name, body, conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success (v30.0): flush analytics", %{conn: conn, map_conn: map_conn} do
     response = {:ok, %AnalyticsEventCreateResponse{ok: true}}
 
@@ -153,7 +153,7 @@ defmodule AnalyticsTest do
     assert ^response = ExTypesense.flush_analytics(map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "error (v30.0): get analytics events", %{conn: conn, map_conn: map_conn} do
     reason = {:error, %ApiResponse{message: "Missing required parameter 'user_id'."}}
 
@@ -168,7 +168,7 @@ defmodule AnalyticsTest do
     assert ^reason = ExTypesense.get_analytics_events(opts ++ [map_conn: map_conn])
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success (v30.0): get analytics status", %{conn: conn, map_conn: map_conn} do
     status = %AnalyticsStatus{
       doc_counter_events: 0,
@@ -186,7 +186,7 @@ defmodule AnalyticsTest do
     assert {:ok, ^status} = ExTypesense.get_analytics_status(map_conn: map_conn)
   end
 
-  @tag ["30.0": true]
+  @tag ["30.1": true, "30.0": true]
   test "success (v30.0): send click events", %{conn: conn, map_conn: map_conn} do
     name = "products_clicks"
 
@@ -336,6 +336,7 @@ defmodule AnalyticsTest do
   end
 
   @tag [
+    "30.1": true,
     "30.1": true,
     "30.0": true,
     "29.0": true,

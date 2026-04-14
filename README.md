@@ -3,10 +3,10 @@
 <p align="center">
   <source
     media="(prefers-color-scheme: dark)"
-    srcset="https://raw.githubusercontent.com/typesense/typesense/refs/heads/v30/assets/typesense_logo_dark.svg">
+    srcset="https://raw.githubusercontent.com/typesense/typesense/refs/heads/v31/assets/typesense_logo_dark.svg">
   <img
     alt="Typesense logo"
-    src="https://raw.githubusercontent.com/typesense/typesense/refs/heads/v30/assets/typesense_logo.svg"
+    src="https://raw.githubusercontent.com/typesense/typesense/refs/heads/v31/assets/typesense_logo.svg"
     width="230">
   <source
     media="(prefers-color-scheme: dark)"
@@ -51,6 +51,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v30.1.yml">
+    <img
+      alt="CI for v30.0"
+      src="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v30.1.yml/badge.svg"
+    >
+  </a>
   <a href="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v30.0.yml">
     <img
       alt="CI for v30.0"
@@ -102,10 +108,10 @@
       src="https://img.shields.io/hexpm/l/ex_typesense"
     >
   </a>
-  <a href="https://typesense.org/docs/30.0/api">
+  <a href="https://typesense.org/docs/30.1/api">
     <img
       alt="Latest Typesense compatible version"
-      src="https://img.shields.io/badge/Latest%20Typesense%20compatible-v30.0-%230F35BC"
+      src="https://img.shields.io/badge/Latest%20Typesense%20compatible-v30.1-%230F35BC"
     >
   </a>
 </p>
@@ -147,7 +153,7 @@ Add `:ex_typesense` to your list of dependencies in the Elixir project config fi
 def deps do
   [
     # From default Hex package manager
-    {:ex_typesense, "~> 2.2"}
+    {:ex_typesense, "~> 2.3"}
 
     # Or from GitHub repository, if you want the latest greatest from main branch
     {:ex_typesense, git: "https://github.com/jaeyson/ex_typesense.git"}
