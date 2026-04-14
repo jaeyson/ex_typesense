@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
+## 2.2.0 (???)
+
+### Added
+
+* `ExTypesense.CurationSets`
+
+### Chore
+
+* Update compatibility to include Typesense v30.0
+
+### Deprecated
+
+* `ExTypesense.upsert_search_synonym/4` in favor of `upsert_synonym_set/3` or `upsert_synonym_set_item/4` when using Typesense v30.0+.
+* `ExTypesense.get_search_synonyms/2` in favor of `retrieve_synonym_set_items/2` or `retrieve_synonym_sets/1` when using Typesense v30.0+.
+* `ExTypesense.get_search_synonym/3` in favor of `retrieve_synonym_set/2` or `retrieve_synonym_set_item/3` when using Typesense v30.0+.
+* `ExTypesense.delete_search_synonym/3` in favor of `delete_synonym_set/2` or `delete_synonym_set_item/3` when using Typesense v30.0+.
+
 ## 2.1.0 (2026.04.13)
 
 ### Chore

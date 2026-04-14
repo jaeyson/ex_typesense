@@ -18,7 +18,9 @@ defmodule ExTypesense.Curation do
   """
   @doc since: "1.0.0"
   @spec get_override(String.t() | module(), String.t()) ::
-          {:ok, OpenApiTypesense.SearchOverride.t()} | :error
+          {:ok, OpenApiTypesense.SearchOverride.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+          | :error
   def get_override(coll_name, override_id) do
     get_override(coll_name, override_id, [])
   end
@@ -42,7 +44,9 @@ defmodule ExTypesense.Curation do
   """
   @doc since: "1.0.0"
   @spec get_override(String.t() | module(), String.t(), keyword()) ::
-          {:ok, OpenApiTypesense.SearchOverride.t()} | :error
+          {:ok, OpenApiTypesense.SearchOverride.t()}
+          | {:error, OpenApiTypesense.ApiResponse.t()}
+          | :error
   def get_override(module, override_id, opts) when is_atom(module) do
     coll_name = module.__schema__(:source)
     get_override(coll_name, override_id, opts)
