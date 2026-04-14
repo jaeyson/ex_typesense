@@ -337,7 +337,6 @@ defmodule AnalyticsTest do
 
   @tag [
     "30.1": true,
-    "30.1": true,
     "30.0": true,
     "29.0": true,
     "28.0": true,

@@ -53,7 +53,7 @@
 <p align="center">
   <a href="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v30.1.yml">
     <img
-      alt="CI for v30.0"
+      alt="CI for v30.1"
       src="https://github.com/jaeyson/ex_typesense/actions/workflows/ci_v30.1.yml/badge.svg"
     >
   </a>
