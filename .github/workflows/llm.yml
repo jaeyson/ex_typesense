@@ -8,14 +8,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci_workflow:
-    uses: ./.github/workflows/ci_v30.1.yml
-    secrets: inherit
-
   llm:
     runs-on: ubuntu-latest
     environment: review
-    needs: [ci_workflow]
 
     env:
       MIX_ENV: test
@@ -99,7 +94,7 @@ jobs:
 
       - name: Test natural language search
         run: mix test --only nls:true --trace
-        if: ${{ github.event_name == 'pull_request' && github.ref == 'refs/heads/main' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
       - name: Post test coverage to Coveralls
         run: mix coveralls.github
