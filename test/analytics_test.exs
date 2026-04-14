@@ -290,7 +290,7 @@ defmodule AnalyticsTest do
         "type" => "nohits_queries",
         "params" => %{
           "source" => %{
-            "collections" => ["products"]
+            "collections" => ["analytics_products"]
           },
           "destination" => %{
             "collection" => "no_hits_queries"
@@ -389,13 +389,13 @@ defmodule AnalyticsTest do
         "type" => "counter",
         "params" => %{
           "source" => %{
-            "collections" => ["products"],
+            "collections" => ["analytics_products"],
             "events" => [
               %{"type" => "click", "weight" => 1, "name" => event_name}
             ]
           },
           "destination" => %{
-            "collection" => "products",
+            "collection" => "analytics_products",
             "counter_field" => "popularity"
           }
         }
