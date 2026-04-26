@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
+## 2.3.1 (2026.04.24)
+
+### Fixed
+
+* Mismatch on dialyzer types for create_key [#95](https://github.com/jaeyson/ex_typesense/issues/95), thanks [@evanob](https://github.com/evanob)
+
+### Chore
+
+* Bumped Typesense version in `docker-compose.yml` for local development (v30.1)
+
+### Changed
+
+* `README.md` to add an example docker compose file
+* Typespecs to include map/struct as body/payload
+
 ## 2.3.0 (2026.04.14)
 
 ### Chore

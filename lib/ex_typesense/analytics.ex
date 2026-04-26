@@ -36,7 +36,11 @@ defmodule ExTypesense.Analytics do
       iex> ExTypesense.create_analytics_rule(body)
   """
   @doc since: "1.0.0"
-  @spec create_analytics_rule(map()) ::
+  @spec create_analytics_rule(
+          map()
+          | OpenApiTypesense.AnalyticsRuleCreate.t()
+          | [OpenApiTypesense.AnalyticsRuleCreate.t()]
+        ) ::
           {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
           | {:ok,
              OpenApiTypesense.AnalyticsRule.t()
@@ -64,14 +68,20 @@ defmodule ExTypesense.Analytics do
       iex> ExTypesense.create_analytics_rule(body, opts)
   """
   @doc since: "1.0.0"
-  @spec create_analytics_rule(map(), keyword()) ::
+  @spec create_analytics_rule(
+          map()
+          | OpenApiTypesense.AnalyticsRuleCreate.t()
+          | [OpenApiTypesense.AnalyticsRuleCreate.t()],
+          keyword()
+        ) ::
           {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
           | {:ok,
              OpenApiTypesense.AnalyticsRule.t()
              | [map | OpenApiTypesense.AnalyticsRule.t()]}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_analytics_rule(body, opts) do
-    OpenApiTypesense.Analytics.create_analytics_rule(body, opts)
+    struct_body = if is_struct(body), do: Map.from_struct(body), else: body
+    OpenApiTypesense.Analytics.create_analytics_rule(struct_body, opts)
   end
 
   @doc """
@@ -93,7 +103,7 @@ defmodule ExTypesense.Analytics do
       iex> ExTypesense.create_analytics_event(body)
   """
   @doc since: "1.0.0"
-  @spec create_analytics_event(map()) ::
+  @spec create_analytics_event(map() | OpenApiTypesense.AnalyticsEvent.t()) ::
           {:ok, OpenApiTypesense.AnalyticsEventCreateResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_analytics_event(body) do
@@ -118,11 +128,12 @@ defmodule ExTypesense.Analytics do
       iex> ExTypesense.create_analytics_event(body, opts)
   """
   @doc since: "1.0.0"
-  @spec create_analytics_event(map(), keyword()) ::
+  @spec create_analytics_event(map() | OpenApiTypesense.AnalyticsEvent.t(), keyword()) ::
           {:ok, OpenApiTypesense.AnalyticsEventCreateResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_analytics_event(body, opts) do
-    OpenApiTypesense.Analytics.create_analytics_event(body, opts)
+    struct_body = if is_struct(body), do: Map.from_struct(body), else: body
+    OpenApiTypesense.Analytics.create_analytics_event(struct_body, opts)
   end
 
   @doc """
@@ -209,7 +220,7 @@ defmodule ExTypesense.Analytics do
   Upserts an analytics rule with the given name.
   """
   @doc since: "1.0.0"
-  @spec upsert_analytics_rule(String.t(), map()) ::
+  @spec upsert_analytics_rule(String.t(), map() | OpenApiTypesense.AnalyticsRuleUpdate.t()) ::
           {:ok, OpenApiTypesense.AnalyticsRule.t()}
           | {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
@@ -235,7 +246,11 @@ defmodule ExTypesense.Analytics do
       iex> ExTypesense.upsert_analytics_rule(rule_name, body, opts)
   """
   @doc since: "1.0.0"
-  @spec upsert_analytics_rule(String.t(), map(), keyword()) ::
+  @spec upsert_analytics_rule(
+          String.t(),
+          map() | OpenApiTypesense.AnalyticsRuleUpdate.t(),
+          keyword()
+        ) ::
           {:ok, OpenApiTypesense.AnalyticsRule.t()}
           | {:ok, OpenApiTypesense.AnalyticsRuleSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
@@ -306,7 +321,7 @@ defmodule ExTypesense.Analytics do
 
   """
   @doc since: "2.1.0"
-  @spec flush_analytics(opts :: keyword) ::
+  @spec flush_analytics(keyword()) ::
           {:ok, OpenApiTypesense.AnalyticsEventCreateResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def flush_analytics(opts) do
@@ -342,7 +357,7 @@ defmodule ExTypesense.Analytics do
 
   """
   @doc since: "2.1.0"
-  @spec get_analytics_events(opts :: keyword) ::
+  @spec get_analytics_events(keyword()) ::
           {:ok, OpenApiTypesense.AnalyticsEventsResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_analytics_events(opts) do
@@ -370,7 +385,7 @@ defmodule ExTypesense.Analytics do
 
   """
   @doc since: "2.1.0"
-  @spec get_analytics_status(opts :: keyword) ::
+  @spec get_analytics_status(keyword()) ::
           {:ok, OpenApiTypesense.AnalyticsStatus.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def get_analytics_status(opts) do
     OpenApiTypesense.Analytics.get_analytics_status(opts)

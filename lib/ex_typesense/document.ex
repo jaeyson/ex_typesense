@@ -161,7 +161,7 @@ defmodule ExTypesense.Document do
       Enum.map(structs, fn record ->
         record
         |> Map.from_struct()
-        |> Map.drop([:id, :__meta__, :__struct__])
+        |> Map.drop([:id, :__meta__, :__metadata__, :__struct__])
       end)
 
     import_documents(coll_name, body, opts)
@@ -264,7 +264,7 @@ defmodule ExTypesense.Document do
           {:ok, map} | {:error, OpenApiTypesense.ApiResponse.t()}
   def index_document(record, opts) when is_struct(record) do
     collection_name = record.__struct__.__schema__(:source)
-    document = Map.from_struct(record) |> Map.drop([:id, :__meta__, :__struct__])
+    document = Map.from_struct(record) |> Map.drop([:id, :__meta__, :__metadata__, :__struct__])
     OpenApiTypesense.Documents.index_document(collection_name, document, opts)
   end
 
@@ -386,7 +386,7 @@ defmodule ExTypesense.Document do
     field_name = coll_name <> "_id"
     id = Map.get(record, String.to_existing_atom(field_name))
     opts = Keyword.put_new(opts, :filter_by, "#{field_name}:#{id}")
-    body = record |> Map.from_struct() |> Map.drop([:id, :__meta__, :__struct__])
+    body = record |> Map.from_struct() |> Map.drop([:id, :__meta__, :__metadata__, :__struct__])
 
     update_documents_by_query(coll_name, body, opts)
   end

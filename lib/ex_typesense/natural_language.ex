@@ -21,7 +21,7 @@ defmodule ExTypesense.NaturalLanguage do
   The NL search model to be created
   """
   @doc since: "2.1.0"
-  @spec create_nl_search_model(body :: OpenApiTypesense.NLSearchModelCreateSchema.t()) ::
+  @spec create_nl_search_model(map() | OpenApiTypesense.NLSearchModelCreateSchema.t()) ::
           {:ok, OpenApiTypesense.NLSearchModelSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_nl_search_model(body) do
@@ -38,8 +38,8 @@ defmodule ExTypesense.NaturalLanguage do
   """
   @doc since: "2.1.0"
   @spec create_nl_search_model(
-          body :: OpenApiTypesense.NLSearchModelCreateSchema.t(),
-          opts :: keyword
+          map() | OpenApiTypesense.NLSearchModelCreateSchema.t(),
+          keyword()
         ) ::
           {:ok, OpenApiTypesense.NLSearchModelSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
@@ -53,7 +53,7 @@ defmodule ExTypesense.NaturalLanguage do
   Delete a specific NL search model by its ID.
   """
   @doc since: "2.1.0"
-  @spec delete_nl_search_model(model_id :: String.t()) ::
+  @spec delete_nl_search_model(String.t()) ::
           {:ok, OpenApiTypesense.NLSearchModelDeleteSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_nl_search_model(model_id) do
@@ -69,7 +69,7 @@ defmodule ExTypesense.NaturalLanguage do
 
   """
   @doc since: "2.1.0"
-  @spec delete_nl_search_model(model_id :: String.t(), opts :: keyword) ::
+  @spec delete_nl_search_model(String.t(), keyword()) ::
           {:ok, OpenApiTypesense.NLSearchModelDeleteSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_nl_search_model(model_id, opts) do
@@ -98,7 +98,7 @@ defmodule ExTypesense.NaturalLanguage do
 
   """
   @doc since: "2.1.0"
-  @spec retrieve_all_nl_search_models(opts :: keyword) ::
+  @spec retrieve_all_nl_search_models(keyword()) ::
           {:ok, [OpenApiTypesense.NLSearchModelSchema.t()]}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_all_nl_search_models(opts) do
@@ -111,7 +111,7 @@ defmodule ExTypesense.NaturalLanguage do
   Retrieve a specific NL search model by its ID.
   """
   @doc since: "2.1.0"
-  @spec retrieve_nl_search_model(model_id :: String.t()) ::
+  @spec retrieve_nl_search_model(String.t()) ::
           {:ok, OpenApiTypesense.NLSearchModelSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_nl_search_model(model_id) do
@@ -127,7 +127,7 @@ defmodule ExTypesense.NaturalLanguage do
 
   """
   @doc since: "2.1.0"
-  @spec retrieve_nl_search_model(model_id :: String.t(), opts :: keyword) ::
+  @spec retrieve_nl_search_model(String.t(), keyword()) ::
           {:ok, OpenApiTypesense.NLSearchModelSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_nl_search_model(model_id, opts) do
@@ -147,8 +147,8 @@ defmodule ExTypesense.NaturalLanguage do
   """
   @doc since: "2.1.0"
   @spec update_nl_search_model(
-          model_id :: String.t(),
-          body :: OpenApiTypesense.NLSearchModelCreateSchema.t()
+          String.t(),
+          map() | OpenApiTypesense.NLSearchModelCreateSchema.t()
         ) ::
           {:ok, OpenApiTypesense.NLSearchModelSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
@@ -166,9 +166,9 @@ defmodule ExTypesense.NaturalLanguage do
   """
   @doc since: "2.1.0"
   @spec update_nl_search_model(
-          model_id :: String.t(),
-          body :: OpenApiTypesense.NLSearchModelCreateSchema.t(),
-          opts :: keyword
+          String.t(),
+          map() | OpenApiTypesense.NLSearchModelCreateSchema.t(),
+          keyword()
         ) ::
           {:ok, OpenApiTypesense.NLSearchModelSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}

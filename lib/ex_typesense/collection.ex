@@ -165,7 +165,7 @@ defmodule ExTypesense.Collection do
       }}
   """
   @doc since: "1.0.0"
-  @spec create_collection(map() | module()) ::
+  @spec create_collection(map() | module() | OpenApiTypesense.CollectionSchema.t()) ::
           {:ok, OpenApiTypesense.CollectionResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_collection(schema) do
@@ -191,7 +191,7 @@ defmodule ExTypesense.Collection do
       iex> ExTypesense.create_collection(schema, opts)
   """
   @doc since: "1.0.0"
-  @spec create_collection(map() | module(), keyword()) ::
+  @spec create_collection(map() | module() | OpenApiTypesense.CollectionSchema.t(), keyword()) ::
           {:ok, OpenApiTypesense.CollectionResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_collection(module, opts) when is_atom(module) do
@@ -333,7 +333,10 @@ defmodule ExTypesense.Collection do
       }
   """
   @doc since: "1.0.0"
-  @spec update_collection_fields(String.t() | module(), map()) ::
+  @spec update_collection_fields(
+          String.t() | module(),
+          map() | OpenApiTypesense.CollectionUpdateSchema.t()
+        ) ::
           {:ok, OpenApiTypesense.CollectionUpdateSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def update_collection_fields(name, fields) do
@@ -358,7 +361,11 @@ defmodule ExTypesense.Collection do
       iex> ExTypesense.get_collection("persons", fields, opts)
   """
   @doc since: "1.0.0"
-  @spec update_collection_fields(String.t() | module(), map(), keyword()) ::
+  @spec update_collection_fields(
+          String.t() | module(),
+          map() | OpenApiTypesense.CollectionUpdateSchema.t(),
+          keyword()
+        ) ::
           {:ok, OpenApiTypesense.CollectionUpdateSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def update_collection_fields(module, fields, opts) when is_atom(module) do

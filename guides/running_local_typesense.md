@@ -108,6 +108,30 @@ docker compose up -d
 
 More info on spinning a local instance: https://typesense.org/docs/guide/install-typesense.html
 
+Example `docker-compose.yml`:
+
+```yaml
+services:
+  typesense:
+    image: docker.io/typesense/typesense:30.1
+    container_name: typesense
+    restart: on-failure
+    ports:
+      - "8107:8107" # internal status
+      - "8108:8108" # typesense server
+    volumes:
+      - ./typesense-data:/data
+      - ./typesense-analytics-data:/analytics-data
+    command: |
+      --data-dir=/data
+      --api-key=xyz
+      --enable-search-analytics=true
+      --analytics-dir=/analytics-data
+      --analytics-flush-interval=60
+      --analytics-minute-rate-limit=100
+      --enable-cors
+```
+
 Once you've started Typesense, you can verify its installation by accessing the
 health endpoint through a browser or `curl` in the terminal:
 
