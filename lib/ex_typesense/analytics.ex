@@ -80,8 +80,25 @@ defmodule ExTypesense.Analytics do
              | [map | OpenApiTypesense.AnalyticsRule.t()]}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_analytics_rule(body, opts) do
-    struct_body = if is_struct(body), do: Map.from_struct(body), else: body
-    OpenApiTypesense.Analytics.create_analytics_rule(struct_body, opts)
+    new_body =
+      case body do
+        %_{} ->
+          Map.from_struct(body)
+
+        rules when is_list(rules) ->
+          Enum.map(rules, fn rule ->
+            if is_struct(rule) do
+              Map.from_struct(rule)
+            else
+              rule
+            end
+          end)
+
+        _ ->
+          body
+      end
+
+    OpenApiTypesense.Analytics.create_analytics_rule(new_body, opts)
   end
 
   @doc """
@@ -132,8 +149,8 @@ defmodule ExTypesense.Analytics do
           {:ok, OpenApiTypesense.AnalyticsEventCreateResponse.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_analytics_event(body, opts) do
-    struct_body = if is_struct(body), do: Map.from_struct(body), else: body
-    OpenApiTypesense.Analytics.create_analytics_event(struct_body, opts)
+    new_body = if is_struct(body), do: Map.from_struct(body), else: body
+    OpenApiTypesense.Analytics.create_analytics_event(new_body, opts)
   end
 
   @doc """

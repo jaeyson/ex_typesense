@@ -178,7 +178,7 @@ Otherwise, go to step #1 if you're using [Cloud hosted](https://cloud.typesense.
 Example `docker-compose.yml` (see also [local Typesense](./guides/running_local_typesense.md))
 
 ```yaml
-services
+services:
   typesense:
     image: docker.io/typesense/typesense:30.1
     container_name: typesense
