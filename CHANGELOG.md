@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
-## 2.3.1 (2026.04.24)
+## 2.3.1 (2026.04.26)
 
 ### Fixed
 
