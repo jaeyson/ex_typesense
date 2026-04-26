@@ -11,7 +11,7 @@ defmodule ExTypesense.CurationSets do
   Delete a specific curation set by its name
   """
   @doc since: "2.2.0"
-  @spec delete_curation_set(curation_set_name :: String.t()) ::
+  @spec delete_curation_set(String.t()) ::
           {:ok, OpenApiTypesense.CurationSetDeleteSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_curation_set(curation_set_name) do
@@ -27,7 +27,7 @@ defmodule ExTypesense.CurationSets do
 
   """
   @doc since: "2.2.0"
-  @spec delete_curation_set(curation_set_name :: String.t(), opts :: keyword) ::
+  @spec delete_curation_set(String.t(), keyword()) ::
           {:ok, OpenApiTypesense.CurationSetDeleteSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_curation_set(curation_set_name, opts) do
@@ -40,10 +40,7 @@ defmodule ExTypesense.CurationSets do
   Delete a specific curation item by its id
   """
   @doc since: "2.2.0"
-  @spec delete_curation_set_item(
-          curation_set_name :: String.t(),
-          item_id :: String.t()
-        ) ::
+  @spec delete_curation_set_item(String.t(), String.t()) ::
           {:ok, OpenApiTypesense.CurationItemDeleteSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_curation_set_item(curation_set_name, item_id) do
@@ -59,11 +56,7 @@ defmodule ExTypesense.CurationSets do
 
   """
   @doc since: "2.2.0"
-  @spec delete_curation_set_item(
-          curation_set_name :: String.t(),
-          item_id :: String.t(),
-          opts :: keyword
-        ) ::
+  @spec delete_curation_set_item(String.t(), String.t(), keyword()) ::
           {:ok, OpenApiTypesense.CurationItemDeleteSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_curation_set_item(curation_set_name, item_id, opts) do
@@ -76,7 +69,7 @@ defmodule ExTypesense.CurationSets do
   Retrieve a specific curation set by its name
   """
   @doc since: "2.2.0"
-  @spec retrieve_curation_set(curation_set_name :: String.t()) ::
+  @spec retrieve_curation_set(String.t()) ::
           {:ok, OpenApiTypesense.CurationSetSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_curation_set(curation_set_name) do
@@ -92,7 +85,7 @@ defmodule ExTypesense.CurationSets do
 
   """
   @doc since: "2.2.0"
-  @spec retrieve_curation_set(curation_set_name :: String.t(), opts :: keyword) ::
+  @spec retrieve_curation_set(String.t(), keyword()) ::
           {:ok, OpenApiTypesense.CurationSetSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_curation_set(curation_set_name, opts) do
@@ -105,10 +98,7 @@ defmodule ExTypesense.CurationSets do
   Retrieve a specific curation item by its id
   """
   @doc since: "2.2.0"
-  @spec retrieve_curation_set_item(
-          curation_set_name :: String.t(),
-          item_id :: String.t()
-        ) ::
+  @spec retrieve_curation_set_item(String.t(), String.t()) ::
           {:ok, OpenApiTypesense.CurationItemSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_curation_set_item(curation_set_name, item_id) do
@@ -124,11 +114,7 @@ defmodule ExTypesense.CurationSets do
 
   """
   @doc since: "2.2.0"
-  @spec retrieve_curation_set_item(
-          curation_set_name :: String.t(),
-          item_id :: String.t(),
-          opts :: keyword
-        ) ::
+  @spec retrieve_curation_set_item(String.t(), String.t(), keyword()) ::
           {:ok, OpenApiTypesense.CurationItemSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_curation_set_item(curation_set_name, item_id, opts) do
@@ -141,7 +127,7 @@ defmodule ExTypesense.CurationSets do
   Retrieve all curation items in a set
   """
   @doc since: "2.2.0"
-  @spec retrieve_curation_set_items(curation_set_name :: String.t()) ::
+  @spec retrieve_curation_set_items(String.t()) ::
           {:ok, [OpenApiTypesense.CurationItemSchema.t()]}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_curation_set_items(curation_set_name) do
@@ -157,7 +143,7 @@ defmodule ExTypesense.CurationSets do
 
   """
   @doc since: "2.2.0"
-  @spec retrieve_curation_set_items(curation_set_name :: String.t(), opts :: keyword) ::
+  @spec retrieve_curation_set_items(String.t(), keyword()) ::
           {:ok, [OpenApiTypesense.CurationItemSchema.t()]}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_curation_set_items(curation_set_name, opts) do
@@ -185,7 +171,7 @@ defmodule ExTypesense.CurationSets do
 
   """
   @doc since: "2.2.0"
-  @spec retrieve_curation_sets(opts :: keyword) ::
+  @spec retrieve_curation_sets(keyword()) ::
           {:ok, [OpenApiTypesense.CurationSetSchema.t()]} | :error
   def retrieve_curation_sets(opts) do
     OpenApiTypesense.CurationSets.retrieve_curation_sets(opts)
@@ -204,8 +190,8 @@ defmodule ExTypesense.CurationSets do
   """
   @doc since: "2.2.0"
   @spec upsert_curation_set(
-          curation_set_name :: String.t(),
-          body :: OpenApiTypesense.CurationSetCreateSchema.t()
+          String.t(),
+          map() | OpenApiTypesense.CurationSetCreateSchema.t()
         ) ::
           {:ok, OpenApiTypesense.CurationSetSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
@@ -223,9 +209,9 @@ defmodule ExTypesense.CurationSets do
   """
   @doc since: "2.2.0"
   @spec upsert_curation_set(
-          curation_set_name :: String.t(),
-          body :: OpenApiTypesense.CurationSetCreateSchema.t(),
-          opts :: keyword
+          String.t(),
+          map() | OpenApiTypesense.CurationSetCreateSchema.t(),
+          keyword()
         ) ::
           {:ok, OpenApiTypesense.CurationSetSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
@@ -246,9 +232,9 @@ defmodule ExTypesense.CurationSets do
   """
   @doc since: "2.2.0"
   @spec upsert_curation_set_item(
-          curation_set_name :: String.t(),
-          item_id :: String.t(),
-          body :: OpenApiTypesense.CurationItemCreateSchema.t()
+          String.t(),
+          String.t(),
+          map() | OpenApiTypesense.CurationItemCreateSchema.t()
         ) ::
           {:ok, OpenApiTypesense.CurationItemSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
@@ -266,10 +252,10 @@ defmodule ExTypesense.CurationSets do
   """
   @doc since: "2.2.0"
   @spec upsert_curation_set_item(
-          curation_set_name :: String.t(),
-          item_id :: String.t(),
-          body :: OpenApiTypesense.CurationItemCreateSchema.t(),
-          opts :: keyword
+          String.t(),
+          String.t(),
+          map() | OpenApiTypesense.CurationItemCreateSchema.t(),
+          keyword()
         ) ::
           {:ok, OpenApiTypesense.CurationItemSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}

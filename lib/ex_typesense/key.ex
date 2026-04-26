@@ -94,7 +94,7 @@ defmodule ExTypesense.Key do
       iex> ExTypesense.create_key(body)
   """
   @doc since: "1.0.0"
-  @spec create_key(map()) ::
+  @spec create_key(map() | OpenApiTypesense.ApiKeySchema.t()) ::
           {:ok, OpenApiTypesense.ApiKey.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_key(body) do
     create_key(body, [])

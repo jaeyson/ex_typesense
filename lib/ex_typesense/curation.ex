@@ -78,7 +78,11 @@ defmodule ExTypesense.Curation do
       iex> ExTypesense.upsert_override("companies", "cust-company", body)
   """
   @doc since: "1.0.0"
-  @spec upsert_override(String.t() | module(), String.t(), map()) ::
+  @spec upsert_override(
+          String.t() | module(),
+          String.t(),
+          map() | OpenApiTypesense.SearchOverrideSchema.t()
+        ) ::
           {:ok, OpenApiTypesense.SearchOverride.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_override(coll_name, override_id, body) do
     upsert_override(coll_name, override_id, body, [])
@@ -102,7 +106,12 @@ defmodule ExTypesense.Curation do
       iex> ExTypesense.upsert_override(MyApp.Wearables.Helmet, "custom-helmet", body, opts)
   """
   @doc since: "1.0.0"
-  @spec upsert_override(String.t() | module(), String.t(), map(), keyword()) ::
+  @spec upsert_override(
+          String.t() | module(),
+          String.t(),
+          map() | OpenApiTypesense.SearchOverrideSchema.t(),
+          keyword()
+        ) ::
           {:ok, OpenApiTypesense.SearchOverride.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_override(module, override_id, body, opts) when is_atom(module) do
     coll_name = module.__schema__(:source)
