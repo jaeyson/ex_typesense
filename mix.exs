@@ -8,7 +8,7 @@ defmodule ExTypesense.MixProject do
     [
       app: :ex_typesense,
       version: @version,
-      elixir: "~> 1.14",
+      elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       consolidate_protocols: Mix.env() not in [:dev, :test],
       deps: deps(),

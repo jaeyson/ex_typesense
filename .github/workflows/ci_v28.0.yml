@@ -34,7 +34,7 @@ jobs:
         include:
         - typesense: '28.0'
           otp: '25'
-          elixir: '1.14'
+          elixir: '1.15'
           lint: false
         - typesense: '28.0'
           otp: '27'
