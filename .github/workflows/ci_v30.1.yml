@@ -111,6 +111,9 @@ jobs:
           mix local.hex --if-missing
           mix deps.get
 
+      - name: Compile project
+        run: mix compile --all-warnings
+
       - name: Find unused dependencies
         run: mix deps.unlock --check-unused
         if: ${{ matrix.lint }}
@@ -122,9 +125,6 @@ jobs:
       - name: Security audit of dependencies
         run: mix deps.audit
         if: ${{ matrix.lint }}
-
-      - name: Compile project
-        run: mix compile --all-warnings
 
       - name: Run static analysis
         run: mix credo --all --strict
