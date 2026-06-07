@@ -85,7 +85,7 @@ defmodule ExTypesense.Synonym do
 
   """
   @doc since: "2.2.0"
-  @spec retrieve_synonym_sets(opts :: keyword) ::
+  @spec retrieve_synonym_sets(keyword()) ::
           {:ok, [OpenApiTypesense.SynonymSetSchema.t()]} | :error
   def retrieve_synonym_sets(opts) do
     OpenApiTypesense.Synonyms.retrieve_synonym_sets(opts)
@@ -97,7 +97,7 @@ defmodule ExTypesense.Synonym do
   Retrieve all synonym items in a set
   """
   @doc since: "2.2.0"
-  @spec retrieve_synonym_set_items(synonym_set_name :: String.t()) ::
+  @spec retrieve_synonym_set_items(String.t()) ::
           {:ok, [OpenApiTypesense.SynonymItemSchema.t()]}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_synonym_set_items(synonym_set_name) do
@@ -113,7 +113,7 @@ defmodule ExTypesense.Synonym do
 
   """
   @doc since: "2.2.0"
-  @spec retrieve_synonym_set_items(synonym_set_name :: String.t(), opts :: keyword) ::
+  @spec retrieve_synonym_set_items(String.t(), keyword()) ::
           {:ok, [OpenApiTypesense.SynonymItemSchema.t()]}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_synonym_set_items(synonym_set_name, opts) do
@@ -167,7 +167,7 @@ defmodule ExTypesense.Synonym do
   Retrieve a specific synonym set by its name
   """
   @doc since: "2.2.0"
-  @spec retrieve_synonym_set(synonym_set_name :: String.t()) ::
+  @spec retrieve_synonym_set(String.t()) ::
           {:ok, OpenApiTypesense.SynonymSetSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_synonym_set(synonym_set_name) do
@@ -183,7 +183,7 @@ defmodule ExTypesense.Synonym do
 
   """
   @doc since: "2.2.0"
-  @spec retrieve_synonym_set(synonym_set_name :: String.t(), opts :: keyword) ::
+  @spec retrieve_synonym_set(String.t(), keyword()) ::
           {:ok, OpenApiTypesense.SynonymSetSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_synonym_set(synonym_set_name, opts) do
@@ -197,8 +197,8 @@ defmodule ExTypesense.Synonym do
   """
   @doc since: "2.2.0"
   @spec retrieve_synonym_set_item(
-          synonym_set_name :: String.t(),
-          item_id :: String.t()
+          String.t(),
+          String.t()
         ) ::
           {:ok, OpenApiTypesense.SynonymItemSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
@@ -215,11 +215,7 @@ defmodule ExTypesense.Synonym do
 
   """
   @doc since: "2.2.0"
-  @spec retrieve_synonym_set_item(
-          synonym_set_name :: String.t(),
-          item_id :: String.t(),
-          opts :: keyword
-        ) ::
+  @spec retrieve_synonym_set_item(String.t(), String.t(), keyword()) ::
           {:ok, OpenApiTypesense.SynonymItemSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def retrieve_synonym_set_item(synonym_set_name, item_id, opts) do
@@ -275,7 +271,7 @@ defmodule ExTypesense.Synonym do
   Delete a specific synonym set by its name
   """
   @doc since: "2.2.0"
-  @spec delete_synonym_set(synonym_set_name :: String.t()) ::
+  @spec delete_synonym_set(String.t()) ::
           {:ok, OpenApiTypesense.SynonymSetDeleteSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_synonym_set(synonym_set_name) do
@@ -288,7 +284,7 @@ defmodule ExTypesense.Synonym do
   Delete a specific synonym set by its name
   """
   @doc since: "2.2.0"
-  @spec delete_synonym_set(synonym_set_name :: String.t(), opts :: keyword) ::
+  @spec delete_synonym_set(String.t(), keyword()) ::
           {:ok, OpenApiTypesense.SynonymSetDeleteSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_synonym_set(synonym_set_name, opts) do
@@ -301,10 +297,7 @@ defmodule ExTypesense.Synonym do
   Delete a specific synonym item by its id
   """
   @doc since: "2.2.0"
-  @spec delete_synonym_set_item(
-          synonym_set_name :: String.t(),
-          item_id :: String.t()
-        ) ::
+  @spec delete_synonym_set_item(String.t(), String.t()) ::
           {:ok, OpenApiTypesense.SynonymItemDeleteSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_synonym_set_item(synonym_set_name, item_id) do
@@ -320,11 +313,7 @@ defmodule ExTypesense.Synonym do
 
   """
   @doc since: "2.2.0"
-  @spec delete_synonym_set_item(
-          synonym_set_name :: String.t(),
-          item_id :: String.t(),
-          opts :: keyword
-        ) ::
+  @spec delete_synonym_set_item(String.t(), String.t(), keyword()) ::
           {:ok, OpenApiTypesense.SynonymItemDeleteSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def delete_synonym_set_item(synonym_set_name, item_id, opts) do
@@ -343,7 +332,11 @@ defmodule ExTypesense.Synonym do
   """
   @doc since: "1.0.0"
   @deprecated "Please use `upsert_synonym_set` or `upsert_synonym_set_item` when using Typesense v30.0+"
-  @spec upsert_synonym(String.t() | module(), String.t(), map()) ::
+  @spec upsert_synonym(
+          String.t() | module(),
+          String.t(),
+          map() | OpenApiTypesense.SearchSynonymSchema.t()
+        ) ::
           {:ok, OpenApiTypesense.SearchSynonym.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_synonym(coll_name, syn_id, body) do
     upsert_synonym(coll_name, syn_id, body, [])
@@ -368,7 +361,12 @@ defmodule ExTypesense.Synonym do
   """
   @doc since: "1.0.0"
   @deprecated "Please use `upsert_synonym_set` or `upsert_synonym_set_item` when using Typesense v30.0+"
-  @spec upsert_synonym(String.t() | module(), String.t(), map(), keyword()) ::
+  @spec upsert_synonym(
+          String.t() | module(),
+          String.t(),
+          map() | OpenApiTypesense.SearchSynonymSchema.t(),
+          keyword()
+        ) ::
           {:ok, OpenApiTypesense.SearchSynonym.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_synonym(module, syn_id, body, opts) when is_atom(module) do
     coll_name = module.__schema__(:source)
@@ -392,8 +390,8 @@ defmodule ExTypesense.Synonym do
   """
   @doc since: "2.2.0"
   @spec upsert_synonym_set(
-          synonym_set_name :: String.t(),
-          body :: OpenApiTypesense.SynonymSetCreateSchema.t()
+          String.t(),
+          map() | OpenApiTypesense.SynonymSetCreateSchema.t()
         ) ::
           {:ok, OpenApiTypesense.SynonymSetSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
@@ -411,9 +409,9 @@ defmodule ExTypesense.Synonym do
   """
   @doc since: "2.2.0"
   @spec upsert_synonym_set(
-          synonym_set_name :: String.t(),
-          body :: OpenApiTypesense.SynonymSetCreateSchema.t(),
-          opts :: keyword
+          String.t(),
+          map() | OpenApiTypesense.SynonymSetCreateSchema.t(),
+          keyword()
         ) ::
           {:ok, OpenApiTypesense.SynonymSetSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
@@ -434,9 +432,9 @@ defmodule ExTypesense.Synonym do
   """
   @doc since: "2.2.0"
   @spec upsert_synonym_set_item(
-          synonym_set_name :: String.t(),
-          item_id :: String.t(),
-          body :: OpenApiTypesense.SynonymItemUpsertSchema.t()
+          String.t(),
+          String.t(),
+          map() | OpenApiTypesense.SynonymItemUpsertSchema.t()
         ) ::
           {:ok, OpenApiTypesense.SynonymItemSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
@@ -454,10 +452,10 @@ defmodule ExTypesense.Synonym do
   """
   @doc since: "2.2.0"
   @spec upsert_synonym_set_item(
-          synonym_set_name :: String.t(),
-          item_id :: String.t(),
-          body :: OpenApiTypesense.SynonymItemUpsertSchema.t(),
-          opts :: keyword
+          String.t(),
+          String.t(),
+          map() | OpenApiTypesense.SynonymItemUpsertSchema.t(),
+          keyword()
         ) ::
           {:ok, OpenApiTypesense.SynonymItemSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}

@@ -1,7 +1,8 @@
 name: CI v30.1
 
 on:
-  workflow_call:
+  pull_request:
+    branches: ["main"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,7 +34,7 @@ jobs:
         include:
         - typesense: '30.1'
           otp: '25'
-          elixir: '1.14'
+          elixir: '1.15'
           lint: false
         - typesense: '30.1'
           otp: '27'
@@ -92,15 +93,14 @@ jobs:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
 
-      - name: Restore cache
-        id: cache_restore
+      - name: Cache dependencies/builds
         uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7
-        if: ${{ matrix.lint }}
         with:
           path: |
             deps
             _build
             priv/plts
+            typesense-data
           key: ${{ runner.os }}-typesense-${{ matrix.typesense}}-${{ matrix.otp}}-${{ matrix.elixir}}-mix-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-typesense-${{ matrix.typesense}}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-
@@ -110,6 +110,9 @@ jobs:
           mix local.rebar --if-missing
           mix local.hex --if-missing
           mix deps.get
+
+      - name: Compile project
+        run: mix compile --all-warnings
 
       - name: Find unused dependencies
         run: mix deps.unlock --check-unused
@@ -122,9 +125,6 @@ jobs:
       - name: Security audit of dependencies
         run: mix deps.audit
         if: ${{ matrix.lint }}
-
-      - name: Compile project
-        run: mix compile --all-warnings
 
       - name: Run static analysis
         run: mix credo --all --strict
@@ -142,20 +142,6 @@ jobs:
         run: mix dialyzer --format github --format dialyxir
         if: ${{ matrix.lint }}
 
-      - name: Run tests
-        run: mix test --only ${{ matrix.typesense }}:true --only nls:true --trace
-
       - name: Post test coverage to Coveralls
-        run: mix coveralls.github
+        run: mix coveralls.github --only ${{ matrix.typesense }}:true --only nls:true --trace
         if: ${{ matrix.lint && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-
-      - name: Save cache
-        id: cache_save
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7
-        if: ${{ matrix.lint }}
-        with:
-          path: |
-            deps
-            _build
-            priv/plts
-          key: ${{ runner.os }}-typesense-${{ matrix.typesense }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles('**/mix.lock') }}

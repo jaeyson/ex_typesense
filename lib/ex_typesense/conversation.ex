@@ -30,7 +30,7 @@ defmodule ExTypesense.Conversation do
       iex> ExTypesense.create_model(body)
   """
   @doc since: "1.0.0"
-  @spec create_model(map()) ::
+  @spec create_model(map() | OpenApiTypesense.ConversationModelCreateSchema.t()) ::
           {:ok, OpenApiTypesense.ConversationModelSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_model(body) do
@@ -55,7 +55,7 @@ defmodule ExTypesense.Conversation do
       iex> ExTypesense.create_model(body, opts)
   """
   @doc since: "1.0.0"
-  @spec create_model(map(), keyword()) ::
+  @spec create_model(map() | OpenApiTypesense.ConversationModelCreateSchema.t(), keyword()) ::
           {:ok, OpenApiTypesense.ConversationModelSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def create_model(body, opts) do
@@ -111,7 +111,7 @@ defmodule ExTypesense.Conversation do
       iex> ExTypesense.update_model(model_id, body)
   """
   @doc since: "1.0.0"
-  @spec update_model(String.t(), map()) ::
+  @spec update_model(String.t(), map() | OpenApiTypesense.ConversationModelUpdateSchema.t()) ::
           {:ok, OpenApiTypesense.ConversationModelSchema.t()} | :error
   def update_model(model_id, body) do
     update_model(model_id, body, [])
@@ -135,7 +135,11 @@ defmodule ExTypesense.Conversation do
       iex> ExTypesense.update_model(model_id, body, opts)
   """
   @doc since: "1.0.0"
-  @spec update_model(String.t(), map(), keyword()) ::
+  @spec update_model(
+          String.t(),
+          map() | OpenApiTypesense.ConversationModelUpdateSchema.t(),
+          keyword()
+        ) ::
           {:ok, OpenApiTypesense.ConversationModelSchema.t()} | :error
   def update_model(model_id, body, opts) do
     OpenApiTypesense.Conversations.update_conversation_model(model_id, body, opts)

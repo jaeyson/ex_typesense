@@ -175,6 +175,30 @@ More info on spinning a local instance: https://typesense.org/docs/guide/install
 
 Otherwise, go to step #1 if you're using [Cloud hosted](https://cloud.typesense.org) instance instead.
 
+Example `docker-compose.yml` (see also [local Typesense](./guides/running_local_typesense.md))
+
+```yaml
+services:
+  typesense:
+    image: docker.io/typesense/typesense:30.1
+    container_name: typesense
+    restart: on-failure
+    ports:
+      - "8107:8107" # internal status
+      - "8108:8108" # typesense server
+    volumes:
+      - ./typesense-data:/data
+      - ./typesense-analytics-data:/analytics-data
+    command: |
+      --data-dir=/data
+      --api-key=xyz
+      --enable-search-analytics=true
+      --analytics-dir=/analytics-data
+      --analytics-flush-interval=60
+      --analytics-minute-rate-limit=100
+      --enable-cors
+```
+
 ### 1. Add credential to config
 
 After you have setup a [local](./guides/running_local_typesense.md) Typesense or

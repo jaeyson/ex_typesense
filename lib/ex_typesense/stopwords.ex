@@ -64,7 +64,7 @@ defmodule ExTypesense.Stopwords do
       iex> ExTypesense.upsert_override("stopwords-famous-person", body)
   """
   @doc since: "1.0.0"
-  @spec upsert_stopword(String.t(), map()) ::
+  @spec upsert_stopword(String.t(), map() | OpenApiTypesense.StopwordsSetUpsertSchema.t()) ::
           {:ok, OpenApiTypesense.StopwordsSetSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_stopword(stop_id, body) do
@@ -89,7 +89,11 @@ defmodule ExTypesense.Stopwords do
       iex> ExTypesense.upsert_stopword("stopword_set_countries", body, opts)
   """
   @doc since: "1.0.0"
-  @spec upsert_stopword(String.t(), map(), keyword()) ::
+  @spec upsert_stopword(
+          String.t(),
+          map() | OpenApiTypesense.StopwordsSetUpsertSchema.t(),
+          keyword()
+        ) ::
           {:ok, OpenApiTypesense.StopwordsSetSchema.t()}
           | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_stopword(stop_id, body, opts) do

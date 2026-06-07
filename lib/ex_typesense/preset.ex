@@ -64,7 +64,7 @@ defmodule ExTypesense.Preset do
       iex> ExTypesense.upsert_preset("listing_view", body)
   """
   @doc since: "1.0.0"
-  @spec upsert_preset(String.t(), map()) ::
+  @spec upsert_preset(String.t(), map() | OpenApiTypesense.PresetUpsertSchema.t()) ::
           {:ok, OpenApiTypesense.PresetSchema.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_preset(preset_id, body) do
     upsert_preset(preset_id, body, [])
@@ -88,7 +88,7 @@ defmodule ExTypesense.Preset do
       iex> ExTypesense.upsert_preset("listing_view", body, opts)
   """
   @doc since: "1.0.0"
-  @spec upsert_preset(String.t(), map(), keyword()) ::
+  @spec upsert_preset(String.t(), map() | OpenApiTypesense.PresetUpsertSchema.t(), keyword()) ::
           {:ok, OpenApiTypesense.PresetSchema.t()} | {:error, OpenApiTypesense.ApiResponse.t()}
   def upsert_preset(preset_id, body, opts) do
     OpenApiTypesense.Presets.upsert_preset(preset_id, body, opts)
