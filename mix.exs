@@ -43,10 +43,17 @@ defmodule ExTypesense.MixProject do
       {:ex_doc, "~> 0.34", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.18", only: :test, runtime: false},
-      {:mix_audit, "~> 2.1", only: :test, runtime: false},
+      {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:open_api_typesense, "~> 1.3"},
-      {:ecto, "~> 3.13"}
+      {:ecto, "~> 3.13"},
+
+      # URL: https://github.com/advisories/GHSA-rhv4-8758-jx7v
+      # Title: Decimal: Unbounded exponent in `Decimal.new` enables unauthenticated DoS
+      # Severity: moderate
+      # Vulnerable versions: >= 0.1.0, < 3.0.0
+      # First patched versions: 3.0.0
+      {:decimal, "~> 3.0", override: System.get_env("HEX_PUBLISH") != "true"}
     ]
   end
 

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Mismatch on dialyzer types for create_key [#95](https://github.com/jaeyson/ex_typesense/issues/95), thanks [@evanob](https://github.com/evanob)
+* Use 3.x for [Decimal](https://github.com/advisories/GHSA-rhv4-8758-jx7v): Unbounded exponent in `Decimal.new` enables unauthenticated DoS.
 
 ### Chore
 
