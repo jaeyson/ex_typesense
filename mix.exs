@@ -46,18 +46,7 @@ defmodule ExTypesense.MixProject do
       {:mix_audit, "~> 2.1", only: :test, runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:open_api_typesense, "~> 1.3"},
-      {:ecto, "~> 3.12"},
-
-      # Name: decimal
-      # Version: 2.4.1
-      # Lockfile: /home/runner/work/ex_typesense/ex_typesense/mix.lock
-      # URL: https://github.com/advisories/GHSA-rhv4-8758-jx7v
-      # Title: Decimal: Unbounded exponent in `Decimal.new` enables unauthenticated DoS
-      # Severity: moderate
-      # Vulnerable versions: >= 0.1.0, < 3.0.0
-      # First patched versions: 3.0.0
-      # Vulnerabilities found!
-      {:decimal, "~> 3.0", override: true}
+      {:ecto, "~> 3.13"}
     ]
   end
 
