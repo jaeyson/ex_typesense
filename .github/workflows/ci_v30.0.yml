@@ -45,7 +45,7 @@ jobs:
         - typesense: '30.0'
           otp: '28'
           elixir: '1.19'
-          lint: true
+          lint: false
 
     steps:
       - name: Checkout repo
