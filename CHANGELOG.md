@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## major.minor.patch (yyyy.mm.dd)
 
+## 2.3.3 (2026.08.25)
+
+### Chore
+* Update open_api_typesense version.
+
 ## 2.3.2 (2026.06.09)
 
 ### Chore
